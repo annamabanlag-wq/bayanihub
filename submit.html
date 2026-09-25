@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+  <meta name="theme-color" content="#0d9488">
+  <title>Start a Campaign – BayaniHub</title>
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#f0fdfa',100:'#ccfbf1',500:'#14b8a6',600:'#0d9488',700:'#0f766e',800:'#115e59' },
+            accent: { 400:'#fbbf24',500:'#f59e0b' }
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>body{font-family:'Inter',system-ui,sans-serif}.safe-bottom{padding-bottom:env(safe-area-inset-bottom)}</style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen pb-24 safe-bottom">
+
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
+    <div class="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
+      <a href="index.html" class="p-1.5 rounded-full hover:bg-gray-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      </a>
+      <h1 class="font-bold text-gray-800">Start a Campaign</h1>
+    </div>
+  </header>
+
+  <main class="max-w-lg mx-auto px-4 py-5">
+    <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-5">
+      <p class="text-sm text-brand-800 font-medium">All campaigns are manually reviewed by admin before going live. Please provide honest, clear information. Funds are released only after verification.</p>
+    </div>
+
+    <form id="submit-form" class="space-y-4">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Campaign Title *</label>
+        <input name="title" required maxlength="80" placeholder="e.g. Help Ana with chemotherapy costs"
+               class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Category *</label>
+        <select name="category" required class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none bg-white">
+          <option value="">Select category</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Your Full Name *</label>
+        <input name="organizer" required placeholder="Organizer / Beneficiary representative"
+               class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Location (City / Province) *</label>
+        <input name="location" required placeholder="e.g. Cebu City"
+               class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Fundraising Goal (₱) *</label>
+        <input name="goal" type="number" required min="1000" step="100" placeholder="e.g. 50000"
+               class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Story / Description *</label>
+        <textarea name="story" required rows="5" maxlength="1500" placeholder="Tell the story honestly. What happened? How will the funds be used? Who benefits?"
+                  class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none resize-none"></textarea>
+        <p class="text-[10px] text-gray-400 mt-1">Be transparent. Admin will review for authenticity.</p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Main Cover Photo (optional URL)</label>
+        <input name="image" type="url" placeholder="https://... (or leave blank for default)"
+               class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <label class="block text-sm font-semibold text-gray-800 mb-1">📎 Evidence / Proof Documents *</label>
+        <p class="text-xs text-gray-600 mb-3">Upload photos or documents that prove the need (medical abstract, hospital bill, ID, pet vet records, school enrollment, etc.). Max 5 files, images or PDF.</p>
+        <input type="file" id="evidence-files" accept="image/*,.pdf" multiple
+               class="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-600 file:text-white file:font-semibold file:text-xs">
+        <div id="evidence-preview" class="mt-3 grid grid-cols-3 gap-2"></div>
+        <p class="text-[10px] text-gray-500 mt-2">Files stay private until you approve the campaign.</p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Contact Number (GCash / Mobile) *</label>
+        <input name="contact" required type="tel" placeholder="09XXXXXXXXX"
+               class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+        <p class="text-[10px] text-gray-400 mt-1">For admin verification only. Not shown publicly.</p>
+      </div>
+
+      <div class="flex items-start gap-2 pt-1">
+        <input type="checkbox" id="agree" required class="mt-1 rounded border-gray-300 text-brand-600 focus:ring-brand-500">
+        <label for="agree" class="text-xs text-gray-600">I confirm this is a legitimate need, all information and uploaded evidence are true, and I agree to the <a href="privacy.html" class="text-brand-600 underline">Privacy Policy</a>. Funds are released only after admin verification and GCash confirmation.</label>
+      </div>
+
+      <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 rounded-xl shadow-md active:scale-[0.98] transition mt-2">
+        Submit for Review
+      </button>
+    </form>
+  </main>
+
+  <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-50 safe-bottom">
+    <div class="max-w-lg mx-auto flex justify-around py-2">
+      <a href="index.html" class="flex flex-col items-center gap-0.5 text-gray-400 px-3 py-1">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span class="text-[10px] font-medium">Discover</span>
+      </a>
+      <a href="submit.html" class="flex flex-col items-center gap-0.5 text-brand-600 px-3 py-1">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span class="text-[10px] font-semibold">Start</span>
+      </a>
+      <a href="dashboard.html" class="flex flex-col items-center gap-0.5 text-gray-400 px-3 py-1">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span class="text-[10px] font-medium">My Hub</span>
+      </a>
+      <a href="admin.html" class="flex flex-col items-center gap-0.5 text-gray-400 px-3 py-1">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <span class="text-[10px] font-medium">Admin</span>
+      </a>
+    </div>
+  </nav>
+
+  <script src="js/data.js"></script>
+  <script>
+    const sel = document.querySelector('select[name="category"]');
+    CATEGORIES.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.icon + ' ' + c.label;
+      sel.appendChild(opt);
+    });
+
+    let evidenceFiles = [];
+
+    document.getElementById('evidence-files').addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files).slice(0, 5);
+      evidenceFiles = [];
+      const preview = document.getElementById('evidence-preview');
+      preview.innerHTML = '';
+
+      for (const file of files) {
+        if (file.size > 1.5 * 1024 * 1024) {
+          alert(file.name + ' is too large (max ~1.5MB per file for demo). Compress it first.');
+          continue;
+        }
+        const dataUrl = await readFileAsDataURL(file);
+        evidenceFiles.push({ name: file.name, type: file.type, dataUrl });
+        const isImg = file.type.startsWith('image/');
+        preview.innerHTML += `
+          <div class="relative rounded-lg overflow-hidden border bg-white">
+            ${isImg ? `<img src="${dataUrl}" class="w-full h-20 object-cover">` : `<div class="h-20 flex items-center justify-center text-xs text-gray-500 p-1 text-center">${file.name}</div>`}
+            <p class="text-[9px] truncate px-1 py-0.5 bg-gray-50">${file.name}</p>
+          </div>`;
+      }
+    });
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    document.getElementById('submit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (evidenceFiles.length === 0) {
+        alert('Please upload at least one evidence photo or document so admin can verify your need.');
+        return;
+      }
+      const fd = new FormData(e.target);
+      const data = Object.fromEntries(fd.entries());
+
+      const newCampaign = {
+        id: 'c' + Date.now(),
+        title: data.title.trim(),
+        category: data.category,
+        story: data.story.trim(),
+        goal: parseInt(data.goal, 10),
+        raised: 0,
+        donors: 0,
+        image: data.image || 'https://placehold.co/600x400/0d9488/white?text=BayaniHub',
+        organizer: data.organizer.trim(),
+        location: data.location.trim(),
+        verified: false,
+        status: 'pending',
+        urgent: false,
+        created: new Date().toISOString().slice(0,10),
+        contact: data.contact,
+        gcash: '09381447214',
+        evidence: evidenceFiles
+      };
+
+      const pending = Storage.getPending();
+      pending.unshift(newCampaign);
+      Storage.savePending(pending);
+
+      const all = Storage.getCampaigns();
+      all.unshift(newCampaign);
+      Storage.saveCampaigns(all);
+
+      const subject = encodeURIComponent(`[BayaniHub] New campaign pending – ${newCampaign.title}`);
+      const body = encodeURIComponent(`New campaign submitted for review\n\nTitle: ${newCampaign.title}\nOrganizer: ${newCampaign.organizer}\nLocation: ${newCampaign.location}\nGoal: ₱${newCampaign.goal}\nContact: ${newCampaign.contact}\nEvidence files: ${evidenceFiles.length}\n\nPlease log in to Admin Command Center to review evidence and approve/reject.\n\n– BayaniHub`);
+      window.open(`mailto:admin@bayanihub.ph?subject=${subject}&body=${body}`, '_blank');
+
+      alert('Salamat! Your campaign + evidence was submitted.\n\nAn email notification was prepared for the admin. You will be contacted once it is reviewed.');
+      location.href = 'dashboard.html';
+    });
+  </script>
+</body>
+</html>
