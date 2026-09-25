@@ -4,24 +4,25 @@ Premium mobile-first Progressive Web App (PWA) for community fundraising in the 
 
 ## Features
 - **Discover** – Search + category filters (Medical, Disability, Family, Bereavement, Pet, Education, Environment, Community, Hospital)
-- **Campaign detail** – Story, progress bar, donor count, verified badge, GCash donate flow
-- **Submit campaign** – Form → pending admin review
+- **Campaign detail** – Story, progress, donor count, verified badge, **real scannable GCash QR**, evidence previews
+- **Submit campaign** – Form + **required evidence upload** (photos/documents) → pending admin review
 - **User dashboard** – My campaigns & donation notifications
-- **Admin Command Center** – Approve/reject, verification badges, urgent flag, donation list
-- **Monetization** – Sponsor/ad slots on key pages + GCash manual approval
-- **PWA** – Installable on Android, offline-capable, app-like experience
+- **Admin Command Center** – Approve/reject, view uploaded evidence, verification badges, urgent flag, donation list
+- **Privacy Policy** page
+- **Monetization** – Sponsor/ad slots + GCash manual approval
+- **PWA** – Installable on Android, offline-capable
 
 ## Demo Admin Password
 `bayaniadmin`
 
-## How GCash works (manual)
-1. Donor sends money to the GCash number shown on the campaign
-2. Donor submits reference number in the app
-3. Admin sees notification in Command Center
-4. Admin verifies the actual GCash transaction
-5. Admin releases / transfers to the beneficiary
+## How real GCash works (QR + manual)
+1. Campaign page shows a **scannable QR** generated from the GCash number + the number itself
+2. Donor opens GCash → Scan QR or Send Money
+3. Puts campaign title/ID in the message
+4. Pastes the GCash Reference No. in the app and notifies admin
+5. Admin verifies the real transfer and releases funds to the beneficiary
 
-**Important:** Update the GCash number in `js/data.js` (seed) and/or in the campaign objects. Change admin password in `admin.html`.
+**Important:** Replace every `09XX-XXX-XXXX` with your real GCash number in `js/data.js`. Change admin password in `admin.html`. QR is generated live from the number you set.
 
 ## Deploy (Free)
 

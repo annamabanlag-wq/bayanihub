@@ -6,6 +6,7 @@ const ASSETS = [
   './submit.html',
   './dashboard.html',
   './admin.html',
+  './privacy.html',
   './js/data.js',
   './js/app.js',
   './manifest.json'
