@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+  <meta name="theme-color" content="#0d9488">
+  <title>My Hub – BayaniHub</title>
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#f0fdfa',100:'#ccfbf1',500:'#14b8a6',600:'#0d9488',700:'#0f766e',800:'#115e59' },
+            accent: { 400:'#fbbf24',500:'#f59e0b' }
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>body{font-family:'Inter',system-ui,sans-serif}.safe-bottom{padding-bottom:env(safe-area-inset-bottom)}</style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen pb-24 safe-bottom">
+
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
+    <div class="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+      <h1 class="font-bold text-gray-800">My Hub</h1>
+      <button id="btn-set-name" class="text-xs text-brand-600 font-medium">Set my name</button>
+    </div>
+  </header>
+
+  <main class="max-w-lg mx-auto px-4 py-5 space-y-6">
+    <div class="bg-gradient-to-br from-brand-600 to-brand-800 rounded-2xl p-5 text-white shadow-lg">
+      <p class="text-xs text-brand-100 mb-1">Welcome back</p>
+      <h2 class="text-xl font-bold" id="user-name">Guest Helper</h2>
+      <p class="text-xs text-brand-100 mt-1">Thank you for being part of the bayanihan</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <a href="submit.html" class="bg-white rounded-xl border border-gray-100 p-4 text-center shadow-sm hover:border-brand-300 transition">
+        <div class="text-2xl mb-1">➕</div>
+        <p class="text-sm font-semibold text-gray-800">Start Campaign</p>
+      </a>
+      <a href="index.html" class="bg-white rounded-xl border border-gray-100 p-4 text-center shadow-sm hover:border-brand-300 transition">
+        <div class="text-2xl mb-1">🔍</div>
+        <p class="text-sm font-semibold text-gray-800">Browse Needs</p>
+      </a>
+    </div>
+
+    <section>
+      <h3 class="text-sm font-semibold text-gray-700 mb-3">My Submitted Campaigns</h3>
+      <div id="my-campaigns" class="space-y-3"></div>
+      <p id="no-campaigns" class="text-sm text-gray-500 text-center py-6 hidden">You haven’t submitted any campaigns yet.</p>
+    </section>
+
+    <section>
+      <h3 class="text-sm font-semibold text-gray-700 mb-3">My Recent Donation Notifications</h3>
+      <div id="my-donations" class="space-y-2"></div>
+      <p id="no-donations" class="text-sm text-gray-500 text-center py-4 hidden">No donation records yet.</p>
+    </section>
+  </main>
+
+  <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-50 safe-bottom">
+    <div class="max-w-lg mx-auto flex justify-around py-2">
+      <a href="index.html" class="flex flex-col items-center gap-0.5 text-gray-400 px-3 py-1">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span class="text-[10px] font-medium">Discover</span>
+      </a>
+      <a href="submit.html" class="flex flex-col items-center gap-0.5 text-gray-400 px-3 py-1">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span class="text-[10px] font-medium">Start</span>
+      </a>
+      <a href="dashboard.html" class="flex flex-col items-center gap-0.5 text-brand-600 px-3 py-1">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span class="text-[10px] font-semibold">My Hub</span>
+      </a>
+      <a href="admin.html" class="flex flex-col items-center gap-0.5 text-gray-400 px-3 py-1">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <span class="text-[10px] font-medium">Admin</span>
+      </a>
+    </div>
+  </nav>
+
+  <script src="js/data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = Storage.getUser() || { name: 'Guest Helper' };
+      document.getElementById('user-name').textContent = user.name;
+
+      document.getElementById('btn-set-name').addEventListener('click', () => {
+        const name = prompt('Enter your display name:', user.name);
+        if (name && name.trim()) {
+          Storage.setUser({ name: name.trim() });
+          document.getElementById('user-name').textContent = name.trim();
+        }
+      });
+
+      const all = Storage.getCampaigns();
+      const myCamps = all.filter(c => c.organizer.toLowerCase().includes((user.name || '').toLowerCase().split(' ')[0]) || c.status === 'pending');
+      const container = document.getElementById('my-campaigns');
+      const noCamp = document.getElementById('no-campaigns');
+
+      if (myCamps.length === 0) {
+        noCamp.classList.remove('hidden');
+      } else {
+        container.innerHTML = myCamps.slice(0, 10).map(c => {
+          const statusColor = c.status === 'approved' ? 'bg-green-100 text-green-700' :
+                              c.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700';
+          return `
+          <a href="campaign.html?id=${c.id}" class="block bg-white rounded-xl border border-gray-100 p-3.5 shadow-sm">
+            <div class="flex justify-between items-start gap-2">
+              <h4 class="font-semibold text-sm text-gray-800 line-clamp-1 flex-1">${c.title}</h4>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColor} whitespace-nowrap">${c.status}</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">${formatPeso(c.raised)} / ${formatPeso(c.goal)} • ${c.donors} donors</p>
+          </a>`;
+        }).join('');
+      }
+
+      const dons = Storage.getDonations().slice(0, 8);
+      const donCont = document.getElementById('my-donations');
+      const noDon = document.getElementById('no-donations');
+      if (dons.length === 0) {
+        noDon.classList.remove('hidden');
+      } else {
+        donCont.innerHTML = dons.map(d => `
+          <div class="bg-white rounded-xl border border-gray-100 p-3 flex justify-between items-center">
+            <div>
+              <p class="text-sm font-medium text-gray-800 line-clamp-1">${d.campaignTitle}</p>
+              <p class="text-xs text-gray-500">${d.name} • Ref: ${d.ref}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-bold text-brand-700">${formatPeso(d.amount)}</p>
+              <p class="text-[10px] text-yellow-600">Pending verify</p>
+            </div>
+          </div>
+        `).join('');
+      }
+    });
+  </script>
+</body>
+</html>
