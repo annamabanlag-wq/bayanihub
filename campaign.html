@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+  <meta name="theme-color" content="#0d9488">
+  <title>Campaign – BayaniHub</title>
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#f0fdfa',100:'#ccfbf1',200:'#99f6e4',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e',800:'#115e59',900:'#134e4a' },
+            accent: { 400:'#fbbf24',500:'#f59e0b',600:'#d97706' }
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    .progress-bar { transition: width 0.6s ease; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen pb-28 safe-bottom">
+
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
+    <div class="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
+      <a href="index.html" class="p-1.5 rounded-full hover:bg-gray-100">
+        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      </a>
+      <h1 class="font-bold text-gray-800 text-sm truncate flex-1">Campaign Details</h1>
+      <button onclick="shareCampaign()" class="p-1.5 rounded-full hover:bg-gray-100" title="Share">
+        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="content" class="max-w-lg mx-auto">
+    <div class="animate-pulse p-4 space-y-4">
+      <div class="h-52 bg-gray-200 rounded-2xl"></div>
+      <div class="h-6 bg-gray-200 rounded w-3/4"></div>
+      <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+    </div>
+  </div>
+
+  <div id="donate-bar" class="fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 shadow-lg p-4 safe-bottom hidden">
+    <div class="max-w-lg mx-auto">
+      <button onclick="openDonateModal()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 rounded-xl shadow-md active:scale-[0.98] transition">
+        💚 Donate via GCash
+      </button>
+    </div>
+  </div>
+
+  <div id="donate-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50" onclick="closeDonateModal()"></div>
+    <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-3xl p-5 max-w-lg mx-auto safe-bottom transform transition-transform max-h-[90vh] overflow-y-auto">
+      <div class="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-3"></div>
+      <h3 class="text-lg font-bold text-center mb-0.5">Send help via GCash</h3>
+      <p class="text-xs text-gray-500 text-center mb-3">Scan QR or send to number • Admin verifies & releases funds</p>
+      
+      <div class="bg-white border-2 border-brand-200 rounded-2xl p-4 mb-3 text-center">
+        <p class="text-xs font-semibold text-gray-700 mb-2">Scan with GCash app</p>
+        <img id="gcash-qr" src="" alt="GCash QR Code" class="w-44 h-44 mx-auto rounded-lg bg-gray-50">
+        <p class="text-xs text-gray-600 mt-2">or send to</p>
+        <p class="text-xl font-extrabold text-brand-800 tracking-wide" id="gcash-number">09381447214</p>
+        <p class="text-[10px] text-gray-500 mt-1">Put campaign title or ID in the message/reference</p>
+        <button onclick="copyGcash()" class="mt-2 text-xs font-semibold text-brand-600 underline">Copy number</button>
+      </div>
+
+      <div class="space-y-2.5 mb-4">
+        <div>
+          <label class="text-xs font-medium text-gray-600">Your name (optional)</label>
+          <input id="donor-name" type="text" placeholder="Anonymous is okay" class="w-full mt-0.5 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-medium text-gray-600">Amount (₱)</label>
+          <input id="donor-amount" type="number" min="50" placeholder="e.g. 500" class="w-full mt-0.5 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-medium text-gray-600">GCash Reference number *</label>
+          <input id="donor-ref" type="text" placeholder="After you send, paste the Ref No." class="w-full mt-0.5 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+      </div>
+
+      <button onclick="submitDonation()" class="w-full bg-brand-600 text-white font-bold py-3 rounded-xl mb-1.5">I already sent • Notify Admin</button>
+      <button onclick="closeDonateModal()" class="w-full text-gray-500 text-sm py-1.5">Cancel</button>
+      <p class="text-[10px] text-center text-gray-400 mt-2">By donating you agree to our <a href="privacy.html" class="underline">Privacy Policy</a></p>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    let campaign = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const list = Storage.getCampaigns();
+      campaign = list.find(c => c.id === id);
+      if (!campaign) {
+        document.getElementById('content').innerHTML = `
+          <div class="text-center py-20">
+            <p class="text-4xl mb-3">😕</p>
+            <p class="font-semibold text-gray-700">Campaign not found</p>
+            <a href="index.html" class="mt-4 inline-block text-brand-600 font-medium">← Back to Discover</a>
+          </div>`;
+        return;
+      }
+      renderCampaign();
+      document.getElementById('donate-bar').classList.remove('hidden');
+    });
+
+    function renderCampaign() {
+      const c = campaign;
+      const pct = percent(c.raised, c.goal);
+      const cat = CATEGORIES.find(x => x.id === c.category) || { label: c.category, icon: '📌', color: 'bg-gray-100' };
+      const gcashNum = (c.gcash || '09381447214').replace(/[^0-9]/g, '') || '09381447214';
+      document.getElementById('gcash-number').textContent = c.gcash || '09381447214';
+      document.getElementById('gcash-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(gcashNum)}&color=0d9488`;
+      document.title = c.title + ' – BayaniHub';
+
+      let evidenceHtml = '';
+      if (c.evidence && c.evidence.length > 0) {
+        evidenceHtml = `
+          <div class="mb-5">
+            <h2 class="font-bold text-gray-800 mb-2">Evidence submitted</h2>
+            <p class="text-xs text-gray-500 mb-2">${c.evidence.length} supporting document(s) reviewed by admin. Full files are private for verification only.</p>
+            <div class="flex gap-2 overflow-x-auto pb-1">
+              ${c.evidence.map((ev, i) => {
+                const isImg = (ev.type || '').startsWith('image/');
+                return isImg 
+                  ? `<img src="${ev.dataUrl}" class="w-20 h-20 object-cover rounded-lg border flex-shrink-0" alt="Evidence ${i+1}">`
+                  : `<div class="w-20 h-20 rounded-lg border bg-gray-50 flex items-center justify-center text-[10px] text-center p-1 flex-shrink-0">📄 ${ev.name || 'Doc'}</div>`;
+              }).join('')}
+            </div>
+          </div>`;
+      }
+
+      document.getElementById('content').innerHTML = `
+        <div class="relative">
+          <img src="${c.image}" alt="" class="w-full h-56 object-cover" onerror="this.src='https://placehold.co/600x400/0d9488/white?text=BayaniHub'">
+          ${c.urgent ? '<span class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">URGENT</span>' : ''}
+          ${c.verified ? '<span class="absolute top-3 right-3 bg-brand-600 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">✓ Verified</span>' : ''}
+        </div>
+
+        <div class="px-4 pt-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${cat.color}">${cat.icon} ${cat.label}</span>
+            <span class="text-xs text-gray-400">${c.location}</span>
+          </div>
+          <h1 class="text-xl font-extrabold text-gray-900 leading-tight mb-3">${c.title}</h1>
+
+          <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm mb-4">
+            <div class="flex justify-between items-end mb-2">
+              <div>
+                <p class="text-2xl font-extrabold text-brand-700">${formatPeso(c.raised)}</p>
+                <p class="text-xs text-gray-500">raised of ${formatPeso(c.goal)} goal</p>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-gray-800">${pct}%</p>
+                <p class="text-xs text-gray-500">${c.donors} donors</p>
+              </div>
+            </div>
+            <div class="h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div class="progress-bar h-full bg-gradient-to-r from-brand-500 to-brand-400 rounded-full" style="width:${pct}%"></div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-11 h-11 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold text-lg">${c.organizer.charAt(0)}</div>
+            <div>
+              <p class="font-semibold text-sm text-gray-800">${c.organizer}</p>
+              <p class="text-xs text-gray-500">Organizer • ${timeAgo(c.created)}</p>
+            </div>
+            ${c.verified ? '<span class="ml-auto text-[10px] bg-brand-50 text-brand-700 font-semibold px-2 py-1 rounded-full">Verified</span>' : ''}
+          </div>
+
+          <h2 class="font-bold text-gray-800 mb-2">Story</h2>
+          <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line mb-5">${c.story}</p>
+
+          ${evidenceHtml}
+
+          <div class="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-100">
+            <h3 class="text-sm font-bold text-gray-800 mb-2">How donations work (real GCash)</h3>
+            <ol class="text-xs text-gray-600 space-y-1.5 list-decimal list-inside">
+              <li>Open GCash app → Scan the QR or Send to the number</li>
+              <li>Enter any amount and put the campaign title/ID in the message</li>
+              <li>After sending, copy the Reference number and paste it below</li>
+              <li>Admin verifies the transfer and releases funds to the beneficiary</li>
+            </ol>
+            <p class="text-[10px] text-gray-400 mt-2">All campaigns + evidence are manually reviewed. BayaniHub does not hold funds long-term.</p>
+          </div>
+
+          <div class="rounded-xl border border-dashed border-accent-400 bg-accent-50/40 p-3 flex items-center gap-3 mb-8">
+            <div class="w-9 h-9 rounded-lg bg-accent-400 flex items-center justify-center text-white font-bold text-xs">AD</div>
+            <div class="flex-1">
+              <p class="text-xs font-semibold text-gray-800">Support more families</p>
+              <p class="text-[10px] text-gray-500">Become a sponsor of BayaniHub</p>
+            </div>
+            <a href="mailto:sponsor@bayanihub.ph" class="text-xs font-bold text-accent-600">Learn more</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function openDonateModal() {
+      document.getElementById('donate-modal').classList.remove('hidden');
+    }
+    function closeDonateModal() {
+      document.getElementById('donate-modal').classList.add('hidden');
+    }
+
+    function submitDonation() {
+      const name = document.getElementById('donor-name').value.trim() || 'Anonymous';
+      const amount = parseFloat(document.getElementById('donor-amount').value);
+      const ref = document.getElementById('donor-ref').value.trim();
+      if (!amount || amount < 50) {
+        alert('Please enter a valid amount (minimum ₱50).');
+        return;
+      }
+      if (!ref) {
+        alert('Please enter your GCash reference number so admin can verify.');
+        return;
+      }
+
+      Storage.addDonation({
+        id: 'd' + Date.now(),
+        campaignId: campaign.id,
+        campaignTitle: campaign.title,
+        name,
+        amount,
+        ref,
+        date: new Date().toISOString(),
+        status: 'pending_verification'
+      });
+
+      const list = Storage.getCampaigns();
+      const idx = list.findIndex(c => c.id === campaign.id);
+      if (idx > -1) {
+        list[idx].raised += amount;
+        list[idx].donors += 1;
+        Storage.saveCampaigns(list);
+        campaign = list[idx];
+      }
+
+      const subject = encodeURIComponent(`[BayaniHub] New donation ₱${amount} – ${campaign.title}`);
+      const body = encodeURIComponent(
+`New donation notification from BayaniHub\n\nCampaign: ${campaign.title}\nDonor: ${name}\nAmount: ₱${amount}\nGCash Ref: ${ref}\nDate: ${new Date().toLocaleString()}\n\nPlease verify this transfer in your GCash (09381447214) and release funds if confirmed.\n\n– BayaniHub`
+      );
+      window.open(`mailto:admin@bayanihub.ph?subject=${subject}&body=${body}`, '_blank');
+
+      closeDonateModal();
+      alert('Maraming salamat! 💚\n\nYour donation was recorded and an email notification was prepared for the admin.\nThey will verify the GCash transfer (Ref: ' + ref + ') and release the funds.');
+      renderCampaign();
+    }
+
+    function copyGcash() {
+      const num = document.getElementById('gcash-number').textContent;
+      navigator.clipboard.writeText(num.replace(/[^0-9+]/g, '')).then(() => {
+        alert('GCash number copied!');
+      }).catch(() => alert(num));
+    }
+
+    function shareCampaign() {
+      if (navigator.share) {
+        navigator.share({
+          title: campaign.title,
+          text: 'Help this Filipino family: ' + campaign.title,
+          url: location.href
+        }).catch(()=>{});
+      } else {
+        navigator.clipboard.writeText(location.href);
+        alert('Link copied! Share it with friends and family.');
+      }
+    }
+  </script>
+</body>
+</html>
