@@ -27,7 +27,8 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: true,
     created: '2026-09-10',
-    gcash: '09XX-XXX-XXXX (Admin managed)'
+    gcash: '09381447214',
+    evidence: []
   },
   {
     id: 'c2',
@@ -44,7 +45,8 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: false,
     created: '2026-09-05',
-    gcash: '09XX-XXX-XXXX (Admin managed)'
+    gcash: '09381447214',
+    evidence: []
   },
   {
     id: 'c3',
@@ -61,7 +63,8 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: true,
     created: '2026-09-18',
-    gcash: '09XX-XXX-XXXX (Admin managed)'
+    gcash: '09381447214',
+    evidence: []
   },
   {
     id: 'c4',
@@ -78,7 +81,8 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: false,
     created: '2026-08-28',
-    gcash: '09XX-XXX-XXXX (Admin managed)'
+    gcash: '09381447214',
+    evidence: []
   },
   {
     id: 'c5',
@@ -95,7 +99,8 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: true,
     created: '2026-09-12',
-    gcash: '09XX-XXX-XXXX (Admin managed)'
+    gcash: '09381447214',
+    evidence: []
   },
   {
     id: 'c6',
@@ -112,7 +117,8 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: false,
     created: '2026-09-01',
-    gcash: '09XX-XXX-XXXX (Admin managed)'
+    gcash: '09381447214',
+    evidence: []
   },
   {
     id: 'c7',
@@ -129,7 +135,8 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: true,
     created: '2026-09-08',
-    gcash: '09XX-XXX-XXXX (Admin managed)'
+    gcash: '09381447214',
+    evidence: []
   },
   {
     id: 'c8',
@@ -142,11 +149,12 @@ const SEED_CAMPAIGNS = [
     image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&h=400&fit=crop',
     organizer: 'Youth Eco Warriors',
     location: 'Palawan',
-    verified: false,
+    verified: true,
     status: 'approved',
     urgent: false,
     created: '2026-09-15',
-    gcash: '09XX-XXX-XXXX (Admin managed)'
+    gcash: '09381447214',
+    evidence: []
   }
 ];
 
