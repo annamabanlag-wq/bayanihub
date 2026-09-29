@@ -1,4 +1,4 @@
-const CACHE = 'bayanihub-v3';
+const CACHE = 'bayanihub-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +7,7 @@ const ASSETS = [
   './dashboard.html',
   './admin.html',
   './privacy.html',
+  './how.html',
   './js/data.js',
   './js/app.js',
   './manifest.json'
