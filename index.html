@@ -9,8 +9,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>BayaniHub – Tulong para sa Pilipino</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icons/icon-192.png" type="image/png">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -60,7 +60,6 @@
         </button>
       </div>
     </div>
-    <!-- Search Bar (hidden by default) -->
     <div id="search-bar" class="hidden px-4 pb-3 max-w-lg mx-auto">
       <div class="relative">
         <input id="search-input" type="search" placeholder="Search campaigns, names, needs..." 
@@ -70,7 +69,6 @@
     </div>
   </header>
 
-  <!-- Hero / Impact Banner -->
   <section class="max-w-lg mx-auto px-4 pt-4">
     <div class="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 text-white p-5 shadow-lg relative overflow-hidden">
       <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full"></div>
@@ -95,18 +93,14 @@
     </div>
   </section>
 
-  <!-- Category Filters -->
   <section class="max-w-lg mx-auto px-4 mt-5">
     <div class="flex items-center justify-between mb-2">
       <h3 class="text-sm font-semibold text-gray-700">Categories</h3>
       <button id="btn-clear-filters" class="text-xs text-brand-600 font-medium hidden">Clear</button>
     </div>
-    <div id="category-scroll" class="flex gap-2 overflow-x-auto hide-scroll pb-1 -mx-1 px-1">
-      <!-- Categories injected by JS -->
-    </div>
+    <div id="category-scroll" class="flex gap-2 overflow-x-auto hide-scroll pb-1 -mx-1 px-1"></div>
   </section>
 
-  <!-- Sponsor / Ad Slot -->
   <section class="max-w-lg mx-auto px-4 mt-4">
     <div class="rounded-xl border border-dashed border-accent-400 bg-accent-50/50 p-3 flex items-center gap-3">
       <div class="w-10 h-10 rounded-lg bg-accent-400 flex items-center justify-center text-white font-bold text-sm">AD</div>
@@ -118,7 +112,6 @@
     </div>
   </section>
 
-  <!-- Campaign List -->
   <main class="max-w-lg mx-auto px-4 mt-5 pb-8">
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-sm font-semibold text-gray-700">Active Campaigns</h3>
@@ -129,9 +122,7 @@
         <option value="raised">Highest Raised</option>
       </select>
     </div>
-    <div id="campaign-list" class="space-y-4">
-      <!-- Cards injected -->
-    </div>
+    <div id="campaign-list" class="space-y-4"></div>
     <div id="empty-state" class="hidden text-center py-12">
       <div class="text-4xl mb-3">🔍</div>
       <p class="text-gray-600 font-medium">No campaigns match your search</p>
@@ -139,7 +130,6 @@
     </div>
   </main>
 
-  <!-- Bottom Navigation -->
   <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-50 safe-bottom">
     <div class="max-w-lg mx-auto flex justify-around py-2">
       <a href="index.html" class="flex flex-col items-center gap-0.5 text-brand-600 px-3 py-1">
@@ -161,7 +151,6 @@
     </div>
   </nav>
 
-  <!-- Side Menu Overlay -->
   <div id="menu-overlay" class="fixed inset-0 bg-black/40 z-50 hidden" onclick="closeMenu()"></div>
   <aside id="side-menu" class="fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300">
     <div class="p-5 border-b">
@@ -190,7 +179,6 @@
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
   <script>
-    // Register service worker for PWA
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(()=>{});
     }
