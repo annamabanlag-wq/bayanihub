@@ -1,13 +1,12 @@
-const CACHE = 'bayanihub-v5';
+const CACHE = 'bayanihub-v6';
 const ASSETS = [
   './',
   './index.html',
   './campaign.html',
   './submit.html',
   './dashboard.html',
-  './admin.html',
-  './privacy.html',
   './how.html',
+  './privacy.html',
   './js/data.js',
   './js/app.js',
   './manifest.json'
