@@ -233,6 +233,7 @@
     async function submitDonation() {
       const name = document.getElementById('donor-name').value.trim() || 'Anonymous';
       const amount = parseFloat(document.getElementById('donor-amount').value);
+      const tip = Math.max(0, Math.round(parseFloat(document.getElementById('donor-tip')?.value || '0') || 0));
       const ref = document.getElementById('donor-ref').value.trim();
       if (!amount || amount < 50) {
         alert('Please enter a valid amount (minimum ₱50).');
@@ -245,7 +246,7 @@
 
       let cloudSaved = false;
       try {
-        await BayaniCloud.submitDonation({campaignId: campaign.id, campaignTitle: campaign.title, name, amount, ref});
+        await BayaniCloud.submitDonation({campaignId: campaign.id, campaignTitle: campaign.title, name, amount, tip, ref});
         cloudSaved = true;
       } catch (err) {
         console.warn('Cloud donation submission failed; keeping local copy.', err);
@@ -259,7 +260,11 @@
         amount,
         ref,
         date: new Date().toISOString(),
-        status: 'pending_verification'
+        status: 'pending_verification',
+        tip,
+        split: BayaniRevenue && typeof BayaniRevenue.split === 'function'
+          ? BayaniRevenue.split(amount, tip)
+          : { gross: amount, fee: 0, organizer: amount, tip, platform: tip }
       });
 
       // Pending donations must not inflate the public campaign totals.
