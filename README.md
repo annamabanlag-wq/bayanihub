@@ -22,7 +22,7 @@ Manual GCash only. Nothing is marked paid until staff confirms the reference num
 
 Receive number already in the app: `09381447214`.
 
-Sponsor page: `sponsor.html`. Admin confirms gifts and sponsors in `admin.html` (demo password `bayaniadmin`). Confirmed rows land in the local revenue ledger.
+Sponsor page: `sponsor.html`. Sponsor and ₱50 follow-up payments are submitted to Supabase and remain pending until admin confirms the GCash reference in `admin.html`. Confirmed rows land in the cloud revenue ledger.
 
 Sample campaigns on Discover are demo stories so the app is not empty. Their raised totals are not collected money. Only confirmed GCash references are platform revenue.
 
