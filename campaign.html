@@ -100,6 +100,16 @@
     const id = params.get('id');
     let campaign = null;
 
+    function esc(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+    }
+    function safeUrl(value, fallback = 'https://placehold.co/600x400/0d9488/white?text=BayaniHub') {
+      try {
+        const u = new URL(String(value || ''), location.href);
+        return (u.protocol === 'http:' || u.protocol === 'https:') ? esc(u.href) : fallback;
+      } catch (_) { return fallback; }
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       if (window.BayaniCloud) {
         try {
@@ -137,7 +147,7 @@
       const gcashNum = (c.gcash || '09381447214').replace(/[^0-9]/g, '') || '09381447214';
       document.getElementById('gcash-number').textContent = c.gcash || '09381447214';
       document.getElementById('gcash-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(gcashNum)}&color=0d9488`;
-      document.title = c.title + ' – BayaniHub';
+      document.title = String(c.title || 'Campaign') + ' – BayaniHub';
 
       let evidenceHtml = '';
       if (c.evidence && c.evidence.length > 0) {
@@ -149,8 +159,8 @@
               ${c.evidence.map((ev, i) => {
                 const isImg = (ev.type || '').startsWith('image/');
                 return isImg 
-                  ? `<img src="${ev.dataUrl}" class="w-20 h-20 object-cover rounded-lg border flex-shrink-0" alt="Evidence ${i+1}">`
-                  : `<div class="w-20 h-20 rounded-lg border bg-gray-50 flex items-center justify-center text-[10px] text-center p-1 flex-shrink-0">📄 ${ev.name || 'Doc'}</div>`;
+                  ? `<img src="${String(ev.dataUrl || '').startsWith('data:image/') ? esc(ev.dataUrl) : ''}" class="w-20 h-20 object-cover rounded-lg border flex-shrink-0" alt="Evidence ${i+1}">`
+                  : `<div class="w-20 h-20 rounded-lg border bg-gray-50 flex items-center justify-center text-[10px] text-center p-1 flex-shrink-0">📄 ${esc(ev.name || 'Doc')}</div>`;
               }).join('')}
             </div>
           </div>`;
@@ -158,17 +168,17 @@
 
       document.getElementById('content').innerHTML = `
         <div class="relative">
-          <img src="${c.image}" alt="" class="w-full h-56 object-cover" onerror="this.src='https://placehold.co/600x400/0d9488/white?text=BayaniHub'">
+          <img src="${safeUrl(c.image)}" alt="" class="w-full h-56 object-cover" onerror="this.src='https://placehold.co/600x400/0d9488/white?text=BayaniHub'">
           ${c.urgent ? '<span class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">URGENT</span>' : ''}
           ${c.verified ? '<span class="absolute top-3 right-3 bg-brand-600 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">✓ Verified</span>' : ''}
         </div>
 
         <div class="px-4 pt-4">
           <div class="flex items-center gap-2 mb-2">
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${cat.color}">${cat.icon} ${cat.label}</span>
-            <span class="text-xs text-gray-400">${c.location}</span>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${esc(cat.color)}">${esc(cat.icon)} ${esc(cat.label)}</span>
+            <span class="text-xs text-gray-400">${esc(c.location)}</span>
           </div>
-          <h1 class="text-xl font-extrabold text-gray-900 leading-tight mb-3">${c.title}</h1>
+          <h1 class="text-xl font-extrabold text-gray-900 leading-tight mb-3">${esc(c.title)}</h1>
 
           <div class="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm mb-4">
             <div class="flex justify-between items-end mb-2">
@@ -189,14 +199,14 @@
           <div class="flex items-center gap-3 mb-5">
             <div class="w-11 h-11 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold text-lg">${c.organizer.charAt(0)}</div>
             <div>
-              <p class="font-semibold text-sm text-gray-800">${c.organizer}</p>
-              <p class="text-xs text-gray-500">Organizer • ${timeAgo(c.created)}</p>
+              <p class="font-semibold text-sm text-gray-800">${esc(c.organizer)}</p>
+              <p class="text-xs text-gray-500">Organizer • ${esc(timeAgo(c.created))}</p>
             </div>
             ${c.verified ? '<span class="ml-auto text-[10px] bg-brand-50 text-brand-700 font-semibold px-2 py-1 rounded-full">Verified</span>' : ''}
           </div>
 
           <h2 class="font-bold text-gray-800 mb-2">Story</h2>
-          <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line mb-5">${c.story}</p>
+          <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line mb-5">${esc(c.story)}</p>
 
           ${evidenceHtml}
 
