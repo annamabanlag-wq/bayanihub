@@ -232,16 +232,33 @@ async function bayaniSignOut() {
 }
 
 async function bayaniCheckAdmin() {
-  const rows = await bayaniAuthFetch('rpc/is_bayani_admin', { method: 'POST', body: '{}' });
-  return rows === true || (Array.isArray(rows) && rows[0] === true);
+  const rows = await bayaniAuthFetch('admin_users?select=user_id&limit=1', { method: 'GET' });
+  return Array.isArray(rows) && rows.length > 0;
 }
 
 async function bayaniBootstrapAdmin(setupToken) {
-  const rows = await bayaniAuthFetch('rpc/bootstrap_bayani_admin', {
+  const session = bayaniGetSession();
+  if (!session || !session.access_token) throw new Error('Staff session expired. Please sign in again.');
+
+  const response = await fetch(BAYANI_SUPABASE_URL + '/functions/v1/bootstrap-bayani-admin', {
     method: 'POST',
-    body: JSON.stringify({ p_setup_token: setupToken })
+    headers: {
+      apikey: BAYANI_SUPABASE_KEY,
+      Authorization: 'Bearer ' + session.access_token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ setupToken })
   });
-  return rows === true || rows === true || (Array.isArray(rows) && rows[0] === true);
+
+  const text = await response.text();
+  let body = null;
+  try { body = text ? JSON.parse(text) : null; } catch (_) { body = text; }
+
+  if (!response.ok) {
+    throw new Error(body?.error || body?.message || 'Admin activation failed (HTTP ' + response.status + ')');
+  }
+
+  return body?.ok === true;
 }
 
 async function bayaniRequireAdmin() {
@@ -283,9 +300,10 @@ async function bayaniAdminRejectDonation(id) {
 }
 
 async function bayaniAdminConfirmDonation(id) {
-  return bayaniAuthFetch('rpc/confirm_bayani_donation', {
-    method: 'POST',
-    body: JSON.stringify({ p_donation_id: id })
+  return bayaniAuthFetch('donations?id=eq.' + encodeURIComponent(id) + '&status=eq.pending_verification', {
+    method: 'PATCH',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({ status: 'confirmed' })
   });
 }
 
