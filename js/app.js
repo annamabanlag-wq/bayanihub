@@ -9,10 +9,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateStats();
   bindEvents();
   if (window.BayaniCloud) {
-    await syncBayaniCampaigns();
-    renderCategories();
-    renderCampaigns();
-    updateStats();
+    try {
+      await BayaniCloud.syncCampaigns();
+      renderCategories();
+      renderCampaigns();
+      updateStats();
+    } catch (err) {
+      console.warn('Cloud sync failed; using local data.', err);
+    }
   }
 });
 
