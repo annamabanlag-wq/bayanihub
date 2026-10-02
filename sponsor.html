@@ -30,7 +30,7 @@
     </form>
   </main>
   <script src="js/data.js"></script>
-  <script src="js/revenue.js"></script>
+  <script src="js/revenue.js"></script>\n  <script src="js/supabase.js"></script>
   <script>
     const box = document.getElementById('packages');
     const select = document.getElementById('sp-pack');
@@ -44,20 +44,19 @@
     document.getElementById('sponsor-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const pack = BayaniRevenue.packages.find(p => p.id === select.value);
-      BayaniRevenue.addLedger({
-        id: 's' + Date.now(),
-        kind: 'sponsor',
-        status: 'pending_verification',
-        name: document.getElementById('sp-name').value.trim(),
-        packageId: pack.id,
-        packageName: pack.name,
-        platform: pack.price,
-        organizer: 0,
-        ref: document.getElementById('sp-ref').value.trim(),
-        date: new Date().toISOString()
-      });
-      alert('Sponsor request saved. It counts as revenue only after admin confirms the GCash reference.');
-      e.target.reset();
+      try {
+        await BayaniCloud.submitSponsorPayment({
+          name: document.getElementById('sp-name').value.trim(),
+          packageId: pack.id,
+          packageName: pack.name,
+          amount: pack.price,
+          ref: document.getElementById('sp-ref').value.trim()
+        });
+        alert('Sponsor payment submitted. It becomes BayaniHub revenue only after staff confirms the GCash reference.');
+        e.target.reset();
+      } catch (err) {
+        alert(err.message || 'Could not submit sponsor payment.');
+      }
     });
   </script>
 </body>
