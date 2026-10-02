@@ -94,6 +94,7 @@
   </div>
 
   <script src="js/data.js"></script>
+  <script src="js/supabase.js"></script>
   <script>
     const params = new URLSearchParams(location.search);
     const id = params.get('id');
@@ -228,6 +229,14 @@
         return;
       }
 
+      let cloudSaved = false;
+      try {
+        await BayaniCloud.submitDonation({campaignId: campaign.id, campaignTitle: campaign.title, name, amount, ref});
+        cloudSaved = true;
+      } catch (err) {
+        console.warn('Cloud donation submission failed; keeping local copy.', err);
+      }
+
       Storage.addDonation({
         id: 'd' + Date.now(),
         campaignId: campaign.id,
@@ -255,7 +264,7 @@
       window.open(`mailto:admin@bayanihub.ph?subject=${subject}&body=${body}`, '_blank');
 
       closeDonateModal();
-      alert('Maraming salamat! 💚\n\nYour donation was recorded and an email notification was prepared for the admin.\nThey will verify the GCash transfer (Ref: ' + ref + ') and release the funds.');
+      alert((cloudSaved ? 'Maraming salamat! 💚\n\nYour donation was securely submitted to BayaniHub for admin verification.' : 'Your donation was saved locally, but cloud submission failed. Please retry.') + '\n\nAn email notification was prepared for the admin.\nThey will verify the GCash transfer (Ref: ' + ref + ') and release the funds.');
       renderCampaign();
     }
 
