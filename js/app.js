@@ -3,11 +3,17 @@ let activeCategory = null;
 let searchQuery = '';
 let sortBy = 'recent';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   renderCategories();
   renderCampaigns();
   updateStats();
   bindEvents();
+  if (window.BayaniCloud) {
+    await syncBayaniCampaigns();
+    renderCategories();
+    renderCampaigns();
+    updateStats();
+  }
 });
 
 function bindEvents() {
