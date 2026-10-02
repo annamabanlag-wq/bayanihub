@@ -100,9 +100,23 @@
     const id = params.get('id');
     let campaign = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const list = Storage.getCampaigns();
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (window.BayaniCloud) {
+        try {
+          await BayaniCloud.syncCampaigns();
+        } catch (err) {
+          console.warn('Cloud campaign sync failed; using local data.', err);
+        }
+      }
+      let list = Storage.getCampaigns();
       campaign = list.find(c => c.id === id);
+      if (!campaign && window.BayaniCloud) {
+        try {
+          campaign = await BayaniCloud.getCampaign(id);
+        } catch (err) {
+          console.warn('Cloud campaign lookup failed.', err);
+        }
+      }
       if (!campaign) {
         document.getElementById('content').innerHTML = `
           <div class="text-center py-20">
@@ -216,7 +230,7 @@
       document.getElementById('donate-modal').classList.add('hidden');
     }
 
-    function submitDonation() {
+    async function submitDonation() {
       const name = document.getElementById('donor-name').value.trim() || 'Anonymous';
       const amount = parseFloat(document.getElementById('donor-amount').value);
       const ref = document.getElementById('donor-ref').value.trim();
@@ -248,15 +262,8 @@
         status: 'pending_verification'
       });
 
-      const list = Storage.getCampaigns();
-      const idx = list.findIndex(c => c.id === campaign.id);
-      if (idx > -1) {
-        list[idx].raised += amount;
-        list[idx].donors += 1;
-        Storage.saveCampaigns(list);
-        campaign = list[idx];
-      }
-
+      // Pending donations must not inflate the public campaign totals.
+      // Raised/donor totals are updated only after admin verification.
       const subject = encodeURIComponent(`[BayaniHub] New donation ₱${amount} – ${campaign.title}`);
       const body = encodeURIComponent(
 `New donation notification from BayaniHub\n\nCampaign: ${campaign.title}\nDonor: ${name}\nAmount: ₱${amount}\nGCash Ref: ${ref}\nDate: ${new Date().toLocaleString()}\n\nPlease verify this transfer in your GCash (09381447214) and release funds if confirmed.\n\n– BayaniHub`
