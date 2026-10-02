@@ -326,6 +326,36 @@ async function bayaniSubmitSponsorPayment({ name, packageId, packageName, amount
   });
 }
 
+async function bayaniSubmitFollowupPayment({ campaignId, ref }) {
+  const payload = {
+    campaign_id: campaignId,
+    amount: 50,
+    gcash_ref: String(ref || '').trim(),
+    status: 'pending_verification'
+  };
+  if (!bayaniIsUuid(campaignId)) throw new Error('Campaign ID is invalid.');
+  if (payload.gcash_ref.length < 3) throw new Error('GCash reference is required for the ₱50 follow-up option.');
+  return bayaniFetch('followup_requests', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+async function bayaniAdminListFollowups() {
+  return bayaniAuthFetch('followup_requests?select=*&order=created_at.desc', { method: 'GET' });
+}
+
+async function bayaniAdminReviewFollowup(id, approved, adminNote = '') {
+  return bayaniAuthFetch('followup_requests?id=eq.' + encodeURIComponent(id), {
+    method: 'PATCH',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({
+      status: approved ? 'confirmed' : 'rejected',
+      admin_note: String(adminNote || '').trim() || null
+    })
+  });
+}
+
 async function bayaniAdminListSponsors() {
   return bayaniAuthFetch('sponsor_requests?select=*&order=created_at.desc', { method: 'GET' });
 }
@@ -361,5 +391,8 @@ window.BayaniCloud = {
   adminRejectDonation: bayaniAdminRejectDonation,
   submitSponsorPayment: bayaniSubmitSponsorPayment,
   adminListSponsors: bayaniAdminListSponsors,
-  adminReviewSponsor: bayaniAdminReviewSponsor
+  adminReviewSponsor: bayaniAdminReviewSponsor,
+  submitFollowupPayment: bayaniSubmitFollowupPayment,
+  adminListFollowups: bayaniAdminListFollowups,
+  adminReviewFollowup: bayaniAdminReviewFollowup
 };
