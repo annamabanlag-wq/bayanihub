@@ -227,7 +227,8 @@
 
       let cloudSaved = false;
       try {
-        await BayaniCloud.submitCampaign(newCampaign);
+        const cloudCampaign = await BayaniCloud.submitCampaign(newCampaign);
+        if (cloudCampaign && cloudCampaign.id) newCampaign.id = cloudCampaign.id;
         cloudSaved = true;
       } catch (err) {
         console.warn('Cloud submission failed; keeping local copy.', err);
