@@ -100,10 +100,24 @@
           try {
             await BayaniCloud.signIn(email, password);
           } catch (signInErr) {
-            const signup = await BayaniCloud.signUp(email, password);
-            if (!BayaniCloud.getSession()) {
-              status('Account created. Confirm the email from Supabase, then sign in here and press Activate again.');
+            const msg = String(signInErr?.message || signInErr || '');
+            if (/429|too many requests|rate limit/i.test(msg)) {
+              status('Too many attempts. Please wait a minute before trying again.');
               return;
+            }
+            if (/email not confirmed/i.test(msg)) {
+              status('This account is not email-confirmed yet. Confirm the Supabase email, then sign in again.');
+              return;
+            }
+            // Only create a new account when the sign-in failure indicates the account does not exist.
+            if (/invalid login credentials|user not found|user does not exist/i.test(msg)) {
+              const signup = await BayaniCloud.signUp(email, password);
+              if (!BayaniCloud.getSession()) {
+                status('Account created. Confirm the email from Supabase, then sign in here and press Activate again.');
+                return;
+              }
+            } else {
+              throw signInErr;
             }
           }
 
@@ -111,7 +125,10 @@
           status('Admin access activated. Opening Control Center…', true);
           setTimeout(() => location.replace('admin.html'), 500);
         } catch (err) {
-          status(err.message || 'Admin setup failed.');
+          const msg = String(err?.message || err || 'Admin setup failed.');
+          status(/429|too many requests|rate limit/i.test(msg)
+            ? 'Too many attempts. Please wait a minute, then try once.'
+            : msg);
         }
       });
     })();
