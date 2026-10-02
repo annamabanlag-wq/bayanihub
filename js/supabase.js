@@ -69,7 +69,7 @@ function bayaniMapCampaign(row) {
 
 async function syncBayaniCampaigns() {
   const rows = await bayaniFetch(
-    'campaigns?select=*&status=eq.approved&order=created_at.desc',
+    'public_campaigns?select=*&order=created_at.desc',
     { method: 'GET' }
   );
   const cloud = (Array.isArray(rows) ? rows : []).map(bayaniMapCampaign);
@@ -85,7 +85,7 @@ async function syncBayaniCampaigns() {
 async function getBayaniCampaign(id) {
   if (!bayaniIsUuid(id)) return null;
   const rows = await bayaniFetch(
-    'campaigns?select=*&id=eq.' + encodeURIComponent(id) + '&status=eq.approved&limit=1',
+    'public_campaigns?select=*&id=eq.' + encodeURIComponent(id) + '&limit=1',
     { method: 'GET' }
   );
   return Array.isArray(rows) && rows[0] ? bayaniMapCampaign(rows[0]) : null;
@@ -117,13 +117,10 @@ async function submitBayaniCampaign(campaign) {
 
   const rows = await bayaniFetch('campaigns', {
     method: 'POST',
-    headers: { Prefer: 'return=representation' },
     body: JSON.stringify(payload)
   });
 
-  return Array.isArray(rows) && rows[0]
-    ? bayaniMapCampaign(rows[0])
-    : bayaniMapCampaign(payload);
+  return bayaniMapCampaign(payload);
 }
 
 async function submitBayaniDonation({ campaignId, campaignTitle, name, amount, ref }) {
@@ -144,13 +141,12 @@ async function submitBayaniDonation({ campaignId, campaignTitle, name, amount, r
     status: 'pending_verification'
   };
 
-  const rows = await bayaniFetch('donations', {
+  await bayaniFetch('donations', {
     method: 'POST',
-    headers: { Prefer: 'return=representation' },
     body: JSON.stringify(payload)
   });
 
-  return Array.isArray(rows) && rows[0] ? rows[0] : payload;
+  return payload;
 }
 
 window.BayaniCloud = {
