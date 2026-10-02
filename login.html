@@ -7,43 +7,114 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Staff login – BayaniHub</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>body{font-family:'Inter',system-ui,sans-serif}</style>
+  <style>body{font-family:Inter,system-ui,sans-serif}</style>
 </head>
 <body class="min-h-screen bg-slate-900 text-white flex items-center justify-center px-4">
   <div class="w-full max-w-sm">
     <p class="text-center text-xs tracking-[0.2em] uppercase text-teal-300 mb-2">BayaniHub staff</p>
-    <h1 class="text-center text-2xl font-extrabold mb-6">Control login</h1>
+    <h1 class="text-center text-2xl font-extrabold mb-6">Secure control login</h1>
+
     <form id="login-form" class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-3">
       <div>
-        <label class="block text-xs text-slate-300 mb-1">Username</label>
-        <input id="staff-user" autocomplete="username" required
-               class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-600 text-sm outline-none focus:ring-2 focus:ring-teal-500">
+        <label class="block text-xs text-slate-300 mb-1">Email</label>
+        <input id="staff-email" type="email" autocomplete="username" required
+               class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-600 text-sm outline-none focus:ring-2 focus:ring-teal-500"
+               placeholder="staff email">
       </div>
       <div>
         <label class="block text-xs text-slate-300 mb-1">Password</label>
-        <input id="staff-pass" type="password" autocomplete="current-password" required
-               class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-600 text-sm outline-none focus:ring-2 focus:ring-teal-500">
+        <input id="staff-pass" type="password" autocomplete="current-password" required minlength="8"
+               class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-600 text-sm outline-none focus:ring-2 focus:ring-teal-500"
+               placeholder="password">
       </div>
-      <p id="login-error" class="hidden text-xs text-red-400">Wrong username or password.</p>
+      <p id="login-error" class="hidden text-xs text-red-400"></p>
       <button type="submit" class="w-full bg-teal-600 hover:bg-teal-500 font-bold py-3 rounded-xl">Sign in</button>
     </form>
-    <p class="text-center text-[11px] text-slate-500 mt-4"><a href="index.html" class="underline">Back to public site</a></p>
+
+    <details class="mt-4 bg-slate-800/70 border border-slate-700 rounded-2xl p-4">
+      <summary class="cursor-pointer text-sm font-semibold text-slate-200">First-time admin setup</summary>
+      <p class="text-[11px] text-slate-400 mt-2 leading-relaxed">
+        Create/sign in to your Supabase account, then use the one-time setup code supplied for BayaniHub to claim the first admin slot.
+      </p>
+      <div class="space-y-2 mt-3">
+        <input id="setup-code" autocomplete="off" placeholder="One-time setup code"
+               class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-600 text-sm outline-none">
+        <button id="btn-setup" type="button" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2.5 rounded-xl">
+          Activate admin access
+        </button>
+      </div>
+      <p id="setup-status" class="hidden text-xs mt-2"></p>
+    </details>
+
+    <p class="text-center text-[11px] text-slate-500 mt-4">
+      <a href="index.html" class="underline">Back to public site</a>
+    </p>
   </div>
-  <script src="js/data.js"></script>
+
+  <script src="js/supabase.js"></script>
   <script>
-    if (Storage.isAdmin()) location.replace('admin.html');
-    document.getElementById('login-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const user = document.getElementById('staff-user').value.trim();
-      const pass = document.getElementById('staff-pass').value;
-      if (user === 'admin' && pass === 'bayaniadmin') {
-        Storage.setAdmin(true);
-        location.replace('admin.html');
-      } else {
-        document.getElementById('login-error').classList.remove('hidden');
-      }
-    });
+    (async function () {
+      const show = (id, message, good = false) => {
+        const el = document.getElementById(id);
+        el.textContent = message;
+        el.classList.remove('hidden', 'text-red-400', 'text-teal-300');
+        el.classList.add(good ? 'text-teal-300' : 'text-red-400');
+      };
+
+      try {
+        if (await BayaniCloud.requireAdmin()) {
+          location.replace('admin.html');
+          return;
+        }
+      } catch (_) {}
+
+      document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('staff-email').value.trim();
+        const password = document.getElementById('staff-pass').value;
+        try {
+          await BayaniCloud.signIn(email, password);
+          if (!(await BayaniCloud.checkAdmin())) {
+            await BayaniCloud.signOut();
+            throw new Error('This account is authenticated but is not a BayaniHub admin.');
+          }
+          location.replace('admin.html');
+        } catch (err) {
+          show('login-error', err.message || 'Sign in failed.');
+        }
+      });
+
+      document.getElementById('btn-setup').addEventListener('click', async () => {
+        const email = document.getElementById('staff-email').value.trim();
+        const password = document.getElementById('staff-pass').value;
+        const code = document.getElementById('setup-code').value.trim();
+
+        if (!email || !password || password.length < 8 || !code) {
+          show('setup-status', 'Enter email, an 8+ character password, and the one-time setup code.');
+          return;
+        }
+
+        const status = (msg, good = false) => show('setup-status', msg, good);
+
+        try {
+          try {
+            await BayaniCloud.signIn(email, password);
+          } catch (signInErr) {
+            const signup = await BayaniCloud.signUp(email, password);
+            if (!BayaniCloud.getSession()) {
+              status('Account created. Confirm the email from Supabase, then sign in here and press Activate again.');
+              return;
+            }
+          }
+
+          await BayaniCloud.bootstrapAdmin(code);
+          status('Admin access activated. Opening Control Center…', true);
+          setTimeout(() => location.replace('admin.html'), 500);
+        } catch (err) {
+          status(err.message || 'Admin setup failed.');
+        }
+      });
+    })();
   </script>
 </body>
 </html>
