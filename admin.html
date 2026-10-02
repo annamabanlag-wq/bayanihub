@@ -53,6 +53,15 @@
 
     <section>
       <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-gray-700">₱50 follow-up verification</h3>
+        <span class="text-[10px] text-gray-400">Posting + follow-up</span>
+      </div>
+      <div id="followup-list" class="space-y-2"></div>
+      <p id="no-followups" class="text-sm text-gray-500 text-center py-4 hidden">No follow-up requests</p>
+    </section>
+
+    <section>
+      <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-semibold text-gray-700">Sponsor verification</h3>
         <span class="text-[10px] text-gray-400">Business payments</span>
       </div>
@@ -76,7 +85,7 @@
   <script src="js/data.js"></script>
   <script src="js/supabase.js"></script>
   <script>
-    let state = { campaigns: [], donations: [], revenue: [], sponsors: [] };
+    let state = { campaigns: [], donations: [], revenue: [], sponsors: [], followups: [] };
 
     function esc(value) {
       return String(value ?? '').replace(/[&<>"']/g, ch => ({
@@ -106,17 +115,19 @@
     async function refreshAdmin() {
       try {
         document.getElementById('admin-error').classList.add('hidden');
-        const [campaigns, donations, revenue, sponsors] = await Promise.all([
+        const [campaigns, donations, revenue, sponsors, followups] = await Promise.all([
           BayaniCloud.adminListCampaigns(),
           BayaniCloud.adminListDonations(),
           BayaniCloud.adminListRevenue(),
-          BayaniCloud.adminListSponsors()
+          BayaniCloud.adminListSponsors(),
+          BayaniCloud.adminListFollowups()
         ]);
         state = {
           campaigns: Array.isArray(campaigns) ? campaigns : [],
           donations: Array.isArray(donations) ? donations : [],
           revenue: Array.isArray(revenue) ? revenue : [],
-          sponsors: Array.isArray(sponsors) ? sponsors : []
+          sponsors: Array.isArray(sponsors) ? sponsors : [],
+          followups: Array.isArray(followups) ? followups : []
         };
         renderAdmin();
       } catch (err) {
@@ -163,6 +174,26 @@
 
       const dList = document.getElementById('don-list');
       document.getElementById('no-dons').classList.toggle('hidden', donations.length !== 0);
+      const fList = document.getElementById('followup-list');
+      const followRows = state.followups;
+      document.getElementById('no-followups').classList.toggle('hidden', followRows.length !== 0);
+      fList.innerHTML = followRows.slice(0, 20).map(f => {
+        const confirmed = f.status === 'confirmed';
+        const rejected = f.status === 'rejected';
+        const status = confirmed ? '<span class="text-green-600 font-semibold">Confirmed</span>' :
+                       rejected ? '<span class="text-red-600 font-semibold">Rejected</span>' :
+                       '<span class="text-amber-600 font-semibold">Pending verification</span>';
+        const campaign = state.campaigns.find(c => c.id === f.campaign_id);
+        return '<div class="bg-white rounded-xl border p-3">' +
+          '<div class="flex justify-between gap-3">' +
+            '<div class="min-w-0"><p class="font-medium truncate">' + esc(campaign?.title || 'Campaign') + '</p>' +
+            '<p class="text-xs text-gray-500">₱50 posting + follow-up • Ref: ' + esc(f.gcash_ref) + '</p>' +
+            '<p class="text-[10px] text-gray-400 mt-1">' + new Date(f.created_at).toLocaleString() + ' • ' + status + '</p></div>' +
+            '<div class="text-right whitespace-nowrap">' +
+            ((!confirmed && !rejected) ? '<div class="flex gap-1 mt-1"><button onclick="confirmFollowup(\'' + esc(f.id) + '\')" class="text-[10px] font-bold px-2 py-1 rounded bg-teal-600 text-white">Confirm</button><button onclick="rejectFollowup(\'' + esc(f.id) + '\')" class="text-[10px] font-bold px-2 py-1 rounded bg-red-100 text-red-700">Reject</button></div>' : '') +
+            '</div></div></div>';
+      }).join('');
+
       const sList = document.getElementById('sponsor-list');
       const sponsorRows = state.sponsors;
       document.getElementById('no-sponsors').classList.toggle('hidden', sponsorRows.length !== 0);
@@ -243,6 +274,22 @@
         await BayaniCloud.adminUpdateCampaign(id, { verified: !!value });
         await refreshAdmin();
       } catch (err) { showError(err.message || 'Badge toggle failed.'); }
+    }
+
+    async function confirmFollowup(id) {
+      if (!confirm('Confirm this ₱50 GCash transfer after checking the transfer in GCash?')) return;
+      try {
+        await BayaniCloud.adminReviewFollowup(id, true);
+        await refreshAdmin();
+      } catch (err) { showError(err.message || 'Follow-up confirmation failed.'); }
+    }
+
+    async function rejectFollowup(id) {
+      if (!confirm('Reject this ₱50 follow-up payment verification?')) return;
+      try {
+        await BayaniCloud.adminReviewFollowup(id, false);
+        await refreshAdmin();
+      } catch (err) { showError(err.message || 'Follow-up rejection failed.'); }
     }
 
     async function confirmSponsor(id) {
