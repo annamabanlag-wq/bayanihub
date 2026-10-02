@@ -3,6 +3,21 @@ let activeCategory = null;
 let searchQuery = '';
 let sortBy = 'recent';
 
+function bayaniEsc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+  }[ch]));
+}
+
+function bayaniSafeImage(value) {
+  const fallback = 'https://placehold.co/600x400/0d9488/white?text=BayaniHub';
+  try {
+    const u = new URL(String(value || ''), location.href);
+    if (u.protocol === 'http:' || u.protocol === 'https:') return bayaniEsc(u.href);
+  } catch (_) {}
+  return fallback;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   renderCategories();
   renderCampaigns();
@@ -55,13 +70,18 @@ function closeMenu() {
 function renderCategories() {
   const container = document.getElementById('category-scroll');
   if (!container) return;
-  container.innerHTML = CATEGORIES.map(c => `
-    <button data-cat="${c.id}" 
-      class="cat-btn flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold border transition
-        ${activeCategory === c.id ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-200 hover:border-brand-300'}">
-      <span>${c.icon}</span> ${c.label}
-    </button>
-  `).join('');
+  container.innerHTML = CATEGORIES.map(c => {
+    const id = bayaniEsc(c.id);
+    const label = bayaniEsc(c.label);
+    const icon = bayaniEsc(c.icon);
+    return `
+      <button data-cat="${id}"
+        class="cat-btn flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold border transition
+          ${activeCategory === c.id ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-200 hover:border-brand-300'}">
+        <span>${icon}</span> ${label}
+      </button>
+    `;
+  }).join('');
 
   container.querySelectorAll('.cat-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -90,25 +110,25 @@ function getFiltered() {
   if (activeCategory) list = list.filter(c => c.category === activeCategory);
   if (searchQuery) {
     list = list.filter(c =>
-      c.title.toLowerCase().includes(searchQuery) ||
-      c.story.toLowerCase().includes(searchQuery) ||
-      c.organizer.toLowerCase().includes(searchQuery) ||
-      c.location.toLowerCase().includes(searchQuery)
+      String(c.title || '').toLowerCase().includes(searchQuery) ||
+      String(c.story || '').toLowerCase().includes(searchQuery) ||
+      String(c.organizer || '').toLowerCase().includes(searchQuery) ||
+      String(c.location || '').toLowerCase().includes(searchQuery)
     );
   }
 
   switch (sortBy) {
     case 'urgent':
-      list.sort((a, b) => (b.urgent ? 1 : 0) - (a.urgent ? 1 : 0) || (b.raised / b.goal) - (a.raised / a.goal));
+      list.sort((a, b) => (b.urgent ? 1 : 0) - (a.urgent ? 1 : 0) || (Number(b.raised) / Math.max(1, Number(b.goal))) - (Number(a.raised) / Math.max(1, Number(a.goal))));
       break;
     case 'progress':
-      list.sort((a, b) => (b.raised / b.goal) - (a.raised / a.goal));
+      list.sort((a, b) => (Number(b.raised) / Math.max(1, Number(b.goal))) - (Number(a.raised) / Math.max(1, Number(a.goal))));
       break;
     case 'raised':
-      list.sort((a, b) => b.raised - a.raised);
+      list.sort((a, b) => Number(b.raised || 0) - Number(a.raised || 0));
       break;
     default:
-      list.sort((a, b) => new Date(b.created) - new Date(a.created));
+      list.sort((a, b) => new Date(b.created || 0) - new Date(a.created || 0));
   }
   return list;
 }
@@ -129,31 +149,40 @@ function renderCampaigns() {
   container.innerHTML = list.map(c => {
     const pct = percent(c.raised, c.goal);
     const cat = CATEGORIES.find(x => x.id === c.category) || { label: c.category, icon: '📌', color: 'bg-gray-100 text-gray-700' };
+    const id = bayaniEsc(c.id);
+    const title = bayaniEsc(c.title);
+    const story = bayaniEsc(c.story);
+    const organizer = bayaniEsc(c.organizer);
+    const location = bayaniEsc(c.location);
+    const image = bayaniSafeImage(c.image);
+    const catLabel = bayaniEsc(cat.label);
+    const catIcon = bayaniEsc(cat.icon);
+    const created = bayaniEsc(c.created);
     return `
-    <article class="card-hover bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden fade-in" onclick="location.href='campaign.html?id=${c.id}'">
+    <article class="card-hover bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden fade-in" onclick="location.href='campaign.html?id=${encodeURIComponent(c.id)}'">
       <div class="relative">
-        <img src="${c.image}" alt="" class="w-full h-40 object-cover" loading="lazy" onerror="this.src='https://placehold.co/600x400/0d9488/white?text=BayaniHub'">
+        <img src="${image}" alt="" class="w-full h-40 object-cover" loading="lazy" onerror="this.src='https://placehold.co/600x400/0d9488/white?text=BayaniHub'">
         ${c.urgent ? '<span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">URGENT</span>' : ''}
         ${c.verified ? '<span class="absolute top-2 right-2 badge-verified text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">✓ Verified</span>' : ''}
       </div>
       <div class="p-4">
         <div class="flex items-center gap-1.5 mb-1.5">
-          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${cat.color}">${cat.icon} ${cat.label}</span>
-          <span class="text-[10px] text-gray-400">• ${c.location}</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${cat.color}">${catIcon} ${catLabel}</span>
+          <span class="text-[10px] text-gray-400">• ${location}</span>
         </div>
-        <h3 class="font-bold text-gray-900 text-[15px] leading-snug line-clamp-2 mb-2">${c.title}</h3>
+        <h3 class="font-bold text-gray-900 text-[15px] leading-snug line-clamp-2 mb-2">${title}</h3>
         <div class="mb-2">
           <div class="flex justify-between text-xs mb-1">
             <span class="font-semibold text-brand-700">${formatPeso(c.raised)}</span>
             <span class="text-gray-500">of ${formatPeso(c.goal)}</span>
           </div>
           <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div class="progress-bar h-full bg-gradient-to-r from-brand-500 to-brand-400 rounded-full" style="width:${pct}%"></div>
+            <div class="progress-bar h-full bg-gradient-to-r from-brand-500 to-brand-400 rounded-full" style="width:${Math.min(100, Math.max(0, Number(pct) || 0))}%"></div>
           </div>
         </div>
         <div class="flex items-center justify-between text-xs text-gray-500">
-          <span>${c.donors} donors</span>
-          <span>${pct}% funded • ${timeAgo(c.created)}</span>
+          <span>${Number(c.donors || 0)} donors</span>
+          <span>${Math.min(100, Math.max(0, Number(pct) || 0))}% funded • ${timeAgo(created)}</span>
         </div>
       </div>
     </article>`;
@@ -162,8 +191,8 @@ function renderCampaigns() {
 
 function updateStats() {
   const list = Storage.getCampaigns().filter(c => c.status === 'approved');
-  const raised = list.reduce((s, c) => s + c.raised, 0);
-  const donors = list.reduce((s, c) => s + c.donors, 0);
+  const raised = list.reduce((s, c) => s + Number(c.raised || 0), 0);
+  const donors = list.reduce((s, c) => s + Number(c.donors || 0), 0);
   const elR = document.getElementById('stat-raised');
   const elC = document.getElementById('stat-campaigns');
   const elD = document.getElementById('stat-donors');
