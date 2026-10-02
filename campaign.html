@@ -262,7 +262,7 @@
         date: new Date().toISOString(),
         status: 'pending_verification',
         tip,
-        split: BayaniRevenue && typeof BayaniRevenue.split === 'function'
+        split: typeof BayaniRevenue !== 'undefined' && typeof BayaniRevenue.split === 'function'
           ? BayaniRevenue.split(amount, tip)
           : { gross: amount, fee: 0, organizer: amount, tip, platform: tip }
       });
