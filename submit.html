@@ -150,6 +150,7 @@
   </nav>
 
   <script src="js/data.js"></script>
+  <script src="js/supabase.js"></script>
   <script>
     const sel = document.querySelector('select[name="category"]');
     CATEGORIES.forEach(c => {
@@ -224,6 +225,14 @@
         evidence: evidenceFiles
       };
 
+      let cloudSaved = false;
+      try {
+        await BayaniCloud.submitCampaign(newCampaign);
+        cloudSaved = true;
+      } catch (err) {
+        console.warn('Cloud submission failed; keeping local copy.', err);
+      }
+
       const pending = Storage.getPending();
       pending.unshift(newCampaign);
       Storage.savePending(pending);
@@ -236,7 +245,7 @@
       const body = encodeURIComponent(`New campaign submitted for review\n\nTitle: ${newCampaign.title}\nOrganizer: ${newCampaign.organizer}\nLocation: ${newCampaign.location}\nGoal: ₱${newCampaign.goal}\nContact: ${newCampaign.contact}\nFollow-up paid: ${paid ? 'yes' : 'no'}\nFollow-up Ref: ${newCampaign.followupRef || 'n/a'}\nEvidence files: ${evidenceFiles.length}\n\nReview in Admin Command Center.\n\n– BayaniHub`);
       window.open(`mailto:admin@bayanihub.ph?subject=${subject}&body=${body}`, '_blank');
 
-      alert('Salamat! Your campaign was submitted for review.');
+      alert(cloudSaved ? 'Salamat! Your campaign was submitted to BayaniHub for admin review.' : 'Salamat! Your campaign was saved locally. Please retry when your connection is stable.');
       location.href = 'dashboard.html';
     });
   </script>
