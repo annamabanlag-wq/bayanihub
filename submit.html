@@ -202,6 +202,11 @@
       const fd = new FormData(e.target);
       const data = Object.fromEntries(fd.entries());
       const paid = document.getElementById('paid-followup').checked;
+      const followupRef = (data.followupRef || '').trim();
+      if (paid && followupRef.length < 3) {
+        alert('Please enter the GCash reference number for the ₱50 follow-up payment.');
+        return;
+      }
 
       const newCampaign = {
         id: 'c' + Date.now(),
@@ -220,15 +225,20 @@
         created: new Date().toISOString().slice(0,10),
         contact: data.contact,
         gcash: '09381447214',
-        followupPaid: paid,
-        followupRef: (data.followupRef || '').trim(),
+        followupPaid: false,
+        followupRef: '',
         evidence: evidenceFiles
       };
 
       let cloudSaved = false;
       try {
         const cloudCampaign = await BayaniCloud.submitCampaign(newCampaign);
-        if (cloudCampaign && cloudCampaign.id) newCampaign.id = cloudCampaign.id;
+        if (cloudCampaign && cloudCampaign.id) {
+          newCampaign.id = cloudCampaign.id;
+          if (paid) {
+            await BayaniCloud.submitFollowupPayment({ campaignId: newCampaign.id, ref: followupRef });
+          }
+        }
         cloudSaved = true;
       } catch (err) {
         console.warn('Cloud submission failed; keeping local copy.', err);
@@ -243,7 +253,7 @@
       Storage.saveCampaigns(all);
 
       const subject = encodeURIComponent(`[BayaniHub] New campaign pending – ${newCampaign.title}`);
-      const body = encodeURIComponent(`New campaign submitted for review\n\nTitle: ${newCampaign.title}\nOrganizer: ${newCampaign.organizer}\nLocation: ${newCampaign.location}\nGoal: ₱${newCampaign.goal}\nContact: ${newCampaign.contact}\nFollow-up paid: ${paid ? 'yes' : 'no'}\nFollow-up Ref: ${newCampaign.followupRef || 'n/a'}\nEvidence files: ${evidenceFiles.length}\n\nReview in Admin Command Center.\n\n– BayaniHub`);
+      const body = encodeURIComponent(`New campaign submitted for review\n\nTitle: ${newCampaign.title}\nOrganizer: ${newCampaign.organizer}\nLocation: ${newCampaign.location}\nGoal: ₱${newCampaign.goal}\nContact: ${newCampaign.contact}\n₱50 follow-up request: ${paid ? 'submitted for GCash verification' : 'no'}\nFollow-up Ref: ${followupRef || 'n/a'}\nEvidence files: ${evidenceFiles.length}\n\nReview in Admin Command Center.\n\n– BayaniHub`);
       window.open(`mailto:admin@bayanihub.ph?subject=${subject}&body=${body}`, '_blank');
 
       alert(cloudSaved ? 'Salamat! Your campaign was submitted to BayaniHub for admin review.' : 'Salamat! Your campaign was saved locally. Please retry when your connection is stable.');
