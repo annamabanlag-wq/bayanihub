@@ -28,7 +28,8 @@ const SEED_CAMPAIGNS = [
     urgent: true,
     created: '2026-09-10',
     gcash: '09381447214',
-    evidence: []
+    evidence: [],
+    sample: true
   },
   {
     id: 'c2',
@@ -46,7 +47,8 @@ const SEED_CAMPAIGNS = [
     urgent: false,
     created: '2026-09-05',
     gcash: '09381447214',
-    evidence: []
+    evidence: [],
+    sample: true
   },
   {
     id: 'c3',
@@ -64,7 +66,8 @@ const SEED_CAMPAIGNS = [
     urgent: true,
     created: '2026-09-18',
     gcash: '09381447214',
-    evidence: []
+    evidence: [],
+    sample: true
   },
   {
     id: 'c4',
@@ -82,7 +85,8 @@ const SEED_CAMPAIGNS = [
     urgent: false,
     created: '2026-08-28',
     gcash: '09381447214',
-    evidence: []
+    evidence: [],
+    sample: true
   },
   {
     id: 'c5',
@@ -100,7 +104,8 @@ const SEED_CAMPAIGNS = [
     urgent: true,
     created: '2026-09-12',
     gcash: '09381447214',
-    evidence: []
+    evidence: [],
+    sample: true
   },
   {
     id: 'c6',
@@ -118,7 +123,8 @@ const SEED_CAMPAIGNS = [
     urgent: false,
     created: '2026-09-01',
     gcash: '09381447214',
-    evidence: []
+    evidence: [],
+    sample: true
   },
   {
     id: 'c7',
@@ -136,7 +142,8 @@ const SEED_CAMPAIGNS = [
     urgent: true,
     created: '2026-09-08',
     gcash: '09381447214',
-    evidence: []
+    evidence: [],
+    sample: true
   },
   {
     id: 'c8',
@@ -154,11 +161,11 @@ const SEED_CAMPAIGNS = [
     urgent: false,
     created: '2026-09-15',
     gcash: '09381447214',
-    evidence: []
+    evidence: [],
+    sample: true
   }
 ];
 
-// Storage helpers
 const Storage = {
   getCampaigns() {
     const stored = localStorage.getItem('bayani_campaigns');
@@ -216,3 +223,16 @@ function timeAgo(dateStr) {
   if (days < 7) return days + ' days ago';
   return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
 }
+
+(function loadRevenue() {
+  if (document.querySelector('script[data-bayani-revenue]')) return;
+  const revenue = document.createElement('script');
+  revenue.src = 'js/revenue.js';
+  revenue.dataset.bayaniRevenue = '1';
+  revenue.onload = function () {
+    const wire = document.createElement('script');
+    wire.src = 'js/wire-revenue.js';
+    document.body.appendChild(wire);
+  };
+  document.body.appendChild(revenue);
+})();
