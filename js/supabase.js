@@ -123,7 +123,7 @@ async function submitBayaniCampaign(campaign) {
   return bayaniMapCampaign(payload);
 }
 
-async function submitBayaniDonation({ campaignId, campaignTitle, name, amount, ref }) {
+async function submitBayaniDonation({ campaignId, campaignTitle, name, amount, ref, tip = 0 }) {
   if (!bayaniIsUuid(campaignId)) {
     throw new Error('This campaign is using an old local ID. Please refresh Discover and try again.');
   }
@@ -133,7 +133,7 @@ async function submitBayaniDonation({ campaignId, campaignTitle, name, amount, r
     campaign_title: campaignTitle,
     donor_name: name || 'Anonymous',
     amount: Math.round(Number(amount)),
-    tip: 0,
+    tip: Math.max(0, Math.round(Number(tip) || 0)),
     fee: 0,
     organizer_amount: 0,
     platform_amount: 0,
@@ -149,9 +149,162 @@ async function submitBayaniDonation({ campaignId, campaignTitle, name, amount, r
   return payload;
 }
 
+const BAYANI_SESSION_KEY = 'bayani_supabase_session';
+
+function bayaniGetSession() {
+  try {
+    const value = sessionStorage.getItem(BAYANI_SESSION_KEY);
+    return value ? JSON.parse(value) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function bayaniSaveSession(session) {
+  if (session) sessionStorage.setItem(BAYANI_SESSION_KEY, JSON.stringify(session));
+  else sessionStorage.removeItem(BAYANI_SESSION_KEY);
+}
+
+async function bayaniAuth(path, options = {}) {
+  const response = await fetch(BAYANI_SUPABASE_URL + '/auth/v1/' + path, {
+    ...options,
+    headers: {
+      apikey: BAYANI_SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    }
+  });
+  const text = await response.text();
+  let body = null;
+  try { body = text ? JSON.parse(text) : null; } catch (_) { body = text; }
+  if (!response.ok) {
+    const msg = body && (body.msg || body.message || body.error_description || body.error)
+      ? (body.msg || body.message || body.error_description || body.error)
+      : 'Authentication request failed';
+    throw new Error(msg + ' (HTTP ' + response.status + ')');
+  }
+  return body;
+}
+
+async function bayaniAuthFetch(path, options = {}) {
+  const session = bayaniGetSession();
+  if (!session || !session.access_token) throw new Error('Staff session expired. Please sign in again.');
+  return bayaniFetch(path, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      Authorization: 'Bearer ' + session.access_token
+    }
+  });
+}
+
+async function bayaniSignIn(email, password) {
+  const session = await bayaniAuth('token?grant_type=password', {
+    method: 'POST',
+    body: JSON.stringify({ email: String(email).trim(), password })
+  });
+  bayaniSaveSession(session);
+  return session;
+}
+
+async function bayaniSignUp(email, password) {
+  const result = await bayaniAuth('signup', {
+    method: 'POST',
+    body: JSON.stringify({ email: String(email).trim(), password })
+  });
+  if (result && result.access_token) bayaniSaveSession(result);
+  return result;
+}
+
+async function bayaniSignOut() {
+  const session = bayaniGetSession();
+  try {
+    if (session && session.access_token) {
+      await bayaniAuth('logout', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + session.access_token }
+      });
+    }
+  } finally {
+    bayaniSaveSession(null);
+    if (window.Storage) Storage.setAdmin(false);
+  }
+}
+
+async function bayaniCheckAdmin() {
+  const rows = await bayaniAuthFetch('rpc/is_bayani_admin', { method: 'POST', body: '{}' });
+  return rows === true || (Array.isArray(rows) && rows[0] === true);
+}
+
+async function bayaniBootstrapAdmin(setupToken) {
+  const rows = await bayaniAuthFetch('rpc/bootstrap_bayani_admin', {
+    method: 'POST',
+    body: JSON.stringify({ p_setup_token: setupToken })
+  });
+  return rows === true || rows === true || (Array.isArray(rows) && rows[0] === true);
+}
+
+async function bayaniRequireAdmin() {
+  const session = bayaniGetSession();
+  if (!session || !session.access_token) return false;
+  try {
+    return await bayaniCheckAdmin();
+  } catch (_) {
+    return false;
+  }
+}
+
+async function bayaniAdminListCampaigns() {
+  return bayaniAuthFetch('campaigns?select=*&order=created_at.desc', { method: 'GET' });
+}
+
+async function bayaniAdminListDonations() {
+  return bayaniAuthFetch('donations?select=*&order=created_at.desc', { method: 'GET' });
+}
+
+async function bayaniAdminListRevenue() {
+  return bayaniAuthFetch('revenue_ledger?select=*&order=created_at.desc', { method: 'GET' });
+}
+
+async function bayaniAdminUpdateCampaign(id, changes) {
+  return bayaniAuthFetch('campaigns?id=eq.' + encodeURIComponent(id), {
+    method: 'PATCH',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify(changes)
+  });
+}
+
+async function bayaniAdminRejectDonation(id) {
+  return bayaniAuthFetch('donations?id=eq.' + encodeURIComponent(id), {
+    method: 'PATCH',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({ status: 'rejected' })
+  });
+}
+
+async function bayaniAdminConfirmDonation(id) {
+  return bayaniAuthFetch('rpc/confirm_bayani_donation', {
+    method: 'POST',
+    body: JSON.stringify({ p_donation_id: id })
+  });
+}
+
 window.BayaniCloud = {
   syncCampaigns: syncBayaniCampaigns,
   getCampaign: getBayaniCampaign,
   submitCampaign: submitBayaniCampaign,
-  submitDonation: submitBayaniDonation
+  submitDonation: submitBayaniDonation,
+  getSession: bayaniGetSession,
+  signIn: bayaniSignIn,
+  signUp: bayaniSignUp,
+  signOut: bayaniSignOut,
+  checkAdmin: bayaniCheckAdmin,
+  bootstrapAdmin: bayaniBootstrapAdmin,
+  requireAdmin: bayaniRequireAdmin,
+  adminListCampaigns: bayaniAdminListCampaigns,
+  adminListDonations: bayaniAdminListDonations,
+  adminListRevenue: bayaniAdminListRevenue,
+  adminUpdateCampaign: bayaniAdminUpdateCampaign,
+  adminConfirmDonation: bayaniAdminConfirmDonation,
+  adminRejectDonation: bayaniAdminRejectDonation
 };
