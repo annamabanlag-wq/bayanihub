@@ -7,48 +7,46 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Control Center – BayaniHub</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>body{font-family:'Inter',system-ui,sans-serif}.safe-bottom{padding-bottom:env(safe-area-inset-bottom)}</style>
+  <style>body{font-family:Inter,system-ui,sans-serif}.safe-bottom{padding-bottom:env(safe-area-inset-bottom)}</style>
 </head>
-<body class="bg-slate-100 text-gray-900 min-h-screen pb-8 safe-bottom">
-
+<body data-cloud-admin="true" class="bg-slate-100 text-gray-900 min-h-screen pb-8 safe-bottom">
   <header class="sticky top-0 z-40 bg-slate-900 text-white">
-    <div class="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
       <div>
-        <p class="text-[10px] uppercase tracking-wider text-teal-300">Staff only</p>
-        <h1 class="font-bold">Control Center</h1>
+        <p class="text-[10px] uppercase tracking-wider text-teal-300">Staff only • Cloud secured</p>
+        <h1 class="font-bold">BayaniHub Control Center</h1>
       </div>
       <div class="flex items-center gap-3">
-        <a href="index.html" class="text-xs text-slate-300">View site</a>
+        <button id="btn-refresh" class="text-xs text-slate-300">Refresh</button>
         <button id="btn-logout" class="text-xs font-semibold text-red-300">Logout</button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-lg mx-auto px-4 py-5 space-y-6">
-    <div class="grid grid-cols-3 gap-3">
-      <div class="bg-white rounded-xl border p-3 text-center">
-        <p class="text-lg font-bold text-amber-600" id="adm-pending">0</p>
-        <p class="text-[10px] text-gray-500">Pending</p>
-      </div>
-      <div class="bg-white rounded-xl border p-3 text-center">
-        <p class="text-lg font-bold text-green-600" id="adm-approved">0</p>
-        <p class="text-[10px] text-gray-500">Live</p>
-      </div>
-      <div class="bg-white rounded-xl border p-3 text-center">
-        <p class="text-lg font-bold text-teal-700" id="adm-donations">0</p>
-        <p class="text-[10px] text-gray-500">Donations</p>
-      </div>
+  <main class="max-w-2xl mx-auto px-4 py-5 space-y-6">
+    <div id="admin-error" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-3"></div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="bg-white rounded-xl border p-3 text-center"><p class="text-lg font-bold text-amber-600" id="adm-pending">0</p><p class="text-[10px] text-gray-500">Pending campaigns</p></div>
+      <div class="bg-white rounded-xl border p-3 text-center"><p class="text-lg font-bold text-green-600" id="adm-approved">0</p><p class="text-[10px] text-gray-500">Live</p></div>
+      <div class="bg-white rounded-xl border p-3 text-center"><p class="text-lg font-bold text-teal-700" id="adm-donations">0</p><p class="text-[10px] text-gray-500">Donation refs</p></div>
+      <div class="bg-white rounded-xl border p-3 text-center"><p class="text-lg font-bold text-indigo-700" id="adm-revenue">₱0</p><p class="text-[10px] text-gray-500">Confirmed platform revenue</p></div>
     </div>
 
     <section>
-      <h3 class="text-sm font-semibold text-gray-700 mb-3">Pending approval</h3>
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-gray-700">Pending approval</h3>
+        <span class="text-[10px] text-gray-400">Cloud records</span>
+      </div>
       <div id="pending-list" class="space-y-3"></div>
       <p id="no-pending" class="text-sm text-gray-500 text-center py-4 hidden">No pending campaigns</p>
     </section>
 
     <section>
-      <h3 class="text-sm font-semibold text-gray-700 mb-3">Donation notifications</h3>
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-gray-700">Donation verification</h3>
+        <span class="text-[10px] text-gray-400">GCash refs</span>
+      </div>
       <div id="don-list" class="space-y-2"></div>
       <p id="no-dons" class="text-sm text-gray-500 text-center py-4 hidden">No donation notifications</p>
     </section>
@@ -61,144 +59,185 @@
     <section class="bg-white border rounded-xl p-4 text-xs text-gray-600 space-y-1">
       <p class="font-bold text-gray-800 text-sm">Ops notes</p>
       <p>GCash receive number: 09381447214</p>
-      <p>₱50 follow-up is posting + 1 reply only.</p>
-      <p>This page is not linked from the public menu. Bookmark the login URL.</p>
+      <p>Pending donations never increase campaign totals.</p>
+      <p>Confirming a donation applies the 5% platform fee and credits the organizer share.</p>
     </section>
-
-    <button onclick="if(confirm('Reset all local demo data?')){localStorage.clear();location.href='login.html'}"
-            class="w-full text-xs text-red-500 py-2 border border-red-200 rounded-xl bg-white">Reset local demo data</button>
   </main>
 
   <script src="js/data.js"></script>
+  <script src="js/supabase.js"></script>
   <script>
-    if (!Storage.isAdmin()) location.replace('login.html');
+    let state = { campaigns: [], donations: [], revenue: [] };
 
-    document.getElementById('btn-logout').addEventListener('click', () => {
-      Storage.setAdmin(false);
-      location.replace('login.html');
-    });
+    function esc(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+      }[ch]));
+    }
 
-    renderAdmin();
+    function money(value) {
+      return '₱' + Number(value || 0).toLocaleString('en-PH');
+    }
+
+    function showError(message) {
+      const el = document.getElementById('admin-error');
+      el.textContent = message;
+      el.classList.remove('hidden');
+    }
+
+    async function start() {
+      const ok = await BayaniCloud.requireAdmin();
+      if (!ok) {
+        location.replace('login.html');
+        return;
+      }
+      await refreshAdmin();
+    }
+
+    async function refreshAdmin() {
+      try {
+        document.getElementById('admin-error').classList.add('hidden');
+        const [campaigns, donations, revenue] = await Promise.all([
+          BayaniCloud.adminListCampaigns(),
+          BayaniCloud.adminListDonations(),
+          BayaniCloud.adminListRevenue()
+        ]);
+        state = {
+          campaigns: Array.isArray(campaigns) ? campaigns : [],
+          donations: Array.isArray(donations) ? donations : [],
+          revenue: Array.isArray(revenue) ? revenue : []
+        };
+        renderAdmin();
+      } catch (err) {
+        showError(err.message || 'Could not load the secure admin data.');
+      }
+    }
 
     function renderAdmin() {
-      const all = Storage.getCampaigns();
-      const pending = all.filter(c => c.status === 'pending');
-      const approved = all.filter(c => c.status === 'approved');
-      const dons = Storage.getDonations();
+      const pending = state.campaigns.filter(c => c.status === 'pending');
+      const approved = state.campaigns.filter(c => c.status === 'approved');
+      const donations = state.donations;
+      const revenue = state.revenue.filter(r => r.status === 'confirmed');
+      const platform = revenue.reduce((sum, r) => sum + Number(r.platform || 0), 0);
 
       document.getElementById('adm-pending').textContent = pending.length;
       document.getElementById('adm-approved').textContent = approved.length;
-      document.getElementById('adm-donations').textContent = dons.length;
+      document.getElementById('adm-donations').textContent = donations.length;
+      document.getElementById('adm-revenue').textContent = money(platform);
 
       const pList = document.getElementById('pending-list');
-      const noP = document.getElementById('no-pending');
-      if (pending.length === 0) {
-        noP.classList.remove('hidden');
-        pList.innerHTML = '';
-      } else {
-        noP.classList.add('hidden');
-        pList.innerHTML = pending.map(c => {
-          const evid = (c.evidence || []).map((ev) => {
-            const isImg = (ev.type || '').startsWith('image/');
-            return isImg
-              ? `<img src="${ev.dataUrl}" class="w-16 h-16 object-cover rounded border" alt="Evidence" onclick="window.open(this.src)">`
-              : `<div class="w-16 h-16 rounded border bg-gray-50 flex items-center justify-center text-[9px] text-center p-0.5">📄 ${ev.name || 'Doc'}</div>`;
-          }).join('');
-          const follow = c.followupPaid
-            ? `<p class="text-[10px] text-teal-700 mt-1">₱50 follow-up paid • Ref: ${c.followupRef || 'none'}</p>`
-            : `<p class="text-[10px] text-gray-400 mt-1">No ₱50 follow-up</p>`;
-          return `
-          <div class="bg-white rounded-xl border border-amber-200 p-4 shadow-sm">
-            <h4 class="font-semibold text-sm text-gray-800">${c.title}</h4>
-            <p class="text-xs text-gray-500 mt-0.5">${c.organizer} • ${c.location} • Goal ${formatPeso(c.goal)}</p>
-            <p class="text-xs text-gray-600 mt-2 line-clamp-2">${c.story}</p>
-            <p class="text-[10px] text-gray-400 mt-1">Contact: ${c.contact || 'N/A'}</p>
-            ${follow}
-            ${c.evidence && c.evidence.length ? `<div class="mt-2"><p class="text-[10px] font-semibold text-amber-700 mb-1">Evidence (${c.evidence.length})</p><div class="flex gap-1.5 flex-wrap">${evid}</div></div>` : '<p class="text-[10px] text-red-500 mt-1">No evidence uploaded</p>'}
-            <div class="flex gap-2 mt-3">
-              <button onclick="approve('${c.id}')" class="flex-1 bg-green-600 text-white text-xs font-bold py-2 rounded-lg">Approve</button>
-              <button onclick="reject('${c.id}')" class="flex-1 bg-red-100 text-red-700 text-xs font-bold py-2 rounded-lg">Reject</button>
-              <button onclick="verify('${c.id}')" class="px-3 bg-teal-100 text-teal-800 text-xs font-bold py-2 rounded-lg">Badge</button>
-            </div>
-          </div>`;
+      document.getElementById('no-pending').classList.toggle('hidden', pending.length !== 0);
+      pList.innerHTML = pending.map(c => {
+        const evidence = Array.isArray(c.evidence) ? c.evidence : [];
+        const ev = evidence.map((x, i) => {
+          const isImg = String(x.type || '').startsWith('image/');
+          return isImg && String(x.dataUrl || '').startsWith('data:image/')
+            ? '<img src="' + esc(x.dataUrl) + '" alt="Evidence ' + (i+1) + '" class="w-16 h-16 object-cover rounded border cursor-pointer" onclick="window.open(this.src)">'
+            : '<div class="w-16 h-16 rounded border bg-gray-50 flex items-center justify-center text-[9px] text-center p-1">📄 ' + esc(x.name || 'Document') + '</div>';
         }).join('');
-      }
+        return '<article class="bg-white rounded-xl border border-amber-200 p-4 shadow-sm">' +
+          '<h4 class="font-semibold text-sm text-gray-800">' + esc(c.title) + '</h4>' +
+          '<p class="text-xs text-gray-500 mt-0.5">' + esc(c.organizer) + ' • ' + esc(c.location) + ' • Goal ' + money(c.goal) + '</p>' +
+          '<p class="text-xs text-gray-600 mt-2">' + esc(c.story) + '</p>' +
+          '<p class="text-[10px] text-gray-400 mt-1">Contact: ' + esc(c.contact || 'N/A') + '</p>' +
+          (c.followup_paid ? '<p class="text-[10px] text-teal-700 mt-1">₱50 follow-up claimed • Ref: ' + esc(c.followup_ref || 'none') + '</p>' : '') +
+          (evidence ? '<div class="mt-2"><p class="text-[10px] font-semibold text-amber-700 mb-1">Evidence (' + evidence.length + ')</p><div class="flex gap-1.5 flex-wrap">' + ev + '</div></div>' : '') +
+          '<div class="flex gap-2 mt-3">' +
+            '<button onclick="approveCampaign(\'' + esc(c.id) + '\')" class="flex-1 bg-green-600 text-white text-xs font-bold py-2 rounded-lg">Approve</button>' +
+            '<button onclick="rejectCampaign(\'' + esc(c.id) + '\')" class="flex-1 bg-red-100 text-red-700 text-xs font-bold py-2 rounded-lg">Reject</button>' +
+            '<button onclick="verifyCampaign(\'' + esc(c.id) + '\')" class="px-3 bg-teal-100 text-teal-800 text-xs font-bold py-2 rounded-lg">Badge</button>' +
+          '</div>' +
+        '</article>';
+      }).join('');
 
       const dList = document.getElementById('don-list');
-      const noD = document.getElementById('no-dons');
-      if (dons.length === 0) {
-        noD.classList.remove('hidden');
-        dList.innerHTML = '';
-      } else {
-        noD.classList.add('hidden');
-        dList.innerHTML = dons.slice(0, 15).map(d => `
-          <div class="bg-white rounded-xl border p-3 flex justify-between items-center text-sm">
-            <div class="min-w-0">
-              <p class="font-medium truncate">${d.campaignTitle}</p>
-              <p class="text-xs text-gray-500">${d.name} • ${d.ref} • ${new Date(d.date).toLocaleString()}</p>
-            </div>
-            <span class="font-bold text-teal-800 whitespace-nowrap ml-2">${formatPeso(d.amount)}</span>
-          </div>
-        `).join('');
-      }
+      document.getElementById('no-dons').classList.toggle('hidden', donations.length !== 0);
+      dList.innerHTML = donations.slice(0, 20).map(d => {
+        const confirmed = d.status === 'confirmed';
+        const rejected = d.status === 'rejected';
+        const status = confirmed ? '<span class="text-green-600 font-semibold">Confirmed</span>' :
+                       rejected ? '<span class="text-red-600 font-semibold">Rejected</span>' :
+                       '<span class="text-amber-600 font-semibold">Pending verification</span>';
+        return '<div class="bg-white rounded-xl border p-3">' +
+          '<div class="flex justify-between gap-3">' +
+            '<div class="min-w-0"><p class="font-medium truncate">' + esc(d.campaign_title) + '</p>' +
+            '<p class="text-xs text-gray-500">' + esc(d.donor_name || 'Anonymous') + ' • Ref: ' + esc(d.gcash_ref) + '</p>' +
+            '<p class="text-[10px] text-gray-400 mt-1">' + new Date(d.created_at).toLocaleString() + ' • ' + status + '</p></div>' +
+            '<div class="text-right whitespace-nowrap"><p class="font-bold text-teal-800">' + money(d.amount) + '</p>' +
+            ((!confirmed && !rejected) ? '<div class="flex gap-1 mt-1"><button onclick="confirmDonation(\'' + esc(d.id) + '\')" class="text-[10px] font-bold px-2 py-1 rounded bg-teal-600 text-white">Confirm GCash</button><button onclick="rejectDonation(\'' + esc(d.id) + '\')" class="text-[10px] font-bold px-2 py-1 rounded bg-red-100 text-red-700">Reject</button></div>' : '') +
+            '</div></div></div>';
+      }).join('');
 
-      document.getElementById('live-list').innerHTML = approved.slice(0, 8).map(c => `
-        <div class="bg-white rounded-xl border p-3 flex justify-between items-center">
-          <div class="min-w-0">
-            <p class="text-sm font-medium truncate">${c.title}</p>
-            <p class="text-xs text-gray-500">${formatPeso(c.raised)} / ${formatPeso(c.goal)} • ${c.verified ? 'Verified' : 'Unverified'}</p>
-          </div>
-          <div class="flex gap-1">
-            <button onclick="toggleUrgent('${c.id}')" class="text-[10px] px-2 py-1 rounded ${c.urgent ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'}">${c.urgent ? 'Urgent' : 'Normal'}</button>
-            <button onclick="toggleVerified('${c.id}')" class="text-[10px] px-2 py-1 rounded ${c.verified ? 'bg-teal-100 text-teal-800' : 'bg-gray-100'}">${c.verified ? 'Badge on' : 'Badge'}</button>
-          </div>
-        </div>
-      `).join('');
+      document.getElementById('live-list').innerHTML = approved.slice(0, 20).map(c =>
+        '<div class="bg-white rounded-xl border p-3 flex justify-between items-center">' +
+          '<div class="min-w-0"><p class="text-sm font-medium truncate">' + esc(c.title) + '</p>' +
+          '<p class="text-xs text-gray-500">' + money(c.raised) + ' / ' + money(c.goal) + ' • ' + (c.verified ? 'Verified' : 'Unverified') + '</p></div>' +
+          '<div class="flex gap-1">' +
+            '<button onclick="toggleUrgent(\'' + esc(c.id) + '\',' + (!c.urgent) + ')" class="text-[10px] px-2 py-1 rounded ' + (c.urgent ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600') + '">' + (c.urgent ? 'Urgent' : 'Normal') + '</button>' +
+            '<button onclick="toggleVerified(\'' + esc(c.id) + '\',' + (!c.verified) + ')" class="text-[10px] px-2 py-1 rounded ' + (c.verified ? 'bg-teal-100 text-teal-800' : 'bg-gray-100 text-gray-600') + '">' + (c.verified ? 'Badge on' : 'Badge') + '</button>' +
+          '</div></div>'
+      ).join('');
     }
 
-    function approve(id) {
-      const list = Storage.getCampaigns();
-      const idx = list.findIndex(c => c.id === id);
-      if (idx > -1) {
-        list[idx].status = 'approved';
-        Storage.saveCampaigns(list);
-        Storage.savePending(Storage.getPending().filter(c => c.id !== id));
-        renderAdmin();
-      }
+    async function approveCampaign(id) {
+      try {
+        await BayaniCloud.adminUpdateCampaign(id, { status: 'approved' });
+        await refreshAdmin();
+      } catch (err) { showError(err.message || 'Approval failed.'); }
     }
-    function reject(id) {
+
+    async function rejectCampaign(id) {
       if (!confirm('Reject this campaign?')) return;
-      Storage.saveCampaigns(Storage.getCampaigns().filter(c => c.id !== id));
-      Storage.savePending(Storage.getPending().filter(c => c.id !== id));
-      renderAdmin();
+      try {
+        await BayaniCloud.adminUpdateCampaign(id, { status: 'rejected' });
+        await refreshAdmin();
+      } catch (err) { showError(err.message || 'Rejection failed.'); }
     }
-    function verify(id) {
-      const list = Storage.getCampaigns();
-      const idx = list.findIndex(c => c.id === id);
-      if (idx > -1) {
-        list[idx].verified = true;
-        Storage.saveCampaigns(list);
-        renderAdmin();
-      }
+
+    async function verifyCampaign(id) {
+      try {
+        await BayaniCloud.adminUpdateCampaign(id, { verified: true });
+        await refreshAdmin();
+      } catch (err) { showError(err.message || 'Verification failed.'); }
     }
-    function toggleUrgent(id) {
-      const list = Storage.getCampaigns();
-      const idx = list.findIndex(c => c.id === id);
-      if (idx > -1) {
-        list[idx].urgent = !list[idx].urgent;
-        Storage.saveCampaigns(list);
-        renderAdmin();
-      }
+
+    async function toggleUrgent(id, value) {
+      try {
+        await BayaniCloud.adminUpdateCampaign(id, { urgent: !!value });
+        await refreshAdmin();
+      } catch (err) { showError(err.message || 'Urgent toggle failed.'); }
     }
-    function toggleVerified(id) {
-      const list = Storage.getCampaigns();
-      const idx = list.findIndex(c => c.id === id);
-      if (idx > -1) {
-        list[idx].verified = !list[idx].verified;
-        Storage.saveCampaigns(list);
-        renderAdmin();
-      }
+
+    async function toggleVerified(id, value) {
+      try {
+        await BayaniCloud.adminUpdateCampaign(id, { verified: !!value });
+        await refreshAdmin();
+      } catch (err) { showError(err.message || 'Badge toggle failed.'); }
     }
+
+    async function confirmDonation(id) {
+      if (!confirm('Confirm this GCash reference after checking the transfer in GCash?')) return;
+      try {
+        await BayaniCloud.adminConfirmDonation(id);
+        await refreshAdmin();
+      } catch (err) { showError(err.message || 'Donation confirmation failed.'); }
+    }
+
+    async function rejectDonation(id) {
+      if (!confirm('Reject this donation verification?')) return;
+      try {
+        await BayaniCloud.adminRejectDonation(id);
+        await refreshAdmin();
+      } catch (err) { showError(err.message || 'Donation rejection failed.'); }
+    }
+
+    document.getElementById('btn-refresh').addEventListener('click', refreshAdmin);
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await BayaniCloud.signOut();
+      location.replace('login.html');
+    });
+
+    start();
   </script>
 </body>
 </html>
