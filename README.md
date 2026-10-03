@@ -15,7 +15,7 @@ Manual GCash only. Nothing is marked paid until staff confirms the reference num
 | Platform fee on a confirmed gift | 5% | BayaniHub |
 | Gift after the fee | 95% | Campaign organizer |
 | Optional donor tip | Donor chooses | BayaniHub |
-| Concierge post + follow-up | ₱50 | BayaniHub |
+| Help-request posting + follow-up | Free | BayaniHub |
 | Campaign boost, 7 days | ₱199 | BayaniHub |
 | Homepage sponsor, 7 days | ₱499 | BayaniHub |
 | Homepage sponsor, 30 days | ₱1,499 | BayaniHub |
