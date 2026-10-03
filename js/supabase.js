@@ -77,7 +77,7 @@ async function syncBayaniCampaigns() {
   // Keep local pending/submissions as fallback, while replacing demo/sample rows
   // with their canonical cloud UUIDs to avoid duplicate campaigns.
   const local = Storage.getCampaigns();
-  const nonSampleLocal = local.filter(c => !c.sample && !cloud.some(x => x.id === c.id));
+  const nonSampleLocal = local.filter(c => !c.sample && c.status === 'pending' && !cloud.some(x => x.id === c.id));
   Storage.saveCampaigns([...cloud, ...nonSampleLocal]);
   return cloud;
 }
