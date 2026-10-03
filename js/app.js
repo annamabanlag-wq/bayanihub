@@ -178,7 +178,7 @@ function renderCampaigns() {
       : `<span>${Number(c.donors || 0)} donors</span><span>${Math.min(100, Math.max(0, Number(pct) || 0))}% funded • ${timeAgo(created)}</span>`;
 
     return `
-    <article style="animation-delay:" + Math.min(index * 70, 420) + "ms" class="card-hover bg-white rounded-2xl shadow-sm border ${isDemo ? 'border-slate-200' : 'border-gray-100'} overflow-hidden fade-in" onclick="location.href='campaign.html?id=${encodeURIComponent(c.id)}'">
+    <article style="animation-delay:${Math.min(index * 70, 420)}ms" class="card-hover bg-white rounded-2xl shadow-sm border ${isDemo ? 'border-slate-200' : 'border-gray-100'} overflow-hidden fade-in" onclick="location.href='campaign.html?id=${encodeURIComponent(c.id)}'">
       <div class="relative">
         <img src="${image}" alt="" class="w-full h-40 object-cover" loading="lazy" onerror="this.src='https://placehold.co/600x400/0d9488/white?text=BayaniHub'">
         ${isDemo ? '<span class="absolute top-2 left-2 bg-slate-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">DEMO</span>' : (c.urgent ? '<span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">URGENT</span>' : '')}
