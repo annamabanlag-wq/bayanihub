@@ -159,12 +159,22 @@
       evidenceFiles = [];
       const preview = document.getElementById('evidence-preview');
       preview.innerHTML = '';
+      let totalBytes = 0;
 
       for (const file of files) {
+        if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+          alert(file.name + ' is not a supported file type. Use an image or PDF.');
+          continue;
+        }
         if (file.size > 1 * 1024 * 1024) {
           alert(file.name + ' is too large (max 1MB per file). Compress it first.');
           continue;
         }
+        if (totalBytes + file.size > 4 * 1024 * 1024) {
+          alert('The evidence upload is too large. Keep all evidence under 4MB total.');
+          break;
+        }
+        totalBytes += file.size;
         const dataUrl = await readFileAsDataURL(file);
         evidenceFiles.push({ name: file.name, type: file.type, dataUrl });
         const isImg = file.type.startsWith('image/');
