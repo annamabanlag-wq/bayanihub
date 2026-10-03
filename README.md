@@ -1,53 +1,56 @@
 # BayaniHub
 
-Community fundraising PWA for Filipinos in need.
+Community-help PWA for Filipinos in need.
 
-Brand name: **BayaniHub**. Inbox: hello@bayanihub.org (configure in EmailJS).
+Brand name: **BayaniHub**. Inbox: hello@bayanihub.org.
 
 Live app: https://annamabanlag-wq.github.io/bayanihub/
 
-## How it makes money
+## How it works
 
-BayaniHub is a community-help platform. Help requests are free. Donation payments will use an approved organizational donation channel once onboarding and required permits are complete; nothing is marked paid until the payment is verified.
+BayaniHub lets people request help for free. Real campaign submissions require evidence and are reviewed by an authorized admin before they can appear as approved campaigns.
 
-| Line | Price | Who keeps it |
+Current donation flow:
+1. Donor opens an approved real campaign.
+2. Donor sends the donation through the BayaniHub donation QR and keeps the GCash receipt/reference.
+3. Donor submits the reference on the campaign page.
+4. Admin checks the actual transfer and campaign records.
+5. Only a confirmed donation changes the public campaign total.
+
+Sample campaigns are clearly marked as demonstrations. Their amounts are not real money.
+
+## Funding and advertising
+
+| Line | Price | Treatment |
 | --- | --- | --- |
-| Platform fee on a confirmed gift | 5% | BayaniHub |
-| Gift after the fee | 95% | Campaign organizer |
-| Optional donor tip | Donor chooses | BayaniHub |
-| Help-request posting + follow-up | Free | BayaniHub |
-| Featured campaign advertising, 7 days | ₱199 | BayaniHub |
-| Homepage sponsor, 7 days | ₱499 | BayaniHub |
-| Homepage sponsor, 30 days | ₱1,499 | BayaniHub |
+| Platform fee on a confirmed gift | 5% | Recorded by BayaniHub after verification |
+| Campaign share after the fee | 95% | Recorded as the campaign share |
+| Help-request posting + review | Free | No posting fee |
+| Featured campaign advertising, 7 days | ₱199 | Available only through an approved secure checkout |
+| Homepage sponsor, 7 days | ₱499 | Available only through an approved secure checkout |
+| Homepage sponsor, 30 days | ₱1,499 | Available only through an approved secure checkout |
 
-Sponsor/advertising payments are submitted to Supabase and remain pending until admin confirms the GCash reference in `admin.html`. Confirmed advertising rows land in the cloud revenue ledger. Help requests themselves are free.
-
-Sample campaigns on Discover are demo stories so the app is not empty. Their raised totals are not collected money. Only confirmed GCash references are platform revenue.
+No personal GCash number is stored in public campaign data. Advertising checkout stays disabled until an approved organizational payment channel is connected.
 
 ## Features
+
 - Discover campaigns with category filters
-- Campaign detail with campaign evidence and secure donation instructions
-- Submit a campaign (evidence required, admin review)
+- Campaign detail pages with clear donation and verification steps
+- Free campaign submission with evidence required
 - User dashboard
-- Admin Command Center with revenue totals
+- Admin Control Center with campaign, donation, sponsor and revenue review
 - Privacy policy
-- Email alerts via EmailJS to the BayaniHub inbox
-- Sponsor slots + GCash manual approval
 - Installable PWA
+- Supabase RLS with admin-only access to private records
 
-## Payment flow
+## Automatic payments
 
-BayaniHub is prepared for automatic GCash WebPay payments. The public app is designed to send each payment request to a secure Supabase Edge Function; GCash merchant secrets stay on the backend, never in GitHub or browser code.
+The repository contains a secure integration point for automatic GCash WebPay. Provider credentials and webhook secrets must stay in Supabase backend secrets.
 
-Automatic mode is activated only after BayaniHub has an approved GCash for Business/WebPay merchant integration and the production credentials are stored as backend secrets. The payment provider then returns a verified payment result to BayaniHub's secure webhook.
+Automatic mode should be enabled only after BayaniHub has an approved organizational payment arrangement and the provider has supplied production credentials. Until then, the working donation path is manual GCash with admin verification.
 
-Until that onboarding is complete, public donation checkout remains disabled rather than exposing a personal GCash wallet. The app does not display or embed a personal GCash number. Confirmed gifts use the 5% platform fee, and confirmed advertising/sponsor payments are recorded as BayaniHub platform revenue.
+## Contact
 
-## EmailJS
-Point templates at **hello@bayanihub.org**. Replace placeholders in `campaign.html` and `submit.html`:
-
-- `YOUR_EMAILJS_PUBLIC_KEY`
-- `YOUR_SERVICE_ID`
-- `YOUR_TEMPLATE_DONATION` / `YOUR_TEMPLATE_CAMPAIGN`
+For privacy or sponsorship questions, use **hello@bayanihub.org**.
 
 Built with bayanihan spirit. Not affiliated with any government.
