@@ -1,9 +1,9 @@
-// BayaniHub revenue: confirmed donation fee + advertising/sponsor payments only. Help requests are free. Manual GCash is confirmed by staff before revenue is recorded.
+// BayaniHub revenue: confirmed donation fee + advertising/sponsor payments only. Help requests are free. Automatic GCash will be confirmed by the payment provider webhook.
 const BayaniRevenue = {
   feePct: 5,
   minDonation: 50,
   postFee: 0,
-  gcash: '09381447214',
+  paymentMode: 'manual_fallback',
   packages: [
     { id: 'boost_7', name: 'Campaign boost · 7 days', price: 199, days: 7, note: 'Urgent badge and top of Discover for 7 days after payment is confirmed.' },
     { id: 'sponsor_7', name: 'Homepage sponsor · 7 days', price: 499, days: 7, note: 'Your name in the sponsor slot for 7 days.' },
