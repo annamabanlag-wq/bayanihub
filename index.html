@@ -40,8 +40,23 @@
     .progress-bar { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
     .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
     .card-hover:active { transform: scale(0.98); }
-    .fade-in { animation: fadeIn 0.4s ease-out; }
+    .fade-in { animation: fadeIn .5s ease-out both; }
+    .reveal { opacity:0; transform:translateY(14px); transition:opacity .55s ease, transform .55s ease; }
+    .reveal.is-visible { opacity:1; transform:none; }
+    .hero-shimmer { background-size:220% 220%; animation:heroShift 9s ease-in-out infinite; }
+    .float-a { animation:floatA 5s ease-in-out infinite; }
+    .float-b { animation:floatB 6s ease-in-out infinite; }
+    .pulse-soft { animation:pulseSoft 2.4s ease-in-out infinite; }
+    .heart-pop { animation:heartPop 2.8s ease-in-out infinite; transform-origin:center; }
+    .step-line { position:absolute; left:18px; top:38px; bottom:-18px; width:2px; background:linear-gradient(#99f6e4, transparent); }
+    .glass { background:rgba(255,255,255,.11); backdrop-filter:blur(10px); }
     @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+    @keyframes heroShift { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
+    @keyframes floatA { 0%,100% { transform:translate3d(0,0,0) rotate(-5deg); } 50% { transform:translate3d(-8px,-10px,0) rotate(4deg); } }
+    @keyframes floatB { 0%,100% { transform:translate3d(0,0,0) rotate(5deg); } 50% { transform:translate3d(10px,-6px,0) rotate(-3deg); } }
+    @keyframes pulseSoft { 0%,100% { transform:scale(1); box-shadow:0 8px 25px rgba(13,148,136,.18); } 50% { transform:scale(1.03); box-shadow:0 12px 35px rgba(13,148,136,.28); } }
+    @keyframes heartPop { 0%,100% { opacity:.65; transform:scale(.9) translateY(0); } 50% { opacity:1; transform:scale(1.08) translateY(-5px); } }
+    @media (prefers-reduced-motion:reduce) { .hero-shimmer,.float-a,.float-b,.pulse-soft,.heart-pop,.fade-in { animation:none !important; } .reveal { opacity:1; transform:none; transition:none; } }
     .hide-scroll::-webkit-scrollbar { display:none; }
     .badge-verified { background: linear-gradient(135deg,#0d9488,#14b8a6); }
   </style>
@@ -76,12 +91,19 @@
   </header>
 
   <section class="max-w-lg mx-auto px-4 pt-4">
-    <div class="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 text-white p-5 shadow-lg relative overflow-hidden">
-      <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full"></div>
-      <div class="absolute -right-2 bottom-0 w-20 h-20 bg-accent-400/20 rounded-full"></div>
-      <p class="text-xs font-medium text-brand-100 uppercase tracking-wider mb-1">Bayanihan in action</p>
-      <h2 class="text-xl font-bold leading-tight mb-2">Help Filipinos facing real needs</h2>
-      <p class="text-sm text-brand-100 mb-4">Medical bills • Education • Pets • Family • Bereavement • Communities</p>
+    <div class="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 hero-shimmer text-white p-6 shadow-xl">
+      <div class="absolute -right-8 -top-10 w-44 h-44 rounded-full border border-white/10"></div>
+      <div class="absolute right-14 -bottom-8 w-32 h-32 rounded-full bg-accent-400/10"></div>
+      <div class="absolute right-8 top-10 float-a text-3xl heart-pop">❤</div>
+      <div class="absolute right-24 bottom-8 float-b text-xl opacity-80">✦</div>
+      <div class="relative">
+        <div class="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[.18em]"><span class="w-2 h-2 rounded-full bg-emerald-300 pulse-soft"></span>Bayanihan in action</div>
+        <h2 class="text-[28px] font-extrabold leading-[1.08] mt-4 max-w-[330px]">Help a Filipino reach someone who can help.</h2>
+        <p class="text-sm text-brand-50 mt-3 max-w-[350px]">Discover community assistance campaigns, share real needs, and help move support where it matters.</p>
+        <div class="flex gap-2 mt-5">
+          <a href="#campaigns" class="pulse-soft flex-1 text-center rounded-xl bg-white text-brand-800 font-extrabold text-xs py-3">HELP SOMEONE</a>
+          <a href="submit.html" class="flex-1 text-center rounded-xl border border-white/30 bg-white/10 font-extrabold text-xs py-3 backdrop-blur">REQUEST HELP</a>
+        </div>
       <div class="flex gap-3 text-center">
         <div class="flex-1 bg-white/15 rounded-xl py-2">
           <p class="text-lg font-bold" id="stat-raised">₱0</p>
@@ -95,6 +117,18 @@
           <p class="text-lg font-bold" id="stat-donors">0</p>
           <p class="text-[10px] text-brand-100">Donors</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-lg mx-auto px-4 mt-4 reveal">
+    <div class="rounded-2xl bg-white border border-gray-100 p-4 shadow-sm">
+      <p class="text-xs font-extrabold text-brand-800 uppercase tracking-wider">How one share can move help</p>
+      <div class="relative mt-4 space-y-4">
+        <div class="flex gap-3"><div class="relative z-10 w-9 h-9 shrink-0 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm">1</div><div><p class="text-sm font-bold">A real need is posted</p><p class="text-[11px] text-gray-500">Medical, education, family, disaster and community assistance.</p></div></div>
+        <div class="step-line"></div>
+        <div class="flex gap-3"><div class="relative z-10 w-9 h-9 shrink-0 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-sm">2</div><div><p class="text-sm font-bold">People discover and share it</p><p class="text-[11px] text-gray-500">A share can put the request in front of a supporter, volunteer or organization.</p></div></div>
+        <div class="flex gap-3"><div class="relative z-10 w-9 h-9 shrink-0 rounded-full bg-accent-500 text-white flex items-center justify-center font-bold text-sm">3</div><div><p class="text-sm font-bold">Support is documented</p><p class="text-[11px] text-gray-500">Use updates and verification steps to build confidence and accountability.</p></div></div>
       </div>
     </div>
   </section>
@@ -145,7 +179,7 @@
     </div>
   </section>
 
-  <main class="max-w-lg mx-auto px-4 mt-5 pb-8">
+  <main id="campaigns" class="max-w-lg mx-auto px-4 mt-5 pb-8">
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-sm font-semibold text-gray-700">Active Campaigns</h3>
       <select id="sort-select" class="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white focus:ring-1 focus:ring-brand-500 outline-none">
