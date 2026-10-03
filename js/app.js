@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderCampaigns();
   updateStats();
   bindEvents();
+  initRevealAnimations();
   if (window.BayaniCloud) {
     try {
       await BayaniCloud.syncCampaigns();
@@ -146,7 +147,7 @@ function renderCampaigns() {
   }
   empty?.classList.add('hidden');
 
-  container.innerHTML = list.map(c => {
+  container.innerHTML = list.map((c, index) => {
     const pct = percent(c.raised, c.goal);
     const cat = CATEGORIES.find(x => x.id === c.category) || { label: c.category, icon: '📌', color: 'bg-gray-100 text-gray-700' };
     const title = bayaniEsc(c.title);
@@ -177,7 +178,7 @@ function renderCampaigns() {
       : `<span>${Number(c.donors || 0)} donors</span><span>${Math.min(100, Math.max(0, Number(pct) || 0))}% funded • ${timeAgo(created)}</span>`;
 
     return `
-    <article class="card-hover bg-white rounded-2xl shadow-sm border ${isDemo ? 'border-slate-200' : 'border-gray-100'} overflow-hidden fade-in" onclick="location.href='campaign.html?id=${encodeURIComponent(c.id)}'">
+    <article style="animation-delay:${Math.min(index * 70, 420)}ms" class="card-hover bg-white rounded-2xl shadow-sm border ${isDemo ? 'border-slate-200' : 'border-gray-100'} overflow-hidden fade-in" onclick="location.href='campaign.html?id=${encodeURIComponent(c.id)}'">
       <div class="relative">
         <img src="${image}" alt="" class="w-full h-40 object-cover" loading="lazy" onerror="this.src='https://placehold.co/600x400/0d9488/white?text=BayaniHub'">
         ${isDemo ? '<span class="absolute top-2 left-2 bg-slate-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">DEMO</span>' : (c.urgent ? '<span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">URGENT</span>' : '')}
@@ -209,4 +210,22 @@ function updateStats() {
   if (elR) elR.textContent = formatPeso(raised);
   if (elC) elC.textContent = list.length;
   if (elD) elD.textContent = donors;
+}
+
+
+function initRevealAnimations() {
+  const items = document.querySelectorAll('.reveal');
+  if (!items.length) return;
+  if (!('IntersectionObserver' in window)) {
+    items.forEach(el => el.classList.add('is-visible'));
+    return;
+  }
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.12 });
+  items.forEach(el => observer.observe(el));
 }
