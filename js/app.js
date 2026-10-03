@@ -158,20 +158,42 @@ function renderCampaigns() {
     const catLabel = bayaniEsc(cat.label);
     const catIcon = bayaniEsc(cat.icon);
     const created = bayaniEsc(c.created);
+    const isDemo = c.sample === true;
+    const demoNotice = isDemo
+      ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">DEMO • NOT A REAL FUNDRAISER</span>'
+      : '';
+    const fundingBlock = isDemo
+      ? `<div class="rounded-xl bg-slate-50 border border-slate-200 p-3 mb-2">
+          <p class="text-xs font-semibold text-slate-700">Example campaign only</p>
+          <p class="text-[10px] text-slate-500 mt-0.5">The story and amounts are for demonstration. Donations are disabled.</p>
+        </div>`
+      : `<div class="mb-2">
+          <div class="flex justify-between text-xs mb-1">
+            <span class="font-semibold text-brand-700">${formatPeso(c.raised)}</span>
+            <span class="text-gray-500">of ${formatPeso(c.goal)}</span>
+          </div>
+          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div class="progress-bar h-full bg-gradient-to-r from-brand-500 to-brand-400 rounded-full" style="width:${Math.min(100, Math.max(0, Number(pct) || 0))}%"></div>
+          </div>
+        </div>`;
+    const footerBlock = isDemo
+      ? '<span class="text-slate-500">Example only</span><span class="text-slate-400">Donations disabled</span>'
+      : `<span>${Number(c.donors || 0)} donors</span><span>${Math.min(100, Math.max(0, Number(pct) || 0))}% funded • ${timeAgo(created)}</span>`;
     return `
-    <article class="card-hover bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden fade-in" onclick="location.href='campaign.html?id=${encodeURIComponent(c.id)}'">
+    <article class="card-hover bg-white rounded-2xl shadow-sm border ${isDemo ? 'border-slate-200' : 'border-gray-100'} overflow-hidden fade-in" onclick="location.href='campaign.html?id=${encodeURIComponent(c.id)}'">
       <div class="relative">
         <img src="${image}" alt="" class="w-full h-40 object-cover" loading="lazy" onerror="this.src='https://placehold.co/600x400/0d9488/white?text=BayaniHub'">
-        ${c.urgent ? '<span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">URGENT</span>' : ''}
-        ${c.verified ? '<span class="absolute top-2 right-2 badge-verified text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">✓ Verified</span>' : ''}
+        ${isDemo ? '<span class="absolute top-2 left-2 bg-slate-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">DEMO</span>' : (c.urgent ? '<span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">URGENT</span>' : '')}
+        ${!isDemo && c.verified ? '<span class="absolute top-2 right-2 badge-verified text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">✓ Verified</span>' : ''}
       </div>
       <div class="p-4">
         <div class="flex items-center gap-1.5 mb-1.5">
           <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${cat.color}">${catIcon} ${catLabel}</span>
           <span class="text-[10px] text-gray-400">• ${location}</span>
         </div>
+        <div class="mb-1.5">${demoNotice}</div>
         <h3 class="font-bold text-gray-900 text-[15px] leading-snug line-clamp-2 mb-2">${title}</h3>
-        <div class="mb-2">
+        ${fundingBlock}
           <div class="flex justify-between text-xs mb-1">
             <span class="font-semibold text-brand-700">${formatPeso(c.raised)}</span>
             <span class="text-gray-500">of ${formatPeso(c.goal)}</span>
@@ -190,7 +212,8 @@ function renderCampaigns() {
 }
 
 function updateStats() {
-  const list = Storage.getCampaigns().filter(c => c.status === 'approved');
+  // Demo/sample stories never count as real campaigns, donations, or donors.
+  const list = Storage.getCampaigns().filter(c => c.status === 'approved' && c.sample !== true);
   const raised = list.reduce((s, c) => s + Number(c.raised || 0), 0);
   const donors = list.reduce((s, c) => s + Number(c.donors || 0), 0);
   const elR = document.getElementById('stat-raised');
