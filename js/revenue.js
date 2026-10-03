@@ -1,4 +1,4 @@
-// BayaniHub platform revenue. Manual GCash only. Nothing is marked paid until staff confirms the reference.
+// BayaniHub revenue: confirmed donation fee + advertising/sponsor payments only. Help requests are free. Manual GCash is confirmed by staff before revenue is recorded.
 const BayaniRevenue = {
   feePct: 5,
   minDonation: 50,
