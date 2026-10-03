@@ -17,14 +17,17 @@
     </div>
   </header>
   <main class="w-full max-w-lg lg:max-w-7xl mx-auto px-4 py-5 space-y-4">
-    <p class="text-sm text-gray-600">Sponsors pay BayaniHub directly. This is platform revenue, separate from campaign gifts. Send the package price using the private GCash payment details provided after submission, then paste the reference. Staff turns the slot on only after the transfer is in the inbox.</p>
+    <p class="text-sm text-gray-600">Advertising supports BayaniHub separately from campaign gifts. Secure sponsor checkout will be enabled only after BayaniHub has an approved organizational payment channel. No personal GCash details are displayed here.</p>
     <div id="packages" class="space-y-3"></div>
     <form id="sponsor-form" class="bg-white border rounded-2xl p-4 space-y-3">
       <label class="block text-xs font-semibold">Name or brand<input id="sp-name" required class="mt-1 w-full border rounded-xl px-3 py-2 text-sm"></label>
       <label class="block text-xs font-semibold">Package
         <select id="sp-pack" class="mt-1 w-full border rounded-xl px-3 py-2 text-sm"></select>
       </label>
-      <label class="block text-xs font-semibold">GCash reference<input id="sp-ref" required class="mt-1 w-full border rounded-xl px-3 py-2 text-sm" placeholder="Paste after you send"></label>
+      <div class="rounded-xl border border-brand-100 bg-brand-50 p-3 text-xs text-brand-800">
+        <strong>Secure advertising checkout is not enabled yet.</strong>
+        <p class="mt-1 text-brand-700">Your package request can be reviewed, but no payment should be sent until BayaniHub provides an approved organizational checkout.</p>
+      </div>
       <button class="w-full bg-brand-600 text-white font-bold py-3 rounded-xl">Submit sponsor payment</button>
       <p class="text-[11px] text-gray-500">Submitting does not mark it paid. Admin confirms it in the control center.</p>
     </form>
@@ -47,7 +50,7 @@
       e.preventDefault();
       const pack = BayaniRevenue.packages.find(p => p.id === select.value);
       const name = document.getElementById('sp-name').value.trim();
-      const ref = document.getElementById('sp-ref').value.trim();
+      const ref = '';
       try {
         if (window.BayaniPayments?.isAutomaticReady()) {
           await BayaniPayments.startCheckout({
