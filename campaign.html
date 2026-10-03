@@ -240,7 +240,7 @@
               <p class="text-xs font-semibold text-gray-800">Support more families</p>
               <p class="text-[10px] text-gray-500">Become a sponsor of BayaniHub</p>
             </div>
-            <a href="mailto:sponsor@bayanihub.ph" class="text-xs font-bold text-accent-600">Learn more</a>
+            <a href="sponsor.html" class="text-xs font-bold text-accent-600">Sponsor →</a>
           </div>
         </div>
       `;
@@ -296,13 +296,11 @@
 
       // Pending donations must not inflate the public campaign totals.
       // Raised/donor totals are updated only after admin verification.
-      const subject = encodeURIComponent(`[BayaniHub] New donation ₱${amount} – ${campaign.title}`);
-      const body = encodeURIComponent(
-`New donation notification from BayaniHub\n\nCampaign: ${campaign.title}\nDonor: ${name}\nAmount: ₱${amount}\nGCash Ref: ${ref}\nDate: ${new Date().toLocaleString()}\n\nPlease verify this transfer in your GCash (09381447214) and release funds if confirmed.\n\n– BayaniHub`
-      );
-      window.open(`mailto:admin@bayanihub.ph?subject=${subject}&body=${body}`, '_blank');
-
       closeDonateModal();
+      alert((cloudSaved
+        ? 'Maraming salamat! 💚\\n\\nYour donation was securely submitted to BayaniHub for admin verification.'
+        : 'Your donation could not reach the central server. Please retry before treating it as submitted.')
+        + '\\n\\nAdmin verification is required before any campaign total changes.');
       alert((cloudSaved ? 'Maraming salamat! 💚\n\nYour donation was securely submitted to BayaniHub for admin verification.' : 'Your donation was saved locally, but cloud submission failed. Please retry.') + '\n\nAn email notification was prepared for the admin.\nThey will verify the GCash transfer (Ref: ' + ref + ') and release the funds.');
       renderCampaign();
     }
