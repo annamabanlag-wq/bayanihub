@@ -149,23 +149,18 @@ function renderCampaigns() {
   container.innerHTML = list.map(c => {
     const pct = percent(c.raised, c.goal);
     const cat = CATEGORIES.find(x => x.id === c.category) || { label: c.category, icon: '📌', color: 'bg-gray-100 text-gray-700' };
-    const id = bayaniEsc(c.id);
     const title = bayaniEsc(c.title);
-    const story = bayaniEsc(c.story);
-    const organizer = bayaniEsc(c.organizer);
     const location = bayaniEsc(c.location);
     const image = bayaniSafeImage(c.image);
     const catLabel = bayaniEsc(cat.label);
     const catIcon = bayaniEsc(cat.icon);
     const created = bayaniEsc(c.created);
     const isDemo = c.sample === true;
-    const demoNotice = isDemo
-      ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">DEMO • NOT A REAL FUNDRAISER</span>'
-      : '';
+
     const fundingBlock = isDemo
       ? `<div class="rounded-xl bg-slate-50 border border-slate-200 p-3 mb-2">
           <p class="text-xs font-semibold text-slate-700">Example campaign only</p>
-          <p class="text-[10px] text-slate-500 mt-0.5">The story and amounts are for demonstration. Donations are disabled.</p>
+          <p class="text-[10px] text-slate-500 mt-0.5">Story and amounts are for demonstration. Donations are disabled.</p>
         </div>`
       : `<div class="mb-2">
           <div class="flex justify-between text-xs mb-1">
@@ -176,9 +171,11 @@ function renderCampaigns() {
             <div class="progress-bar h-full bg-gradient-to-r from-brand-500 to-brand-400 rounded-full" style="width:${Math.min(100, Math.max(0, Number(pct) || 0))}%"></div>
           </div>
         </div>`;
+
     const footerBlock = isDemo
       ? '<span class="text-slate-500">Example only</span><span class="text-slate-400">Donations disabled</span>'
       : `<span>${Number(c.donors || 0)} donors</span><span>${Math.min(100, Math.max(0, Number(pct) || 0))}% funded • ${timeAgo(created)}</span>`;
+
     return `
     <article class="card-hover bg-white rounded-2xl shadow-sm border ${isDemo ? 'border-slate-200' : 'border-gray-100'} overflow-hidden fade-in" onclick="location.href='campaign.html?id=${encodeURIComponent(c.id)}'">
       <div class="relative">
@@ -191,26 +188,16 @@ function renderCampaigns() {
           <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${cat.color}">${catIcon} ${catLabel}</span>
           <span class="text-[10px] text-gray-400">• ${location}</span>
         </div>
-        <div class="mb-1.5">${demoNotice}</div>
+        ${isDemo ? '<div class="mb-1.5"><span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">DEMO • NOT A REAL FUNDRAISER</span></div>' : ''}
         <h3 class="font-bold text-gray-900 text-[15px] leading-snug line-clamp-2 mb-2">${title}</h3>
         ${fundingBlock}
-          <div class="flex justify-between text-xs mb-1">
-            <span class="font-semibold text-brand-700">${formatPeso(c.raised)}</span>
-            <span class="text-gray-500">of ${formatPeso(c.goal)}</span>
-          </div>
-          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div class="progress-bar h-full bg-gradient-to-r from-brand-500 to-brand-400 rounded-full" style="width:${Math.min(100, Math.max(0, Number(pct) || 0))}%"></div>
-          </div>
-        </div>
         <div class="flex items-center justify-between text-xs text-gray-500">
-          <span>${Number(c.donors || 0)} donors</span>
-          <span>${Math.min(100, Math.max(0, Number(pct) || 0))}% funded • ${timeAgo(created)}</span>
+          ${footerBlock}
         </div>
       </div>
     </article>`;
   }).join('');
 }
-
 function updateStats() {
   // Demo/sample stories never count as real campaigns, donations, or donors.
   const list = Storage.getCampaigns().filter(c => c.status === 'approved' && c.sample !== true);
