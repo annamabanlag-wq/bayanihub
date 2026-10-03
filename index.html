@@ -65,7 +65,7 @@
 <body class="bg-gray-50 text-gray-900 min-h-screen pb-20 safe-bottom">
 
   <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
-    <div class="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="w-full max-w-lg lg:max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-lg shadow-md">B</div>
         <div>
@@ -82,7 +82,7 @@
         </button>
       </div>
     </div>
-    <div id="search-bar" class="hidden px-4 pb-3 max-w-lg mx-auto">
+    <div id="search-bar" class="hidden px-4 pb-3 w-full max-w-lg lg:max-w-7xl mx-auto">
       <div class="relative">
         <input id="search-input" type="search" placeholder="Search campaigns, names, needs..." 
                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none text-sm">
@@ -91,7 +91,7 @@
     </div>
   </header>
 
-  <section class="max-w-lg mx-auto px-4 pt-4">
+  <section class="w-full max-w-lg lg:max-w-7xl mx-auto px-4 pt-4">
     <div class="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 hero-shimmer text-white p-6 shadow-xl">
       <div class="absolute -right-8 -top-10 w-44 h-44 rounded-full border border-white/10"></div>
       <div class="absolute right-14 -bottom-8 w-32 h-32 rounded-full bg-accent-400/10"></div>
@@ -122,7 +122,7 @@
     </div>
   </section>
 
-  <section class="max-w-lg mx-auto px-4 mt-4 reveal">
+  <section class="w-full max-w-lg lg:max-w-7xl mx-auto px-4 mt-4 reveal">
     <div class="rounded-2xl bg-white border border-gray-100 p-4 shadow-sm">
       <p class="text-xs font-extrabold text-brand-800 uppercase tracking-wider">How one share can move help</p>
       <div class="relative mt-4 space-y-4">
@@ -134,7 +134,7 @@
     </div>
   </section>
 
-  <section class="max-w-lg mx-auto px-4 mt-3">
+  <section class="w-full max-w-lg lg:max-w-7xl mx-auto px-4 mt-3">
     <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
       <p class="text-sm font-semibold text-gray-800">🆓 Free help requests</p>
       <p class="text-[11px] text-gray-600 mt-1">Submitting a help request is free. We review requests and follow up when someone responds. No posting or follow-up service fee.</p>
@@ -142,7 +142,7 @@
   </section>
 
 
-  <section class="max-w-lg mx-auto px-4 mt-4">
+  <section class="w-full max-w-lg lg:max-w-7xl mx-auto px-4 mt-4">
     <div class="rounded-2xl border border-brand-200 bg-white p-4 shadow-sm">
       <p class="text-sm font-extrabold text-brand-800">🇵🇭 SHARE BAYANIHUB</p>
       <p class="text-xs text-gray-600 mt-1">One share can help the right campaign reach someone who can help.</p>
@@ -154,7 +154,7 @@
     </div>
   </section>
 
-  <section class="max-w-lg mx-auto px-4 mt-5">
+  <section class="w-full max-w-lg lg:max-w-7xl mx-auto px-4 mt-5">
     <div class="flex items-center justify-between mb-2">
       <h3 class="text-sm font-semibold text-gray-700">Categories</h3>
       <button id="btn-clear-filters" class="text-xs text-brand-600 font-medium hidden">Clear</button>
@@ -162,7 +162,7 @@
     <div id="category-scroll" class="flex gap-2 overflow-x-auto hide-scroll pb-1 -mx-1 px-1"></div>
   </section>
 
-  <section class="max-w-lg mx-auto px-4 mt-4">
+  <section class="w-full max-w-lg lg:max-w-7xl mx-auto px-4 mt-4">
     <div class="rounded-xl border border-dashed border-accent-400 bg-accent-50/50 p-3 flex items-center gap-3">
       <div class="w-10 h-10 rounded-lg bg-accent-400 flex items-center justify-center text-white font-bold text-sm">AD</div>
       <div class="flex-1 min-w-0">
@@ -173,7 +173,7 @@
     </div>
   </section>
 
-  <main id="campaigns" class="max-w-lg mx-auto px-4 mt-5 pb-8">
+  <main id="campaigns" class="w-full max-w-lg lg:max-w-7xl mx-auto px-4 mt-5 pb-8">
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-sm font-semibold text-gray-700">Active Campaigns</h3>
       <select id="sort-select" class="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white focus:ring-1 focus:ring-brand-500 outline-none">
@@ -183,7 +183,7 @@
         <option value="raised">Highest Raised</option>
       </select>
     </div>
-    <div id="campaign-list" class="space-y-4"></div>
+    <div id="campaign-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
     <div id="empty-state" class="hidden text-center py-12">
       <div class="text-4xl mb-3">🔍</div>
       <p class="text-gray-600 font-medium">No campaigns match your search</p>
@@ -192,7 +192,7 @@
   </main>
 
   <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] z-50 safe-bottom">
-    <div class="max-w-lg mx-auto flex justify-around py-2">
+    <div class="w-full max-w-lg lg:max-w-7xl mx-auto flex justify-around py-2">
       <a href="index.html" class="flex flex-col items-center gap-0.5 text-brand-600 px-3 py-1">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
         <span class="text-[10px] font-semibold">Discover</span>
