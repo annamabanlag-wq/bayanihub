@@ -1,4 +1,4 @@
-const CACHE = 'bayanihub-v11';
+const CACHE = 'bayanihub-v12';
 const ASSETS = [
   './',
   './index.html',
@@ -31,15 +31,22 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
+  const isHtml = e.request.mode === 'navigate' || e.request.headers.get('accept')?.includes('text/html');
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      return cached || fetch(e.request).then(res => {
-        if (e.request.method === 'GET' && res.status === 200) {
+    (isHtml
+      ? fetch(e.request).then(res => {
           const clone = res.clone();
           caches.open(CACHE).then(cache => cache.put(e.request, clone));
-        }
-        return res;
-      }).catch(() => cached);
-    })
+          return res;
+        }).catch(() => caches.match(e.request))
+      : caches.match(e.request).then(cached =>
+          cached || fetch(e.request).then(res => {
+            const clone = res.clone();
+            caches.open(CACHE).then(cache => cache.put(e.request, clone));
+            return res;
+          })
+        )
+    ).catch(() => caches.match(e.request))
   );
 });
