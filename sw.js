@@ -1,4 +1,4 @@
-const CACHE = 'bayanihub-v12';
+const CACHE = 'bayanihub-v13';
 const ASSETS = [
   './',
   './index.html',
@@ -35,7 +35,7 @@ self.addEventListener('fetch', (e) => {
   const isHtml = e.request.mode === 'navigate' || e.request.headers.get('accept')?.includes('text/html');
   e.respondWith(
     (isHtml
-      ? fetch(e.request).then(res => {
+      ? fetch(e.request, { cache: 'no-store' }).then(res => {
           const clone = res.clone();
           caches.open(CACHE).then(cache => cache.put(e.request, clone));
           return res;
