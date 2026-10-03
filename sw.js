@@ -1,4 +1,4 @@
-const CACHE = 'bayanihub-v21';
+const CACHE = 'bayanihub-v22';
 const ASSETS = [
   './',
   './index.html',
@@ -8,15 +8,18 @@ const ASSETS = [
   './how.html',
   './privacy.html',
   './sponsor.html',
+  './login.html',
+  './admin.html',
   './assets/gcash-qr.svg',
   './js/data.js',
   './js/app.js',
   './js/revenue.js',
   './js/payments.js',
   './payment-return.html',
-  './js/wire-revenue.js',
   './js/supabase.js',
-  './manifest.json'
+  './manifest.json',
+  './icons/icon-192.svg',
+  './icons/icon-512.svg'
 ];
 
 self.addEventListener('install', (e) => {
