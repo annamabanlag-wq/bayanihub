@@ -77,7 +77,7 @@ async function syncBayaniCampaigns() {
   // Keep local pending/submissions as fallback, while replacing demo/sample rows
   // with their canonical cloud UUIDs to avoid duplicate campaigns.
   const local = Storage.getCampaigns();
-  const nonSampleLocal = local.filter(c => !c.sample && !cloud.some(x => x.id === c.id));
+  const nonSampleLocal = local.filter(c => !c.sample && c.status === 'pending' && !cloud.some(x => x.id === c.id));
   Storage.saveCampaigns([...cloud, ...nonSampleLocal]);
   return cloud;
 }
@@ -186,16 +186,49 @@ async function bayaniAuth(path, options = {}) {
   return body;
 }
 
+let bayaniRefreshPromise = null;
+
+async function bayaniRefreshSession() {
+  const current = bayaniGetSession();
+  if (!current?.refresh_token) throw new Error('Staff session expired. Please sign in again.');
+
+  if (!bayaniRefreshPromise) {
+    bayaniRefreshPromise = bayaniAuth('token?grant_type=refresh_token', {
+      method: 'POST',
+      body: JSON.stringify({ refresh_token: current.refresh_token })
+    }).then(session => {
+      bayaniSaveSession(session);
+      return session;
+    }).catch(err => {
+      bayaniSaveSession(null);
+      throw err;
+    }).finally(() => {
+      bayaniRefreshPromise = null;
+    });
+  }
+
+  return bayaniRefreshPromise;
+}
+
 async function bayaniAuthFetch(path, options = {}) {
   const session = bayaniGetSession();
   if (!session || !session.access_token) throw new Error('Staff session expired. Please sign in again.');
-  return bayaniFetch(path, {
+
+  const request = token => bayaniFetch(path, {
     ...options,
     headers: {
       ...(options.headers || {}),
-      Authorization: 'Bearer ' + session.access_token
+      Authorization: 'Bearer ' + token
     }
   });
+
+  try {
+    return await request(session.access_token);
+  } catch (err) {
+    if (!/HTTP 401\b/.test(String(err?.message || err))) throw err;
+    const refreshed = await bayaniRefreshSession();
+    return request(refreshed.access_token);
+  }
 }
 
 async function bayaniSignIn(email, password) {

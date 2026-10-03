@@ -3,77 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d9488">
+  <meta name="description" content="BayaniHub advertising and sponsorship information.">
   <title>Sponsor BayaniHub</title>
+  <link rel="manifest" href="manifest.json">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config={theme:{extend:{colors:{brand:{600:'#0d9488',700:'#0f766e',800:'#115e59'},accent:{400:'#fbbf24',600:'#d97706'}}}}}</script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>body{font-family:Inter,system-ui,sans-serif}</style>
 </head>
 <body class="bg-gray-50 text-gray-900">
-  <header class="bg-white border-b">
-    <div class="w-full max-w-lg lg:max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
-      <a href="index.html" class="text-sm text-brand-700 font-semibold">← Discover</a>
-      <h1 class="font-bold">Sponsor BayaniHub</h1>
-    </div>
-  </header>
+  <header class="bg-white border-b"><div class="w-full max-w-lg lg:max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+    <a href="index.html" class="text-sm text-brand-700 font-semibold">← Discover</a><h1 class="font-bold">Advertise / Sponsor</h1>
+  </div></header>
   <main class="w-full max-w-lg lg:max-w-7xl mx-auto px-4 py-5 space-y-4">
-    <p class="text-sm text-gray-600">Advertising supports BayaniHub separately from campaign gifts. Secure sponsor checkout will be enabled only after BayaniHub has an approved organizational payment channel. No personal GCash details are displayed here.</p>
-    <div id="packages" class="space-y-3"></div>
+    <section class="bg-white border rounded-2xl p-5 shadow-sm">
+      <p class="text-sm text-gray-700 leading-relaxed">Advertising supports BayaniHub separately from campaign gifts. Sponsorship checkout is opened only when an approved organizational payment channel is connected. Until then, no sponsor payment is collected and no personal GCash account is used for advertising.</p>
+    </section>
+    <section id="packages" class="space-y-3"></section>
     <form id="sponsor-form" class="bg-white border rounded-2xl p-4 space-y-3">
-      <label class="block text-xs font-semibold">Name or brand<input id="sp-name" required class="mt-1 w-full border rounded-xl px-3 py-2 text-sm"></label>
+      <label class="block text-xs font-semibold">Name or brand
+        <input id="sp-name" required maxlength="120" class="mt-1 w-full border rounded-xl px-3 py-2 text-sm">
+      </label>
       <label class="block text-xs font-semibold">Package
         <select id="sp-pack" class="mt-1 w-full border rounded-xl px-3 py-2 text-sm"></select>
       </label>
       <div class="rounded-xl border border-brand-100 bg-brand-50 p-3 text-xs text-brand-800">
-        <strong>Secure advertising checkout is not enabled yet.</strong>
-        <p class="mt-1 text-brand-700">Your package request can be reviewed, but no payment should be sent until BayaniHub provides an approved organizational checkout.</p>
+        <strong id="checkout-title">Advertising checkout is not enabled yet.</strong>
+        <p id="checkout-copy" class="mt-1 text-brand-700">Please do not send money from this page. Contact BayaniHub at hello@bayanihub.org for sponsorship inquiries until secure checkout is connected.</p>
       </div>
-      <button class="w-full bg-brand-600 text-white font-bold py-3 rounded-xl">Submit sponsor payment</button>
-      <p class="text-[11px] text-gray-500">Submitting does not mark it paid. Admin confirms it in the control center.</p>
+      <button id="sponsor-submit" type="submit" disabled class="w-full bg-gray-300 text-gray-500 font-bold py-3 rounded-xl cursor-not-allowed">Secure checkout unavailable</button>
+      <p id="sponsor-status" class="text-[11px] text-gray-500" aria-live="polite"></p>
     </form>
   </main>
-  <script src="js/data.js"></script>
   <script src="js/revenue.js"></script>
   <script src="js/payments.js"></script>
-  <script src="js/supabase.js"></script>
   <script>
-    const box = document.getElementById('packages');
-    const select = document.getElementById('sp-pack');
-    box.innerHTML = BayaniRevenue.packages.map(p => `
+    const box=document.getElementById('packages');
+    const select=document.getElementById('sp-pack');
+    const submit=document.getElementById('sponsor-submit');
+    const checkoutTitle=document.getElementById('checkout-title');
+    const checkoutCopy=document.getElementById('checkout-copy');
+    const status=document.getElementById('sponsor-status');
+
+    box.innerHTML=BayaniRevenue.packages.map(p=>`
       <article class="bg-white border rounded-2xl p-4">
         <p class="font-bold">${p.name}</p>
         <p class="text-brand-700 font-extrabold text-lg">${formatPeso(p.price)}</p>
         <p class="text-xs text-gray-500 mt-1">${p.note}</p>
       </article>`).join('');
-    select.innerHTML = BayaniRevenue.packages.map(p => `<option value="${p.id}">${p.name} — ${formatPeso(p.price)}</option>`).join('');
-    document.getElementById('sponsor-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const pack = BayaniRevenue.packages.find(p => p.id === select.value);
-      const name = document.getElementById('sp-name').value.trim();
-      const ref = '';
-      try {
-        if (window.BayaniPayments?.isAutomaticReady()) {
-          await BayaniPayments.startCheckout({
-            kind: 'sponsor',
-            name,
-            package_id: pack.id,
-            package_name: pack.name,
-            amount: pack.price
-          });
-          return;
-        }
+    select.innerHTML=BayaniRevenue.packages.map(p=>`<option value="${p.id}">${p.name} — ${formatPeso(p.price)}</option>`).join('');
 
-        await BayaniCloud.submitSponsorPayment({
-          name,
-          packageId: pack.id,
-          packageName: pack.name,
-          amount: pack.price,
-          ref
-        });
-        alert('Sponsor payment submitted. It becomes BayaniHub revenue only after staff confirms the GCash reference.');
-        e.target.reset();
-      } catch (err) {
-        alert(err.message || 'Could not submit sponsor payment.');
+    const automaticReady=!!window.BayaniPayments?.isAutomaticReady?.();
+    if(automaticReady){
+      submit.disabled=false;
+      submit.className='w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl';
+      submit.textContent='Continue to secure checkout';
+      checkoutTitle.textContent='Secure advertising checkout is ready.';
+      checkoutCopy.textContent='You will be redirected to the approved payment provider. BayaniHub records the advertising payment only after provider confirmation.';
+    }
+
+    document.getElementById('sponsor-form').addEventListener('submit',async(e)=>{
+      e.preventDefault();
+      const pack=BayaniRevenue.packages.find(p=>p.id===select.value);
+      const name=document.getElementById('sp-name').value.trim();
+      if(!name||!pack){status.textContent='Please enter your name or brand and select a package.';return;}
+      if(!automaticReady){status.textContent='Secure advertising checkout is not enabled yet. No payment was submitted.';return;}
+      submit.disabled=true;
+      submit.textContent='Opening secure checkout…';
+      try{
+        await BayaniPayments.startCheckout({kind:'sponsor',name,package_id:pack.id,package_name:pack.name,amount:pack.price});
+      }catch(err){
+        submit.disabled=false;
+        submit.textContent='Continue to secure checkout';
+        status.textContent=err.message||'Could not start secure sponsor checkout.';
       }
     });
   </script>

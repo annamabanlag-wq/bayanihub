@@ -148,24 +148,42 @@
 
     let evidenceFiles = [];
 
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+      }[ch]));
+    }
+
     document.getElementById('evidence-files').addEventListener('change', async (e) => {
       const files = Array.from(e.target.files).slice(0, 5);
       evidenceFiles = [];
       const preview = document.getElementById('evidence-preview');
       preview.innerHTML = '';
+      let totalBytes = 0;
 
       for (const file of files) {
-        if (file.size > 1.5 * 1024 * 1024) {
-          alert(file.name + ' is too large (max ~1.5MB per file). Compress it first.');
+        if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+          alert(file.name + ' is not a supported file type. Use an image or PDF.');
           continue;
         }
+        if (file.size > 1 * 1024 * 1024) {
+          alert(file.name + ' is too large (max 1MB per file). Compress it first.');
+          continue;
+        }
+        if (totalBytes + file.size > 4 * 1024 * 1024) {
+          alert('The evidence upload is too large. Keep all evidence under 4MB total.');
+          break;
+        }
+        totalBytes += file.size;
         const dataUrl = await readFileAsDataURL(file);
         evidenceFiles.push({ name: file.name, type: file.type, dataUrl });
         const isImg = file.type.startsWith('image/');
+        const safeName = escapeHtml(file.name);
+        const safeDataUrl = escapeHtml(dataUrl);
         preview.innerHTML += `
           <div class="relative rounded-lg overflow-hidden border bg-white">
-            ${isImg ? `<img src="${dataUrl}" class="w-full h-20 object-cover">` : `<div class="h-20 flex items-center justify-center text-xs text-gray-500 p-1 text-center">${file.name}</div>`}
-            <p class="text-[9px] truncate px-1 py-0.5 bg-gray-50">${file.name}</p>
+            ${isImg ? `<img src="${safeDataUrl}" class="w-full h-20 object-cover">` : `<div class="h-20 flex items-center justify-center text-xs text-gray-500 p-1 text-center">${safeName}</div>`}
+            <p class="text-[9px] truncate px-1 py-0.5 bg-gray-50">${safeName}</p>
           </div>`;
       }
     });

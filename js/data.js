@@ -173,19 +173,31 @@ const Storage = {
       localStorage.setItem('bayani_campaigns', JSON.stringify(SEED_CAMPAIGNS));
       return [...SEED_CAMPAIGNS];
     }
-    return JSON.parse(stored);
+    try {
+      const parsed = JSON.parse(stored);
+      return Array.isArray(parsed) ? parsed : [...SEED_CAMPAIGNS];
+    } catch (_) {
+      localStorage.setItem('bayani_campaigns', JSON.stringify(SEED_CAMPAIGNS));
+      return [...SEED_CAMPAIGNS];
+    }
   },
   saveCampaigns(list) {
     localStorage.setItem('bayani_campaigns', JSON.stringify(list));
   },
   getPending() {
-    return JSON.parse(localStorage.getItem('bayani_pending') || '[]');
+    try {
+      const parsed = JSON.parse(localStorage.getItem('bayani_pending') || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_) { return []; }
   },
   savePending(list) {
     localStorage.setItem('bayani_pending', JSON.stringify(list));
   },
   getDonations() {
-    return JSON.parse(localStorage.getItem('bayani_donations') || '[]');
+    try {
+      const parsed = JSON.parse(localStorage.getItem('bayani_donations') || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_) { return []; }
   },
   addDonation(d) {
     const list = this.getDonations();
@@ -193,7 +205,8 @@ const Storage = {
     localStorage.setItem('bayani_donations', JSON.stringify(list));
   },
   getUser() {
-    return JSON.parse(localStorage.getItem('bayani_user') || 'null');
+    try { return JSON.parse(localStorage.getItem('bayani_user') || 'null'); }
+    catch (_) { return null; }
   },
   setUser(u) {
     localStorage.setItem('bayani_user', JSON.stringify(u));
@@ -207,11 +220,15 @@ const Storage = {
 };
 
 function formatPeso(n) {
-  return '₱' + Number(n).toLocaleString('en-PH');
+  const value = Number(n);
+  return '₱' + (Number.isFinite(value) ? value : 0).toLocaleString('en-PH');
 }
 
 function percent(raised, goal) {
-  return Math.min(100, Math.round((raised / goal) * 100));
+  const r = Number(raised) || 0;
+  const g = Number(goal) || 0;
+  if (g <= 0) return 0;
+  return Math.min(100, Math.max(0, Math.round((r / g) * 100)));
 }
 
 function timeAgo(dateStr) {
@@ -223,16 +240,3 @@ function timeAgo(dateStr) {
   if (days < 7) return days + ' days ago';
   return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
 }
-
-(function loadRevenue() {
-  if (document.querySelector('script[data-bayani-revenue]')) return;
-  const revenue = document.createElement('script');
-  revenue.src = 'js/revenue.js';
-  revenue.dataset.bayaniRevenue = '1';
-  revenue.onload = function () {
-    const wire = document.createElement('script');
-    wire.src = 'js/wire-revenue.js';
-    document.body.appendChild(wire);
-  };
-  document.body.appendChild(revenue);
-})();
