@@ -1,4 +1,4 @@
-const CACHE = 'bayanihub-v18';
+const CACHE = 'bayanihub-v19';
 const ASSETS = [
   './',
   './index.html',
@@ -12,6 +12,7 @@ const ASSETS = [
   './js/app.js',
   './js/revenue.js',
   './js/payments.js',
+  './payment-return.html',
   './js/wire-revenue.js',
   './js/supabase.js',
   './manifest.json'

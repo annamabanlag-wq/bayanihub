@@ -153,9 +153,6 @@
           '</div>';
         return;
       }
-      const gcashNum = (c.gcash || '').replace(/[^0-9]/g, '');
-      document.getElementById('gcash-number').textContent = gcashNum ? 'Use the QR code to pay' : 'Payment details are provided privately';
-      document.getElementById('gcash-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(gcashNum)}&color=0d9488`;
       document.title = String(c.title || 'Campaign') + ' – BayaniHub';
 
       let evidenceHtml = '';
@@ -254,8 +251,10 @@
       const name = document.getElementById('donor-name').value.trim() || 'Anonymous';
       const amount = parseFloat(document.getElementById('donor-amount').value);
       const tip = Math.max(0, Math.round(parseFloat(document.getElementById('donor-tip')?.value || '0') || 0));
-      const ref = document.getElementById('donor-ref').value.trim();
-      if (!amount || amount < 50) {\n        alert('Please enter a valid amount (minimum ₱50).');\n        return;\n      }\n      if (window.BayaniPayments?.isAutomaticReady()) {
+      if (!amount || amount < 50) {
+        alert('Please enter a valid amount (minimum ₱50).');
+        return;
+      }\n      if (window.BayaniPayments?.isAutomaticReady()) {
         try {
           await BayaniPayments.startCheckout({
             kind: 'gift',
