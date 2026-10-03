@@ -66,25 +66,43 @@
 
   <div id="donate-modal" class="fixed inset-0 z-50 hidden">
     <div class="absolute inset-0 bg-black/50" onclick="closeDonateModal()"></div>
-    <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-3xl p-5 w-full max-w-lg lg:max-w-7xl mx-auto safe-bottom transform transition-transform max-h-[90vh] overflow-y-auto">
+    <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-3xl p-5 w-full max-w-lg lg:max-w-7xl mx-auto safe-bottom max-h-[90vh] overflow-y-auto">
       <div class="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-3"></div>
       <h3 class="text-lg font-bold text-center mb-0.5">Send help via GCash</h3>
-      <p class="text-xs text-gray-500 text-center mb-3">Use BayaniHub’s approved donation channel • Admin verifies before funds are released</p>
-      
-      <div class="bg-brand-50 border border-brand-100 rounded-2xl p-4 mb-3 text-center">\n        <p class="text-sm font-bold text-brand-800">Secure donation payments are being prepared</p>\n        <p class="text-xs text-brand-700 mt-1">BayaniHub will enable online GCash donations only after an approved organizational donation channel is connected. Your personal GCash details will never be displayed here.</p>\n      </div>\n\n      <div class="space-y-2.5 mb-4">
+      <p class="text-xs text-gray-500 text-center mb-3">Manual GCash donation • Admin verifies every transfer before campaign totals change</p>
+
+      <div class="bg-brand-50 border border-brand-100 rounded-2xl p-4 mb-4 text-center">
+        <p class="text-sm font-bold text-brand-800">1. Scan the official BayaniHub GCash QR</p>
+        <div class="mt-3 bg-white rounded-xl border p-3 inline-block">
+          <img src="assets/gcash-qr.svg" alt="BayaniHub GCash payment QR" class="w-56 h-56 mx-auto" loading="lazy">
+        </div>
+        <p class="text-xs text-brand-700 mt-2">Scan with the GCash app. Confirm the recipient details shown by GCash before sending.</p>
+      </div>
+
+      <div class="bg-white border rounded-2xl p-4 mb-4 space-y-3">
+        <p class="text-sm font-bold text-gray-800">2. Send your chosen amount</p>
         <div>
           <label class="text-xs font-medium text-gray-600">Your name (optional)</label>
-          <input id="donor-name" type="text" placeholder="Anonymous is okay" class="w-full mt-0.5 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+          <input id="donor-name" type="text" placeholder="Anonymous is okay" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
         </div>
         <div>
           <label class="text-xs font-medium text-gray-600">Amount (₱)</label>
-          <input id="donor-amount" type="number" min="50" placeholder="e.g. 500" class="w-full mt-0.5 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+          <input id="donor-amount" type="number" min="50" step="1" placeholder="e.g. 500" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
         </div>
+        <div>
+          <label class="text-xs font-medium text-gray-600">GCash reference number</label>
+          <input id="donor-ref" type="text" required placeholder="Enter the reference from your GCash receipt" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
         </div>
+      </div>
 
-      <button onclick="submitDonation()" class="w-full bg-brand-600 text-white font-bold py-3 rounded-xl mb-1.5">Continue to secure donation</button>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-xs text-amber-800">
+        <strong>3. Submit proof for verification</strong>
+        <p class="mt-1">Your donation remains pending until an authorized BayaniHub admin verifies the GCash transfer. Pending donations do not increase the public campaign total.</p>
+      </div>
+
+      <button onclick="submitDonation()" class="w-full bg-brand-600 text-white font-bold py-3 rounded-xl mb-1.5">Submit donation for verification</button>
       <button onclick="closeDonateModal()" class="w-full text-gray-500 text-sm py-1.5">Cancel</button>
-      <p class="text-[10px] text-center text-gray-400 mt-2">By donating you agree to our <a href="privacy.html" class="underline">Privacy Policy</a></p>
+      <p class="text-[10px] text-center text-gray-400 mt-2">Never send money to anyone claiming to represent BayaniHub outside this official payment screen.</p>
     </div>
   </div>
 
@@ -224,7 +242,7 @@
           ${evidenceHtml}
 
           <div class="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-100">
-            <h3 class="text-sm font-bold text-gray-800 mb-2">How donations work</h3>\n            <ol class="text-xs text-gray-600 space-y-1.5 list-decimal list-inside">\n              <li>Choose an approved BayaniHub campaign.</li>\n              <li>Use the official donation checkout when it is enabled.</li>\n              <li>BayaniHub verifies the payment and campaign records.</li>\n              <li>Funds are released according to the approved campaign process.</li>\n            </ol>\n            <p class="text-[10px] text-gray-400 mt-2">Personal wallet details are not displayed publicly. Automatic GCash checkout will be enabled only after organizational approval. </p>\n          </div>\n\n          <div class="rounded-xl border border-dashed border-accent-400 bg-accent-50/40 p-3 flex items-center gap-3 mb-8">
+            <h3 class="text-sm font-bold text-gray-800 mb-2">How donations work</h3>\n            <ol class="text-xs text-gray-600 space-y-1.5 list-decimal list-inside">\n              <li>Choose an approved BayaniHub campaign.</li>\n              <li>Scan the official BayaniHub GCash QR and send your chosen amount.</li>\n              <li>BayaniHub verifies the payment and campaign records.</li>\n              <li>Funds are released according to the approved campaign process.</li>\n            </ol>\n            <p class="text-[10px] text-gray-400 mt-2">Manual GCash transfers are verified by an authorized admin before any campaign total changes.</p>\n          </div>\n\n          <div class="rounded-xl border border-dashed border-accent-400 bg-accent-50/40 p-3 flex items-center gap-3 mb-8">
             <div class="w-9 h-9 rounded-lg bg-accent-400 flex items-center justify-center text-white font-bold text-xs">AD</div>
             <div class="flex-1">
               <p class="text-xs font-semibold text-gray-800">Support more families</p>
@@ -248,61 +266,39 @@
         alert('Donations are disabled for demo campaigns. Please choose a live, admin-approved campaign.');
         return;
       }
+
       const name = document.getElementById('donor-name').value.trim() || 'Anonymous';
-      const amount = parseFloat(document.getElementById('donor-amount').value);
-      const tip = Math.max(0, Math.round(parseFloat(document.getElementById('donor-tip')?.value || '0') || 0));
+      const amount = Math.round(Number(document.getElementById('donor-amount').value) || 0);
+      const ref = document.getElementById('donor-ref').value.trim();
+
       if (!amount || amount < 50) {
         alert('Please enter a valid amount (minimum ₱50).');
         return;
-      }\n      if (window.BayaniPayments?.isAutomaticReady()) {
-        try {
-          await BayaniPayments.startCheckout({
-            kind: 'gift',
-            campaign_id: campaign.id,
-            campaign_title: campaign.title,
-            donor_name: name,
-            amount: Math.round(amount),
-            tip: tip
-          });
-          return;
-        } catch (err) {
-          alert(err.message || 'GCash checkout could not be started.');
-          return;
-        }
+      }
+      if (ref.length < 3) {
+        alert('Please enter the GCash reference number from your receipt.');
+        return;
       }
 
-      alert('The secure donation checkout is not enabled yet. BayaniHub is completing its approved organizational donation setup. No personal GCash number is used on this page.');\n      return;\n\n      let cloudSaved = false;
       try {
-        await BayaniCloud.submitDonation({campaignId: campaign.id, campaignTitle: campaign.title, name, amount, tip, ref});
-        cloudSaved = true;
+        await BayaniCloud.submitDonation({
+          campaignId: campaign.id,
+          campaignTitle: campaign.title,
+          name,
+          amount,
+          tip: 0,
+          ref
+        });
+
+        closeDonateModal();
+        document.getElementById('donor-ref').value = '';
+        document.getElementById('donor-amount').value = '';
+
+        alert('Maraming salamat! 💚\\n\\nYour GCash donation was submitted for BayaniHub admin verification.\\n\\nThe campaign total will change only after the transfer is verified.');
       } catch (err) {
-        console.warn('Cloud donation submission failed; keeping local copy.', err);
+        console.error('Manual GCash donation submission failed:', err);
+        alert(err.message || 'We could not submit your donation for verification. Please try again.');
       }
-
-      Storage.addDonation({
-        id: 'd' + Date.now(),
-        campaignId: campaign.id,
-        campaignTitle: campaign.title,
-        name,
-        amount,
-        ref,
-        date: new Date().toISOString(),
-        status: 'pending_verification',
-        tip,
-        split: typeof BayaniRevenue !== 'undefined' && typeof BayaniRevenue.split === 'function'
-          ? BayaniRevenue.split(amount, tip)
-          : { gross: amount, fee: 0, organizer: amount, tip, platform: tip }
-      });
-
-      // Pending donations must not inflate the public campaign totals.
-      // Raised/donor totals are updated only after admin verification.
-      closeDonateModal();
-      alert((cloudSaved
-        ? 'Maraming salamat! 💚\\n\\nYour donation was securely submitted to BayaniHub for admin verification.'
-        : 'Your donation could not reach the central server. Please retry before treating it as submitted.')
-        + '\\n\\nAdmin verification is required before any campaign total changes.');
-      alert((cloudSaved ? 'Maraming salamat! 💚\n\nYour donation was securely submitted to BayaniHub for admin verification.' : 'Your donation was saved locally, but cloud submission failed. Please retry.') + '\n\nAn email notification was prepared for the admin.\nThey will verify the GCash transfer (Ref: ' + ref + ') and release the funds.');
-      renderCampaign();
     }
 
     async function copyCampaignLink() { try { await navigator.clipboard.writeText(location.href); alert("Campaign link copied."); } catch (_) { alert(location.href); } }

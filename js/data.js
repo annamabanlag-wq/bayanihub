@@ -27,7 +27,7 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: true,
     created: '2026-09-10',
-    gcash: '09381447214',
+    gcash: '',
     evidence: [],
     sample: true
   },
@@ -46,7 +46,7 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: false,
     created: '2026-09-05',
-    gcash: '09381447214',
+    gcash: '',
     evidence: [],
     sample: true
   },
@@ -65,7 +65,7 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: true,
     created: '2026-09-18',
-    gcash: '09381447214',
+    gcash: '',
     evidence: [],
     sample: true
   },
@@ -84,7 +84,7 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: false,
     created: '2026-08-28',
-    gcash: '09381447214',
+    gcash: '',
     evidence: [],
     sample: true
   },
@@ -103,7 +103,7 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: true,
     created: '2026-09-12',
-    gcash: '09381447214',
+    gcash: '',
     evidence: [],
     sample: true
   },
@@ -122,7 +122,7 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: false,
     created: '2026-09-01',
-    gcash: '09381447214',
+    gcash: '',
     evidence: [],
     sample: true
   },
@@ -141,7 +141,7 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: true,
     created: '2026-09-08',
-    gcash: '09381447214',
+    gcash: '',
     evidence: [],
     sample: true
   },
@@ -160,7 +160,7 @@ const SEED_CAMPAIGNS = [
     status: 'approved',
     urgent: false,
     created: '2026-09-15',
-    gcash: '09381447214',
+    gcash: '',
     evidence: [],
     sample: true
   }
