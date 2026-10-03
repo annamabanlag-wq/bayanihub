@@ -37,11 +37,13 @@ Sample campaigns on Discover are demo stories so the app is not empty. Their rai
 - Sponsor slots + GCash manual approval
 - Installable PWA
 
-## GCash flow
-1. Campaign page shows a scannable QR and the GCash number
-2. Donor pays in GCash and puts the campaign title/ID in the message
-3. Donor pastes the GCash reference number in the app
-4. Admin verifies the donor payment and beneficiary/campaign information. After a confirmed gift, the 5% platform donation fee is recorded and the organizer share is added to the campaign.
+## Payment flow
+
+BayaniHub is prepared for automatic GCash WebPay payments. The public app is designed to send each payment request to a secure Supabase Edge Function; GCash merchant secrets stay on the backend, never in GitHub or browser code.
+
+Automatic mode is activated only after BayaniHub has an approved GCash for Business/WebPay merchant integration and the production credentials are stored as backend secrets. The payment provider then returns a verified payment result to BayaniHub's secure webhook.
+
+Until that onboarding is complete, the existing manual GCash verification flow remains the fallback. Confirmed gifts use the 5% platform fee, and confirmed advertising/sponsor payments are recorded as BayaniHub platform revenue.
 
 ## EmailJS
 Point templates at **hello@bayanihub.org**. Replace placeholders in `campaign.html` and `submit.html`:

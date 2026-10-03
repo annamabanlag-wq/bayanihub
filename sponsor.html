@@ -30,7 +30,9 @@
     </form>
   </main>
   <script src="js/data.js"></script>
-  <script src="js/revenue.js"></script>\n  <script src="js/supabase.js"></script>
+  <script src="js/revenue.js"></script>
+  <script src="js/payments.js"></script>
+  <script src="js/supabase.js"></script>
   <script>
     const box = document.getElementById('packages');
     const select = document.getElementById('sp-pack');
@@ -44,13 +46,26 @@
     document.getElementById('sponsor-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const pack = BayaniRevenue.packages.find(p => p.id === select.value);
+      const name = document.getElementById('sp-name').value.trim();
+      const ref = document.getElementById('sp-ref').value.trim();
       try {
+        if (window.BayaniPayments?.isAutomaticReady()) {
+          await BayaniPayments.startCheckout({
+            kind: 'sponsor',
+            name,
+            package_id: pack.id,
+            package_name: pack.name,
+            amount: pack.price
+          });
+          return;
+        }
+
         await BayaniCloud.submitSponsorPayment({
-          name: document.getElementById('sp-name').value.trim(),
+          name,
           packageId: pack.id,
           packageName: pack.name,
           amount: pack.price,
-          ref: document.getElementById('sp-ref').value.trim()
+          ref
         });
         alert('Sponsor payment submitted. It becomes BayaniHub revenue only after staff confirms the GCash reference.');
         e.target.reset();
