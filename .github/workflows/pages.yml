@@ -22,6 +22,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Verify BayaniHub release
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f index.html
+          test -f campaign.html
+          test -f submit.html
+          test -f assets/gcash-qr.svg
+          test -f js/supabase.js
+          test -f js/data.js
+          test -f sw.js
+          ! grep -R --exclude-dir=.git -n "09381447214" .
+          grep -q "assets/gcash-qr.svg" campaign.html
+          grep -q "gcash: null" submit.html
+          grep -q "bayanihub-v22" sw.js
       - uses: actions/configure-pages@v5
         with:
           enablement: true
