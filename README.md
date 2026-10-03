@@ -8,7 +8,7 @@ Live app: https://annamabanlag-wq.github.io/bayanihub/
 
 ## How it makes money
 
-Manual GCash only. Nothing is marked paid until staff confirms the reference number in the control center.
+BayaniHub is a community-help platform. Help requests are free. Donation payments will use an approved organizational donation channel once onboarding and required permits are complete; nothing is marked paid until the payment is verified.
 
 | Line | Price | Who keeps it |
 | --- | --- | --- |
@@ -20,15 +20,13 @@ Manual GCash only. Nothing is marked paid until staff confirms the reference num
 | Homepage sponsor, 7 days | ₱499 | BayaniHub |
 | Homepage sponsor, 30 days | ₱1,499 | BayaniHub |
 
-Receive number already in the app: `09381447214`.
-
 Sponsor/advertising payments are submitted to Supabase and remain pending until admin confirms the GCash reference in `admin.html`. Confirmed advertising rows land in the cloud revenue ledger. Help requests themselves are free.
 
 Sample campaigns on Discover are demo stories so the app is not empty. Their raised totals are not collected money. Only confirmed GCash references are platform revenue.
 
 ## Features
 - Discover campaigns with category filters
-- Campaign detail with GCash QR and evidence previews
+- Campaign detail with campaign evidence and secure donation instructions
 - Submit a campaign (evidence required, admin review)
 - User dashboard
 - Admin Command Center with revenue totals
@@ -43,7 +41,7 @@ BayaniHub is prepared for automatic GCash WebPay payments. The public app is des
 
 Automatic mode is activated only after BayaniHub has an approved GCash for Business/WebPay merchant integration and the production credentials are stored as backend secrets. The payment provider then returns a verified payment result to BayaniHub's secure webhook.
 
-Until that onboarding is complete, the existing manual GCash verification flow remains the fallback. Confirmed gifts use the 5% platform fee, and confirmed advertising/sponsor payments are recorded as BayaniHub platform revenue.
+Until that onboarding is complete, public donation checkout remains disabled rather than exposing a personal GCash wallet. The app does not display or embed a personal GCash number. Confirmed gifts use the 5% platform fee, and confirmed advertising/sponsor payments are recorded as BayaniHub platform revenue.
 
 ## EmailJS
 Point templates at **hello@bayanihub.org**. Replace placeholders in `campaign.html` and `submit.html`:
