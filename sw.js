@@ -1,4 +1,4 @@
-const CACHE = 'bayanihub-v19';
+const CACHE = 'bayanihub-v20';
 const ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const ASSETS = [
   './how.html',
   './privacy.html',
   './sponsor.html',
+  './assets/gcash-qr.svg',
   './js/data.js',
   './js/app.js',
   './js/revenue.js',
