@@ -2,7 +2,7 @@
 const BayaniRevenue = {
   feePct: 5,
   minDonation: 50,
-  postFee: 50,
+  postFee: 0,
   gcash: '09381447214',
   packages: [
     { id: 'boost_7', name: 'Campaign boost · 7 days', price: 199, days: 7, note: 'Urgent badge and top of Discover for 7 days after payment is confirmed.' },
