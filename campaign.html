@@ -137,13 +137,26 @@
         return;
       }
       renderCampaign();
-      document.getElementById('donate-bar').classList.remove('hidden');
+      if (!campaign.sample) document.getElementById('donate-bar').classList.remove('hidden');
     });
 
     function renderCampaign() {
       const c = campaign;
+      const isDemo = c.sample === true;
       const pct = percent(c.raised, c.goal);
       const cat = CATEGORIES.find(x => x.id === c.category) || { label: c.category, icon: '📌', color: 'bg-gray-100' };
+      if (isDemo) {
+        document.getElementById('content').innerHTML =
+          '<div class="p-4">' +
+          '<div class="bg-slate-700 text-white rounded-2xl p-5 shadow-sm">' +
+          '<p class="text-xs font-bold uppercase tracking-wider">Demo story</p>' +
+          '<h1 class="text-xl font-extrabold mt-1">Not a real fundraiser</h1>' +
+          '<p class="text-sm text-slate-200 mt-2">This example is included to show how BayaniHub works. The story, amounts and donor counts are demonstration data only. No money has been collected and GCash donations are disabled.</p>' +
+          '<a href="submit.html" class="inline-block mt-4 bg-white text-slate-800 font-bold px-4 py-2.5 rounded-xl">Start a real campaign</a>' +
+          '</div>' +
+          '</div>';
+        return;
+      }
       const gcashNum = (c.gcash || '09381447214').replace(/[^0-9]/g, '') || '09381447214';
       document.getElementById('gcash-number').textContent = c.gcash || '09381447214';
       document.getElementById('gcash-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(gcashNum)}&color=0d9488`;
@@ -241,6 +254,10 @@
     }
 
     async function submitDonation() {
+      if (!campaign || campaign.sample === true) {
+        alert('Donations are disabled for demo campaigns. Please choose a live, admin-approved campaign.');
+        return;
+      }
       const name = document.getElementById('donor-name').value.trim() || 'Anonymous';
       const amount = parseFloat(document.getElementById('donor-amount').value);
       const tip = Math.max(0, Math.round(parseFloat(document.getElementById('donor-tip')?.value || '0') || 0));
