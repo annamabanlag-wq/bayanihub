@@ -193,16 +193,23 @@
       });
     }
 
+    let submitting = false;
     document.getElementById('submit-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (submitting) return;
+
       if (evidenceFiles.length === 0) {
         alert('Please upload at least one evidence photo or document so admin can verify your need.');
         return;
       }
+
+      const submitButton = e.target.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton?.textContent || 'Submit for Review';
       const fd = new FormData(e.target);
       const data = Object.fromEntries(fd.entries());
       const paid = document.getElementById('paid-followup').checked;
       const followupRef = (data.followupRef || '').trim();
+
       if (paid && followupRef.length < 3) {
         alert('Please enter the GCash reference number for the ₱50 follow-up payment.');
         return;
@@ -227,37 +234,51 @@
         gcash: '09381447214',
         followupPaid: false,
         followupRef: '',
-        evidence: evidenceFiles
+        evidence: evidenceFiles,
+        sample: false
       };
 
-      let cloudSaved = false;
-      try {
-        const cloudCampaign = await BayaniCloud.submitCampaign(newCampaign);
-        if (cloudCampaign && cloudCampaign.id) {
-          newCampaign.id = cloudCampaign.id;
-          if (paid) {
-            await BayaniCloud.submitFollowupPayment({ campaignId: newCampaign.id, ref: followupRef });
-          }
-        }
-        cloudSaved = true;
-      } catch (err) {
-        console.warn('Cloud submission failed; keeping local copy.', err);
+      submitting = true;
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Submitting…';
       }
 
-      const pending = Storage.getPending();
-      pending.unshift(newCampaign);
-      Storage.savePending(pending);
+      try {
+        const cloudCampaign = await BayaniCloud.submitCampaign(newCampaign);
+        if (!cloudCampaign?.id) throw new Error('The central BayaniHub server did not confirm the campaign submission.');
 
-      const all = Storage.getCampaigns();
-      all.unshift(newCampaign);
-      Storage.saveCampaigns(all);
+        newCampaign.id = cloudCampaign.id;
 
-      const subject = encodeURIComponent(`[BayaniHub] New campaign pending – ${newCampaign.title}`);
-      const body = encodeURIComponent(`New campaign submitted for review\n\nTitle: ${newCampaign.title}\nOrganizer: ${newCampaign.organizer}\nLocation: ${newCampaign.location}\nGoal: ₱${newCampaign.goal}\nContact: ${newCampaign.contact}\n₱50 follow-up request: ${paid ? 'submitted for GCash verification' : 'no'}\nFollow-up Ref: ${followupRef || 'n/a'}\nEvidence files: ${evidenceFiles.length}\n\nReview in Admin Command Center.\n\n– BayaniHub`);
-      window.open(`mailto:admin@bayanihub.ph?subject=${subject}&body=${body}`, '_blank');
+        if (paid) {
+          try {
+            await BayaniCloud.submitFollowupPayment({ campaignId: newCampaign.id, ref: followupRef });
+          } catch (followupErr) {
+            alert('Your campaign was submitted successfully, but the optional ₱50 follow-up request was not recorded. You can submit that option later from your campaign.');
+          }
+        }
 
-      alert(cloudSaved ? 'Salamat! Your campaign was submitted to BayaniHub for admin review.' : 'Salamat! Your campaign was saved locally. Please retry when your connection is stable.');
-      location.href = 'dashboard.html';
+        const pending = Storage.getPending();
+        pending.unshift(newCampaign);
+        Storage.savePending(pending);
+
+        const all = Storage.getCampaigns().filter(c => c.id !== newCampaign.id);
+        all.unshift(newCampaign);
+        Storage.saveCampaigns(all);
+        Storage.setUser({ name: newCampaign.organizer });
+
+        alert('Salamat! Your campaign was received by BayaniHub and is now waiting for admin review.');
+        location.href = 'dashboard.html';
+      } catch (err) {
+        console.error('BayaniHub cloud submission failed:', err);
+        alert('We could not reach the central BayaniHub server, so your campaign was NOT submitted. Please check your connection and try again.');
+      } finally {
+        submitting = false;
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = originalButtonText;
+        }
+      }
     });
   </script>
 </body>
