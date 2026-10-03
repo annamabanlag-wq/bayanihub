@@ -157,6 +157,8 @@
     function renderCampaign() {
       const c = campaign;
       const isDemo = c.sample === true;
+      const organizerName = esc(c.organizer || 'Organizer');
+      const organizerInitial = esc((String(c.organizer || '?').trim().charAt(0) || '?').toUpperCase());
       const pct = percent(c.raised, c.goal);
       const cat = CATEGORIES.find(x => x.id === c.category) || { label: c.category, icon: '📌', color: 'bg-gray-100' };
       if (isDemo) {
@@ -221,9 +223,9 @@
           </div>
 
           <div class="flex items-center gap-3 mb-5">
-            <div class="w-11 h-11 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold text-lg">${c.organizer.charAt(0)}</div>
+            <div class="w-11 h-11 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-bold text-lg">${organizerInitial}</div>
             <div>
-              <p class="font-semibold text-sm text-gray-800">${esc(c.organizer)}</p>
+              <p class="font-semibold text-sm text-gray-800">${organizerName}</p>
               <p class="text-xs text-gray-500">Organizer • ${esc(timeAgo(c.created))}</p>
             </div>
             ${c.verified ? '<span class="ml-auto text-[10px] bg-brand-50 text-brand-700 font-semibold px-2 py-1 rounded-full">Verified</span>' : ''}
