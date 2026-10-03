@@ -16,13 +16,13 @@ Manual GCash only. Nothing is marked paid until staff confirms the reference num
 | Gift after the fee | 95% | Campaign organizer |
 | Optional donor tip | Donor chooses | BayaniHub |
 | Help-request posting + follow-up | Free | BayaniHub |
-| Campaign boost, 7 days | ₱199 | BayaniHub |
+| Featured campaign advertising, 7 days | ₱199 | BayaniHub |
 | Homepage sponsor, 7 days | ₱499 | BayaniHub |
 | Homepage sponsor, 30 days | ₱1,499 | BayaniHub |
 
 Receive number already in the app: `09381447214`.
 
-Sponsor page: `sponsor.html`. Sponsor and ₱50 follow-up payments are submitted to Supabase and remain pending until admin confirms the GCash reference in `admin.html`. Confirmed rows land in the cloud revenue ledger.
+Sponsor/advertising payments are submitted to Supabase and remain pending until admin confirms the GCash reference in `admin.html`. Confirmed advertising rows land in the cloud revenue ledger. Help requests themselves are free.
 
 Sample campaigns on Discover are demo stories so the app is not empty. Their raised totals are not collected money. Only confirmed GCash references are platform revenue.
 
@@ -41,7 +41,7 @@ Sample campaigns on Discover are demo stories so the app is not empty. Their rai
 1. Campaign page shows a scannable QR and the GCash number
 2. Donor pays in GCash and puts the campaign title/ID in the message
 3. Donor pastes the GCash reference number in the app
-4. Admin confirms the transfer, the 5% fee is recorded, and the organizer share is added to the campaign
+4. Admin verifies the donor payment and beneficiary/campaign information. After a confirmed gift, the 5% platform donation fee is recorded and the organizer share is added to the campaign.
 
 ## EmailJS
 Point templates at **hello@bayanihub.org**. Replace placeholders in `campaign.html` and `submit.html`:
