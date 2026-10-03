@@ -39,13 +39,8 @@
     </div>
 
     <div class="bg-white border border-brand-200 rounded-xl p-4 mb-5">
-      <p class="text-sm font-semibold text-gray-800 mb-1">Optional help: posting + follow-up ₱50</p>
-      <p class="text-xs text-gray-600 mb-2">Submitting here is free. If you want us to post your request and send you 1 follow-up when someone replies:</p>
-      <ol class="text-xs text-gray-700 list-decimal pl-4 space-y-1 mb-2">
-        <li>Send ₱50 via the private GCash payment details provided after submission</li>
-        <li>Paste the GCash Ref No. in the form below</li>
-      </ol>
-      <p class="text-[10px] text-gray-500">₱50 covers posting + 1 follow-up only. It does not guarantee donations or approval. <a href="how.html" class="text-brand-600 underline">How it works</a></p>
+      <p class="text-sm font-semibold text-gray-800 mb-1">🆓 Free to submit</p>
+      <p class="text-xs text-gray-600">Submitting a campaign and requesting help on BayaniHub is completely free. There is no posting or follow-up service fee.</p>
     </div>
 
     <form id="submit-form" class="space-y-4">
@@ -106,15 +101,6 @@
         <input name="contact" required type="tel" placeholder="09XXXXXXXXX"
                class="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
         <p class="text-[10px] text-gray-400 mt-1">For admin verification only. Not shown publicly.</p>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-xl p-4">
-        <label class="flex items-start gap-2">
-          <input type="checkbox" name="paidFollowup" id="paid-followup" class="mt-1 rounded border-gray-300 text-brand-600">
-          <span class="text-xs text-gray-700">I already sent the ₱50 follow-up payment</span>
-        </label>
-        <input name="followupRef" id="followup-ref" placeholder="GCash Ref No. (optional)"
-               class="mt-2 w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none">
       </div>
 
       <div class="flex items-start gap-2 pt-1">
@@ -207,14 +193,6 @@
       const originalButtonText = submitButton?.textContent || 'Submit for Review';
       const fd = new FormData(e.target);
       const data = Object.fromEntries(fd.entries());
-      const paid = document.getElementById('paid-followup').checked;
-      const followupRef = (data.followupRef || '').trim();
-
-      if (paid && followupRef.length < 3) {
-        alert('Please enter the GCash reference number for the ₱50 follow-up payment.');
-        return;
-      }
-
       const newCampaign = {
         id: 'c' + Date.now(),
         title: data.title.trim(),
@@ -232,8 +210,6 @@
         created: new Date().toISOString().slice(0,10),
         contact: data.contact,
         gcash: '09381447214',
-        followupPaid: false,
-        followupRef: '',
         evidence: evidenceFiles,
         sample: false
       };
@@ -249,14 +225,6 @@
         if (!cloudCampaign?.id) throw new Error('The central BayaniHub server did not confirm the campaign submission.');
 
         newCampaign.id = cloudCampaign.id;
-
-        if (paid) {
-          try {
-            await BayaniCloud.submitFollowupPayment({ campaignId: newCampaign.id, ref: followupRef });
-          } catch (followupErr) {
-            alert('Your campaign was submitted successfully, but the optional ₱50 follow-up request was not recorded. You can submit that option later from your campaign.');
-          }
-        }
 
         const pending = Storage.getPending();
         pending.unshift(newCampaign);
