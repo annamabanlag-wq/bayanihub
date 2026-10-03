@@ -41,7 +41,7 @@
         <p class="text-xs text-gray-500 mt-1">${p.note}</p>
       </article>`).join('');
     select.innerHTML = BayaniRevenue.packages.map(p => `<option value="${p.id}">${p.name} — ${formatPeso(p.price)}</option>`).join('');
-    document.getElementById('sponsor-form').addEventListener('submit', (e) => {
+    document.getElementById('sponsor-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const pack = BayaniRevenue.packages.find(p => p.id === select.value);
       try {
