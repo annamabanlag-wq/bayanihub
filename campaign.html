@@ -152,6 +152,7 @@
       }
       renderCampaign();
       if (!campaign.sample) document.getElementById('donate-bar').classList.remove('hidden');
+      initStoryReveal();
     });
 
     function renderCampaign() {
@@ -315,10 +316,21 @@
       } else { copyCampaignLink(); }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const observer = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); observer.unobserve(e.target); } }), { threshold: 0.12 });
-      document.querySelectorAll(".story-reveal").forEach(el => observer.observe(el));
-    });
+    function initStoryReveal() {
+      const items = document.querySelectorAll(".story-reveal");
+      if (!items.length) return;
+      if (!("IntersectionObserver" in window)) {
+        items.forEach(el => el.classList.add("visible"));
+        return;
+      }
+      const observer = new IntersectionObserver(entries => entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add("visible");
+          observer.unobserve(e.target);
+        }
+      }), { threshold: 0.12 });
+      items.forEach(el => observer.observe(el));
+    }
   </script>
 </body>
 </html>
