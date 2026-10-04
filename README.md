@@ -8,7 +8,7 @@ Live app: https://annamabanlag-wq.github.io/bayanihub/
 
 ## How it works
 
-BayaniHub lets people request help for free. Real campaign submissions require evidence and are reviewed by an authorized admin before they can appear as approved campaigns.
+BayaniHub lets people request help for free. Campaign donations are also fee-free. Real campaign submissions require evidence and are reviewed by an authorized admin before they can appear as approved campaigns.
 
 Current donation flow:
 1. Donor opens an approved real campaign.
@@ -23,8 +23,8 @@ Sample campaigns are clearly marked as demonstrations. Their amounts are not rea
 
 | Line | Price | Treatment |
 | --- | --- | --- |
-| Platform fee on a confirmed gift | 5% | Recorded by BayaniHub after verification |
-| Campaign share after the fee | 95% | Recorded as the campaign share |
+| Platform fee on a confirmed gift | 0% | No campaign platform fee |
+| Campaign share | 100% | Full confirmed donation goes to the campaign |
 | Help-request posting + review | Free | No posting fee |
 | Featured campaign advertising, 7 days | ₱199 | Available only through an approved secure checkout |
 | Homepage sponsor, 7 days | ₱499 | Available only through an approved secure checkout |
