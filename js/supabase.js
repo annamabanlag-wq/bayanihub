@@ -251,16 +251,27 @@ async function bayaniSignUp(email, password) {
 
 async function bayaniSignOut() {
   const session = bayaniGetSession();
-  try {
-    if (session && session.access_token) {
+
+  // Clear the browser session first so logout can never trap the user
+  // behind a slow/offline Supabase logout request.
+  bayaniSaveSession(null);
+  if (window.BayaniStorage) BayaniStorage.setAdmin(false);
+
+  // Best-effort server-side session revocation. The UI does not wait for it.
+  if (session && session.access_token) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2500);
+    try {
       await bayaniAuth('logout', {
         method: 'POST',
+        signal: controller.signal,
         headers: { Authorization: 'Bearer ' + session.access_token }
       });
+    } catch (_) {
+      // Local session is already cleared; network/logout errors are harmless.
+    } finally {
+      clearTimeout(timer);
     }
-  } finally {
-    bayaniSaveSession(null);
-    if (window.BayaniStorage) BayaniStorage.setAdmin(false);
   }
 }
 
