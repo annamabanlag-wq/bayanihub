@@ -57,7 +57,7 @@
     function esc(value) {
       return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
     }
-    function safeUrl(value, fallback = 'https://placehold.co/600x400/0d9488/white?text=BayaniHub') {
+    function safeUrl(value, fallback = '') {
       try {
         const u = new URL(String(value || ''), location.href);
         return (u.protocol === 'http:' || u.protocol === 'https:') ? esc(u.href) : fallback;
@@ -79,6 +79,12 @@
           <p class="text-xs text-gray-500 mt-2">Please try again or return to Discover.</p>
           <a href="index.html" class="mt-4 inline-block text-brand-600 font-bold">← Back to Discover</a>
         </div>`;
+    }
+
+    function heroHtml(image) {
+      const src = safeUrl(image);
+      if (!src) return '';
+      return '<img src="' + src + '" alt="" class="absolute inset-0 w-full h-full object-cover" loading="eager" onerror="this.remove()">';
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -108,7 +114,10 @@
 
         if (campaign) {
           renderCampaign();
-          if (!campaign.sample) document.getElementById('donate-bar').classList.remove('hidden');
+          if (!campaign.sample) {
+            document.getElementById('donate-bar').classList.remove('hidden');
+            updateStickyMetrics();
+          }
           initStoryReveal();
         }
 
@@ -121,7 +130,10 @@
           if (refreshed) {
             campaign = refreshed;
             renderCampaign();
-            if (!campaign.sample) document.getElementById('donate-bar').classList.remove('hidden');
+            if (!campaign.sample) {
+              document.getElementById('donate-bar').classList.remove('hidden');
+              updateStickyMetrics();
+            }
             initStoryReveal();
           }
         } catch (err) {
@@ -138,7 +150,10 @@
         }
         if (campaign) {
           renderCampaign();
-          if (!campaign.sample) document.getElementById('donate-bar').classList.remove('hidden');
+          if (!campaign.sample) {
+            document.getElementById('donate-bar').classList.remove('hidden');
+            updateStickyMetrics();
+          }
           initStoryReveal();
         }
       }
@@ -198,7 +213,8 @@
       document.getElementById('content').innerHTML = `
         <div class="campaign-page">
           <section class="relative h-[430px] sm:h-[480px] overflow-hidden bg-slate-950">
-            <img src="${safeUrl(c.image)}" alt="" class="absolute inset-0 w-full h-full object-cover" loading="eager" onerror="this.src='https://placehold.co/900x650/0f172a/ffffff?text=BayaniHub'">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(20,184,166,.42),transparent_45%),linear-gradient(160deg,#0f766e_0%,#0b3b3b_45%,#020617_100%)]"></div>
+            ${heroHtml(c.image)}
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/55 to-slate-950/10"></div>
             <div class="absolute inset-0 bg-gradient-to-r from-slate-950/35 to-transparent"></div>
             <div class="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
@@ -254,6 +270,19 @@
             </div>
           </section>
         </div>`;
+    }
+
+    function updateStickyMetrics() {
+      if (!campaign || campaign.sample === true) return;
+      const raised = Math.max(0, Number(campaign.raised) || 0);
+      const goal = Math.max(0, Number(campaign.goal) || 0);
+      const pct = goal > 0 ? Math.min(100, Math.max(0, (raised / goal) * 100)) : 0;
+      const raisedEl = document.getElementById('sticky-raised');
+      const goalEl = document.getElementById('sticky-goal');
+      const progressEl = document.getElementById('sticky-progress');
+      if (raisedEl) raisedEl.textContent = formatPeso(raised);
+      if (goalEl) goalEl.textContent = 'of ' + formatPeso(goal);
+      if (progressEl) progressEl.style.width = pct + '%';
     }
 
     function openDonateModal() {
