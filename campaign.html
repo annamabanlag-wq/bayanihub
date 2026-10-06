@@ -64,35 +64,67 @@
       } catch (_) { return fallback; }
     }
 
+    function withTimeout(promise, ms, label) {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error(label || 'Request timed out')), ms))
+      ]);
+    }
+
+    function showCampaignNotFound(message = 'Campaign could not be loaded right now.') {
+      document.getElementById('content').innerHTML = `
+        <div class="text-center py-20 px-6">
+          <p class="text-4xl mb-3">😕</p>
+          <p class="font-semibold text-gray-700">${esc(message)}</p>
+          <p class="text-xs text-gray-500 mt-2">Please try again or return to Discover.</p>
+          <a href="index.html" class="mt-4 inline-block text-brand-600 font-bold">← Back to Discover</a>
+        </div>`;
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
-      if (window.BayaniCloud) {
-        try {
-          await BayaniCloud.syncCampaigns();
-        } catch (err) {
-          console.warn('Cloud campaign sync failed; using local data.', err);
-        }
-      }
+      // Render from local cache FIRST. A slow cloud request must never leave the
+      // campaign page stuck on the skeleton, including demo campaigns.
       let list = Storage.getCampaigns();
       campaign = list.find(c => c.id === id);
+
+      if (campaign) {
+        renderCampaign();
+        if (!campaign.sample) document.getElementById('donate-bar').classList.remove('hidden');
+        initStoryReveal();
+      }
+
+      // Refresh cloud data in the background with a hard timeout.
+      if (window.BayaniCloud) {
+        try {
+          await withTimeout(BayaniCloud.syncCampaigns(), 5000, 'Cloud sync timed out');
+          list = Storage.getCampaigns();
+          const refreshed = list.find(c => c.id === id);
+          if (refreshed) {
+            campaign = refreshed;
+            renderCampaign();
+            if (!campaign.sample) document.getElementById('donate-bar').classList.remove('hidden');
+            initStoryReveal();
+          }
+        } catch (err) {
+          console.warn('Cloud campaign sync failed; keeping local campaign.', err);
+        }
+      }
+
+      // If the campaign was not in local storage, try the direct cloud lookup.
       if (!campaign && window.BayaniCloud) {
         try {
-          campaign = await BayaniCloud.getCampaign(id);
+          campaign = await withTimeout(BayaniCloud.getCampaign(id), 5000, 'Campaign lookup timed out');
         } catch (err) {
           console.warn('Cloud campaign lookup failed.', err);
         }
+        if (campaign) {
+          renderCampaign();
+          if (!campaign.sample) document.getElementById('donate-bar').classList.remove('hidden');
+          initStoryReveal();
+        }
       }
-      if (!campaign) {
-        document.getElementById('content').innerHTML = `
-          <div class="text-center py-20">
-            <p class="text-4xl mb-3">😕</p>
-            <p class="font-semibold text-gray-700">Campaign not found</p>
-            <a href="index.html" class="mt-4 inline-block text-brand-600 font-medium">← Back to Discover</a>
-          </div>`;
-        return;
-      }
-      renderCampaign();
-      if (!campaign.sample) document.getElementById('donate-bar').classList.remove('hidden');
-      initStoryReveal();
+
+      if (!campaign) showCampaignNotFound();
     });
 
     function renderCampaign() {
