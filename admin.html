@@ -130,46 +130,19 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
     async function refreshAdmin() {
       try {
         document.getElementById('admin-error').classList.add('hidden');
-        const results = await Promise.allSettled([
-          BayaniCloud.adminListCampaigns(),
-          BayaniCloud.adminListDonations(),
-          BayaniCloud.adminListRevenue(),
-          BayaniCloud.adminListSponsors(),
-          BayaniCloud.adminListAuditLog()
-        ]);
-        const campaigns = results[0].status === 'fulfilled' ? results[0].value : [];
-        const donations = results[1].status === 'fulfilled' ? results[1].value : [];
-        const revenue = results[2].status === 'fulfilled' ? results[2].value : [];
-        const failed = results.filter(r => r.status === 'rejected');
-        if (failed.length) {
-          const firstError = failed[0].reason?.message || 'One or more admin data requests failed.';
-          showError(firstError + (failed.length > 1 ? ' Some sections may be incomplete; tap Refresh to retry.' : ''));
-        }
-        const sponsors = results[3].status === 'fulfilled' ? results[3].value : [];
-        const audit = results[4].status === 'fulfilled' ? results[4].value : [];
-        let campaignRows = Array.isArray(campaigns) ? campaigns : [];
+        const dashboard = await BayaniCloud.adminDashboard();
+        const campaigns = Array.isArray(dashboard?.campaigns) ? dashboard.campaigns : [];
+        const donations = Array.isArray(dashboard?.donations) ? dashboard.donations : [];
+        const revenue = Array.isArray(dashboard?.revenue) ? dashboard.revenue : [];
+        const sponsors = Array.isArray(dashboard?.sponsors) ? dashboard.sponsors : [];
+        const audit = Array.isArray(dashboard?.audit) ? dashboard.audit : [];
+        let campaignRows = campaigns;
 
         // Resilient live-campaign fallback: approved campaigns are public, so
         // the admin can still see/open them if an authenticated RLS read is
         // temporarily stale in the browser session.
         if (campaignRows.length === 0) {
-          try {
-            const publicRows = await bayaniFetch(
-              'public_campaigns?select=*&order=created_at.desc',
-              { method: 'GET' }
-            );
-            if (Array.isArray(publicRows)) {
-              campaignRows = publicRows.map(row => ({
-                ...row,
-                status: row.status || 'approved',
-                raised: Number(row.raised || 0),
-                donors: Number(row.donors || 0),
-                goal: Number(row.goal || 0),
-                verified: !!row.verified,
-                urgent: !!row.urgent
-              }));
-            }
-          } catch (_) {}
+          showError('Admin cloud returned no campaigns.');
         }
 
         state = {
