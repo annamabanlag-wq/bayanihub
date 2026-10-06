@@ -35,21 +35,18 @@
 <div id="donate-bar" class="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-gray-200 shadow-[0_-8px_30px_rgba(0,0,0,.12)] hidden safe-bottom">
   <div class="w-full max-w-[900px] mx-auto px-4 py-3 flex items-center gap-4">
     <div class="flex-1 min-w-0"><div class="flex items-center justify-between text-xs mb-1.5"><span id="sticky-raised" class="font-extrabold text-slate-900">₱0</span><span id="sticky-goal" class="text-gray-500">of ₱0</span></div><div class="h-2 bg-gray-200 rounded-full overflow-hidden"><div id="sticky-progress" class="h-full bg-blue-600 rounded-full" style="width:0%"></div></div></div>
-    <button onclick="openDonateModal()" class="shrink-0 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-7 py-3.5 shadow-lg active:scale-[.98] transition">Share / Support</button>
+    <button onclick="openDonateModal()" class="shrink-0 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-7 py-3.5 shadow-lg active:scale-[.98] transition">₱ Donate</button>
   </div>
 </div>
 <div id="donate-modal" class="fixed inset-0 z-50 hidden">
   <div class="absolute inset-0 bg-black/55" onclick="closeDonateModal()"></div>
-  <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-3xl p-5 w-full max-w-lg mx-auto safe-bottom">
-    <div class="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-3"></div>
-    <h3 class="text-lg font-bold text-center">Donations are temporarily paused</h3>
-    <p class="text-sm text-gray-600 text-center mt-2 leading-relaxed">BayaniHub is connecting a verified business payment channel so donations can be received without exposing a personal payment account.</p>
-    <div class="mt-4 bg-brand-50 border border-brand-100 rounded-2xl p-4 text-center">
-      <p class="text-sm font-bold text-brand-800">Your support still matters</p>
-      <p class="text-xs text-brand-700 mt-1">Please share this campaign with friends, family, organizations, and potential sponsors.</p>
-    </div>
-    <button onclick="closeDonateModal(); shareCampaign()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl mt-4">Share this campaign</button>
-    <button onclick="closeDonateModal()" class="w-full text-gray-500 text-sm py-2">Close</button>
+  <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-3xl p-5 w-full max-w-lg mx-auto safe-bottom max-h-[90vh] overflow-y-auto">
+    <div class="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-3"></div><h3 class="text-lg font-bold text-center">Send help via GCash</h3>
+    <p class="text-xs text-gray-500 text-center mb-3">Manual GCash donation • Any whole-peso amount from ₱1 is welcome • Admin verifies every transfer before campaign totals change</p>
+    <div class="bg-brand-50 border border-brand-100 rounded-2xl p-4 mb-4 text-center"><p class="text-sm font-bold text-brand-800">1. Scan the BayaniHub donation QR</p><div class="mt-3 bg-white rounded-xl border p-3 inline-block"><img src="assets/gcash-qr.svg" alt="BayaniHub donation QR" class="w-56 h-56 mx-auto"></div><p class="text-xs text-brand-700 mt-2">Confirm the recipient name and amount shown by GCash before sending.</p><p class="text-[11px] text-gray-500 mt-2">On the same phone? Save the QR image first, then use GCash QR → upload from your gallery.</p></div>
+    <div class="bg-white border rounded-2xl p-4 mb-4 space-y-3"><p class="text-sm font-bold text-gray-800">2. Send your chosen amount</p><div><label class="text-xs font-medium text-gray-600">Your name (optional)</label><input id="donor-name" type="text" placeholder="Anonymous is okay" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500"></div><div><label class="text-xs font-medium text-gray-600">Amount (₱)</label><input id="donor-amount" type="number" min="1" step="1" placeholder="e.g. 500" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500"><div class="flex flex-wrap gap-2 mt-2"><button type="button" onclick="setDonationAmount(5)" class="flex-1 min-w-[72px] border border-gray-200 rounded-xl py-2 text-sm font-bold text-gray-700 hover:border-brand-400">₱5</button><button type="button" onclick="setDonationAmount(100)" class="flex-1 min-w-[72px] border border-gray-200 rounded-xl py-2 text-sm font-bold text-gray-700 hover:border-brand-400">₱100</button><button type="button" onclick="setDonationAmount(250)" class="flex-1 min-w-[72px] border border-gray-200 rounded-xl py-2 text-sm font-bold text-gray-700 hover:border-brand-400">₱250</button><button type="button" onclick="setDonationAmount(500)" class="flex-1 min-w-[72px] border border-gray-200 rounded-xl py-2 text-sm font-bold text-gray-700 hover:border-brand-400">₱500</button><button type="button" onclick="setDonationAmount(1000)" class="flex-1 min-w-[72px] border border-gray-200 rounded-xl py-2 text-sm font-bold text-gray-700 hover:border-brand-400">₱1,000</button></div></div><div><label class="text-xs font-medium text-gray-600">GCash reference number</label><input id="donor-ref" type="text" required placeholder="Reference from your GCash receipt" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-500"></div></div>
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-xs text-amber-800"><strong>3. Before submitting</strong><ul class="mt-1 space-y-1 list-disc list-inside"><li>Make sure the GCash transfer says successful.</li><li>Enter the exact GCash reference number.</li><li>BayaniHub verifies the transfer before updating the campaign.</li></ul></div>
+    <button onclick="submitDonation()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl mb-1.5">Submit donation for verification</button><button onclick="closeDonateModal()" class="w-full text-gray-500 text-sm py-1.5">Cancel</button>
   </div>
 </div>
 <script src="js/data.js"></script>
@@ -303,7 +300,43 @@
     }
 
     async function submitDonation() {
-      alert('Donations are temporarily paused while BayaniHub connects a verified business payment channel. Please share this campaign instead.');
+      if (!campaign || campaign.sample === true) {
+        alert('Donations are disabled for demo campaigns. Please choose a live, admin-approved campaign.');
+        return;
+      }
+
+      const name = document.getElementById('donor-name').value.trim() || 'Anonymous';
+      const amount = Math.round(Number(document.getElementById('donor-amount').value) || 0);
+      const ref = document.getElementById('donor-ref').value.trim();
+
+      if (!amount || amount < 1) {
+        alert('Please enter a valid amount (minimum ₱1).');
+        return;
+      }
+      if (ref.length < 3) {
+        alert('Please enter the GCash reference number from your receipt.');
+        return;
+      }
+
+      try {
+        await BayaniCloud.submitDonation({
+          campaignId: campaign.id,
+          campaignTitle: campaign.title,
+          name,
+          amount,
+          tip: 0,
+          ref
+        });
+
+        closeDonateModal();
+        document.getElementById('donor-ref').value = '';
+        document.getElementById('donor-amount').value = '';
+
+        alert('Maraming salamat! 💚\n\nDonation submitted for verification.\n\nPlease keep your GCash transaction record until BayaniHub confirms the transfer.\n\nThe campaign total changes only after verification.');
+      } catch (err) {
+        console.error('Manual GCash donation submission failed:', err);
+        alert(err.message || 'We could not submit your donation for verification. Please try again.');
+      }
     }
 
     async function copyCampaignLink() { try { await navigator.clipboard.writeText(location.href); alert("Campaign link copied."); } catch (_) { alert(location.href); } }
