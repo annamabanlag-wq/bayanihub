@@ -128,8 +128,33 @@
           BayaniCloud.adminListSponsors(),
           BayaniCloud.adminListAuditLog()
         ]);
+        let campaignRows = Array.isArray(campaigns) ? campaigns : [];
+
+        // Resilient live-campaign fallback: approved campaigns are public, so
+        // the admin can still see/open them if an authenticated RLS read is
+        // temporarily stale in the browser session.
+        if (campaignRows.length === 0) {
+          try {
+            const publicRows = await bayaniFetch(
+              'public_campaigns?select=*&order=created_at.desc',
+              { method: 'GET' }
+            );
+            if (Array.isArray(publicRows)) {
+              campaignRows = publicRows.map(row => ({
+                ...row,
+                status: row.status || 'approved',
+                raised: Number(row.raised || 0),
+                donors: Number(row.donors || 0),
+                goal: Number(row.goal || 0),
+                verified: !!row.verified,
+                urgent: !!row.urgent
+              }));
+            }
+          } catch (_) {}
+        }
+
         state = {
-          campaigns: Array.isArray(campaigns) ? campaigns : [],
+          campaigns: campaignRows,
           donations: Array.isArray(donations) ? donations : [],
           revenue: Array.isArray(revenue) ? revenue : [],
           sponsors: Array.isArray(sponsors) ? sponsors : [],
@@ -282,8 +307,8 @@
       }).join('');
 
       document.getElementById('live-list').innerHTML = approved.slice(0, 20).map(c =>
-        '<div class="bg-white rounded-xl border p-3 flex justify-between items-center">' +
-          '<div class="min-w-0"><p class="text-sm font-medium truncate">' + esc(c.title) + '</p>' +
+        '<div class="bg-white rounded-xl border p-3 flex justify-between items-center gap-3">' +
+          '<div class="min-w-0"><a href="campaign.html?id=' + encodeURIComponent(c.id) + '" class="text-sm font-bold text-blue-700 underline underline-offset-2 truncate block touch-manipulation">' + esc(c.title) + '</a>' +
           '<p class="text-xs text-gray-500">' + money(c.raised) + ' / ' + money(c.goal) + ' • ' + (c.verified ? 'Verified' : 'Unverified') + '</p></div>' +
           '<div class="flex gap-1">' +
             '<button onclick="toggleUrgent(\'' + esc(c.id) + '\',' + (!c.urgent) + ')" class="text-[10px] px-2 py-1 rounded ' + (c.urgent ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600') + '">' + (c.urgent ? 'Urgent' : 'Normal') + '</button>' +
