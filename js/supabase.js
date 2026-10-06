@@ -76,9 +76,9 @@ async function syncBayaniCampaigns() {
 
   // Keep local pending/submissions as fallback, while replacing demo/sample rows
   // with their canonical cloud UUIDs to avoid duplicate campaigns.
-  const local = Storage.getCampaigns();
+  const local = BayaniStorage.getCampaigns();
   const nonSampleLocal = local.filter(c => !c.sample && c.status === 'pending' && !cloud.some(x => x.id === c.id));
-  Storage.saveCampaigns([...cloud, ...nonSampleLocal]);
+  BayaniStorage.saveCampaigns([...cloud, ...nonSampleLocal]);
   return cloud;
 }
 
@@ -260,7 +260,7 @@ async function bayaniSignOut() {
     }
   } finally {
     bayaniSaveSession(null);
-    if (window.Storage) Storage.setAdmin(false);
+    if (window.BayaniStorage) BayaniStorage.setAdmin(false);
   }
 }
 
