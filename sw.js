@@ -2,6 +2,7 @@ const CACHE = 'bayanihub-v40';
 const ASSETS = [
   './',
   './index.html',
+  './assets/gcash-qr.svg',
   './campaign.html',
   './submit.html',
   './dashboard.html',
