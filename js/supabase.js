@@ -316,6 +316,10 @@ async function bayaniAdminListRevenue() {
   return bayaniAuthFetch('revenue_ledger?select=*&order=created_at.desc', { method: 'GET' });
 }
 
+async function bayaniAdminListAuditLog() {
+  return bayaniAuthFetch('admin_audit_log?select=*&order=created_at.desc&limit=50', { method: 'GET' });
+}
+
 async function bayaniAdminUpdateCampaign(id, changes) {
   const payload = {
     p_campaign_id: id,
@@ -424,6 +428,7 @@ window.BayaniCloud = {
   adminListCampaigns: bayaniAdminListCampaigns,
   adminListDonations: bayaniAdminListDonations,
   adminListRevenue: bayaniAdminListRevenue,
+  adminListAuditLog: bayaniAdminListAuditLog,
   adminUpdateCampaign: bayaniAdminUpdateCampaign,
   adminConfirmDonation: bayaniAdminConfirmDonation,
   adminRejectDonation: bayaniAdminRejectDonation,
