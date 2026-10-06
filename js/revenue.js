@@ -2,7 +2,7 @@
 // Secure revenue state lives in Supabase; this file contains only public pricing/rules. Campaign donations have no platform fee.
 const BayaniRevenue = {
   feePct: 0,
-  minDonation: 50,
+  minDonation: 1,
   postFee: 0,
   paymentMode: 'manual_fallback',
   packages: [
