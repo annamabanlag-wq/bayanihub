@@ -89,7 +89,7 @@
   </main>
 
   <script src="js/data.js"></script>
-  <script src="js/supabase.js?v=adminfix-20261006-02"></script>
+  <script src="js/supabase.js?v=adminfix-20261006-03"></script>
   <script>
     let state = { campaigns: [], donations: [], revenue: [], sponsors: [], followups: [], audit: [] };
 
@@ -110,12 +110,16 @@
     }
 
     async function start() {
-      const ok = await BayaniCloud.requireAdmin();
-      if (!ok) {
-        location.replace('login.html');
-        return;
+      try {
+        const ok = await BayaniCloud.requireAdmin();
+        if (!ok) {
+          location.replace('login.html');
+          return;
+        }
+        await refreshAdmin();
+      } catch (err) {
+        showError(err.message || 'Could not verify the staff session.');
       }
-      await refreshAdmin();
     }
 
     async function refreshAdmin() {
