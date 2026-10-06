@@ -297,11 +297,8 @@ async function bayaniBootstrapAdmin(setupToken) {
 async function bayaniRequireAdmin() {
   const session = bayaniGetSession();
   if (!session || !session.access_token) return false;
-  try {
-    return await bayaniCheckAdmin();
-  } catch (_) {
-    return false;
-  }
+  // Preserve real auth/network errors so the admin UI can show the actual failure.
+  return await bayaniCheckAdmin();
 }
 
 async function bayaniAdminListCampaigns() {
