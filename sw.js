@@ -1,4 +1,4 @@
-const CACHE = 'bayanihub-v29';
+const CACHE = 'bayanihub-v30';
 const ASSETS = [
   './',
   './index.html',
