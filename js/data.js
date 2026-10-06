@@ -166,7 +166,7 @@ const SEED_CAMPAIGNS = [
   }
 ];
 
-const Storage = {
+const BayaniStorage = {
   getCampaigns() {
     const stored = localStorage.getItem('bayani_campaigns');
     if (!stored) {
