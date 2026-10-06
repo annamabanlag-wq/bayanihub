@@ -90,18 +90,18 @@
   <script src="js/data.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const user = Storage.getUser() || { name: 'Guest Helper' };
+      const user = BayaniStorage.getUser() || { name: 'Guest Helper' };
       document.getElementById('user-name').textContent = user.name;
 
       document.getElementById('btn-set-name').addEventListener('click', () => {
         const name = prompt('Enter your display name:', user.name);
         if (name && name.trim()) {
-          Storage.setUser({ name: name.trim() });
+          BayaniStorage.setUser({ name: name.trim() });
           document.getElementById('user-name').textContent = name.trim();
         }
       });
 
-      const all = Storage.getCampaigns();
+      const all = BayaniStorage.getCampaigns();
       const myCamps = all.filter(c => c.organizer.toLowerCase().includes((user.name || '').toLowerCase().split(' ')[0]) || c.status === 'pending');
       const container = document.getElementById('my-campaigns');
       const noCamp = document.getElementById('no-campaigns');
@@ -123,7 +123,7 @@
         }).join('');
       }
 
-      const dons = Storage.getDonations().slice(0, 8);
+      const dons = BayaniStorage.getDonations().slice(0, 8);
       const donCont = document.getElementById('my-donations');
       const noDon = document.getElementById('no-donations');
       if (dons.length === 0) {
