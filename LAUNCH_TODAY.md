@@ -12,7 +12,7 @@ Need help? Share your story and supporting evidence to start a community fundrai
 
 Want to help? Discover campaigns and support legitimate causes.
 
-Campaigns are reviewed before going live and GCash transactions are subject to manual verification.
+Campaigns are reviewed before going live and payment transactions are subject to manual verification.
 
 Discover: https://annamabanlag-wq.github.io/bayanihub/
 
@@ -23,7 +23,7 @@ Hello! We built BayaniHub to help Filipinos in need share legitimate fundraising
 0–4s: “A Filipino family needs help.”
 4–9s: “Their story deserves to be heard.”
 9–15s: “BayaniHub connects community fundraising with people who want to help.”
-15–22s: “Campaigns are reviewed. GCash references are manually verified.”
+15–22s: “Campaigns are reviewed. payment references are manually verified.”
 22–30s: “BAYANIHUB — TULONG PARA SA PILIPINO.”
 
 ## Hashtags
@@ -33,7 +33,7 @@ Hello! We built BayaniHub to help Filipinos in need share legitimate fundraising
 Use accounts you control and relevant groups where fundraising/product sharing is permitted. Contact legitimate organizations individually and transparently.
 
 ## Trust rules
-Never invent donations, donors, campaign outcomes, partnerships or fundraising totals. Demo/sample campaign totals are not real money. Only admin-confirmed GCash transactions count as real donations and revenue.
+Never invent donations, donors, campaign outcomes, partnerships or fundraising totals. Demo/sample campaign totals are not real money. Only admin-confirmed personal payment account transactions count as real donations and revenue.
 
 ## Today’s KPI
 Real campaigns → approved campaigns → confirmed donations → active donors → legitimate partner organizations.
