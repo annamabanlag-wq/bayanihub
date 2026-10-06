@@ -43,7 +43,7 @@
       <li><strong>Campaign information</strong> – title, story, goal amount, location, organizer name, contact number.</li>
       <li><strong>Evidence / proof documents</strong> – photos and files (medical abstracts, bills, IDs, vet records, school papers, etc.) that you upload to support your campaign. These are used only for verification by the admin.</li>
       <li><strong>Donation notifications</strong> – name (optional), amount, GCash reference number, and the campaign you supported.</li>
-      <li><strong>Technical data</strong> – basic browser/device info stored locally for the app to work offline (localStorage).</li>
+      <li><strong>Technical data</strong> – basic browser/device and local storage information used to keep the PWA working on your device and preserve your local dashboard state.</li>
     </ul>
 
     <h2 class="text-base font-bold text-gray-900 mt-5 mb-2">3. How we use your information</h2>
@@ -56,17 +56,17 @@
     </ul>
 
     <h2 class="text-base font-bold text-gray-900 mt-5 mb-2">4. Evidence & privacy</h2>
-    <p class="text-sm">Uploaded evidence (photos, PDFs, documents) is treated as sensitive. Only the platform admin can view the full files during review. Public campaign pages may show a small preview or simply state that evidence was submitted and reviewed. We recommend you blur or crop highly sensitive personal details (full ID numbers, etc.) before uploading if you prefer.</p>
+    <p class="text-sm">Uploaded evidence (photos, PDFs, documents) is treated as sensitive. Evidence submitted through the campaign form is stored with the campaign record and is intended for authorized BayaniHub admin review. Public campaign listings do not expose the private evidence files. We recommend you blur or crop highly sensitive personal details (full ID numbers, etc.) before uploading.</p>
 
     <h2 class="text-base font-bold text-gray-900 mt-5 mb-2">5. GCash & payments</h2>
-    <p class="text-sm">BayaniHub does not process or hold money. All donations are sent directly via GCash to the number shown on the campaign (managed by the admin). You are responsible for sending the correct amount and reference. Admin verifies the transfer before releasing funds to the beneficiary. We never ask for your GCash PIN, OTP, or full account password.</p>
+    <p class="text-sm">BayaniHub does not process or hold money through its own bank account. Manual donations are sent using the official BayaniHub donation QR shown on the campaign screen. You are responsible for sending the correct amount and keeping the GCash receipt/reference. An authorized admin verifies the transfer before the campaign total is updated. We never ask for your GCash PIN, OTP, or full account password.</p>
 
     <h2 class="text-base font-bold text-gray-900 mt-5 mb-2">6. Advertising and cookies</h2>
     <p class="text-sm">BayaniHub may display advertisements from Google AdSense and other advertising partners. Third-party vendors, including Google, may use cookies to serve ads based on a user's prior visits to BayaniHub or other websites. Google's use of advertising cookies enables Google and its partners to serve ads based on visits to this site and other sites on the Internet.</p>
     <p class="text-sm mt-2">Users may opt out of personalized advertising by visiting <a class="text-brand-600 underline" href="https://adssettings.google.com/" target="_blank" rel="noopener noreferrer">Google Ads Settings</a>. Users may also learn about choices for some third-party personalized advertising at <a class="text-brand-600 underline" href="https://www.aboutads.info/" target="_blank" rel="noopener noreferrer">aboutads.info</a>.</p>
 
     <h2 class="text-base font-bold text-gray-900 mt-5 mb-2">7. Data storage</h2>
-    <p class="text-sm">Currently this demo stores data in your browser’s localStorage (on the device you use). When the platform is upgraded to a real backend, data will be stored securely on servers located in or serving the Philippines, with access limited to authorized admins. You can clear local data anytime by clearing your browser storage.</p>
+    <p class="text-sm">BayaniHub uses Supabase for production campaign, donation-verification, sponsorship, and admin records. Access to private operational records is restricted by database row-level security and authorized admin accounts. Some non-sensitive interface state is also kept locally in your browser so the PWA can work smoothly and preserve your local dashboard state. Clearing browser storage removes that local copy, but does not by itself delete records already submitted to BayaniHub.</p>
 
     <h2 class="text-base font-bold text-gray-900 mt-5 mb-2">8. Your rights</h2>
     <ul class="list-disc pl-5 space-y-1 text-sm">
