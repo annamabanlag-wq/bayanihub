@@ -37,6 +37,10 @@ jobs:
           grep -q "assets/gcash-qr.svg" campaign.html
           grep -q "gcash: null" submit.html
           grep -q "bayanihub-v34" sw.js
+          test "$(grep -l "ca-pub-9305686179934470" index.html campaign.html submit.html how.html privacy.html sponsor.html | wc -l)" -eq 6
+          grep -Fxq "google.com, pub-9305686179934470, DIRECT, f08c47fec0942fa0" ads.txt
+          ! grep -q "ca-pub-9305686179934470" login.html
+          ! grep -q "ca-pub-9305686179934470" admin.html
       - uses: actions/configure-pages@v5
         with:
           enablement: true
