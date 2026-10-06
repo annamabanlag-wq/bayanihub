@@ -106,7 +106,7 @@ function clearFilters() {
 }
 
 function getFiltered() {
-  let list = Storage.getCampaigns().filter(c => c.status === 'approved');
+  let list = BayaniStorage.getCampaigns().filter(c => c.status === 'approved');
 
   if (activeCategory) list = list.filter(c => c.category === activeCategory);
   if (searchQuery) {
@@ -201,7 +201,7 @@ function renderCampaigns() {
 }
 function updateStats() {
   // Demo/sample stories never count as real campaigns, donations, or donors.
-  const list = Storage.getCampaigns().filter(c => c.status === 'approved' && c.sample !== true);
+  const list = BayaniStorage.getCampaigns().filter(c => c.status === 'approved' && c.sample !== true);
   const raised = list.reduce((s, c) => s + Number(c.raised || 0), 0);
   const donors = list.reduce((s, c) => s + Number(c.donors || 0), 0);
   const elR = document.getElementById('stat-raised');
