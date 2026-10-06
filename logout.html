@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Signing out…</title>
+<style>body{font-family:system-ui,sans-serif;background:#f1f5f9;color:#0f172a;display:grid;place-items:center;min-height:100vh;margin:0}.box{text-align:center;background:white;border:1px solid #e2e8f0;border-radius:16px;padding:28px;max-width:320px}a{display:inline-block;margin-top:16px;color:#2563eb}</style>
+</head>
+<body>
+<div class="box"><h1>Signing out…</h1><p>Ending your BayaniHub staff session.</p><a href="login.html">Go to Login</a></div>
+<script src="js/supabase.js?v=logout-20261007-01"></script>
+<script>
+(async function(){
+  try { if (window.BayaniCloud && typeof BayaniCloud.signOut === 'function') await BayaniCloud.signOut(); } catch (e) {}
+  location.replace('login.html?loggedout=1');
+})();
+</script>
+</body>
+</html>
