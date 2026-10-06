@@ -36,7 +36,7 @@ jobs:
           ! grep -R --exclude-dir=.git -n "09381447214" .
           grep -q "assets/gcash-qr.svg" campaign.html
           grep -q "gcash: null" submit.html
-          grep -q "bayanihub-v27" sw.js
+          grep -q "bayanihub-v28" sw.js
       - uses: actions/configure-pages@v5
         with:
           enablement: true
