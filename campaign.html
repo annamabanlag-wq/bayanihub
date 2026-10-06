@@ -82,16 +82,35 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-      // Render from local cache FIRST. A slow cloud request must never leave the
-      // campaign page stuck on the skeleton, including demo campaigns.
-      let list = BayaniStorage.getCampaigns();
-      campaign = list.find(c => c.id === id);
+      try {
+        // Render from local cache FIRST. A slow cloud request must never leave the
+        // campaign page stuck on the skeleton, including demo campaigns.
+        let list = (typeof BayaniStorage !== 'undefined' && BayaniStorage && typeof BayaniStorage.getCampaigns === 'function')
+          ? BayaniStorage.getCampaigns()
+          : [];
+        campaign = list.find(c => c.id === id);
 
-      if (campaign) {
-        renderCampaign();
-        if (!campaign.sample) document.getElementById('donate-bar').classList.remove('hidden');
-        initStoryReveal();
-      }
+        // Emergency demo fallback: demo links remain viewable even when local
+        // storage or a supporting script is unavailable.
+        if (!campaign && /^c[1-8]$/.test(String(id || ''))) {
+          const demoNames = {
+            c1:'Help little Ana fight leukemia', c2:'Wheelchair & therapy for Mang Jose',
+            c3:'Surgery for our beloved aspin Max', c4:'College tuition for scholar Jun',
+            c5:'Funeral & support for family of OFW', c6:'Rebuild classroom after typhoon',
+            c7:'Dialysis support for Nanay Lita', c8:'Mangrove restoration – coastal protection'
+          };
+          campaign = {
+            id, title: demoNames[id] || 'BayaniHub Demo Campaign', sample:true,
+            category:'community', story:'This is demonstration data only.', goal:100000, raised:0, donors:0,
+            organizer:'BayaniHub Demo', location:'Philippines', verified:true, urgent:false, created:'2026-10-01'
+          };
+        }
+
+        if (campaign) {
+          renderCampaign();
+          if (!campaign.sample) document.getElementById('donate-bar').classList.remove('hidden');
+          initStoryReveal();
+        }
 
       // Refresh cloud data in the background with a hard timeout.
       if (window.BayaniCloud) {
@@ -125,16 +144,28 @@
       }
 
       if (!campaign) showCampaignNotFound();
+      } catch (err) {
+        console.error('BayaniHub campaign bootstrap failed:', err);
+        // Never leave the user staring at the skeleton after a runtime error.
+        if (/^c[1-8]$/.test(String(id || ''))) {
+          campaign = { id, title:'BayaniHub Demo Campaign', sample:true };
+          renderCampaign();
+        } else {
+          showCampaignNotFound('We could not load this campaign. Please try again.');
+        }
+      }
     });
 
     function renderCampaign() {
       const c = campaign;
+      if (!c) {
+        showCampaignNotFound();
+        return;
+      }
       const isDemo = c.sample === true;
-      const organizerName = esc(c.organizer || 'Organizer');
-      const organizerInitial = esc((String(c.organizer || '?').trim().charAt(0) || '?').toUpperCase());
-      const pct = Math.min(100, Math.max(0, Number(percent(c.raised, c.goal)) || 0));
-      const cat = CATEGORIES.find(x => x.id === c.category) || { label: c.category, icon: '📌', color: 'bg-gray-100 text-gray-700' };
 
+      // Demo pages must render even if a supporting script (data.js/Supabase)
+      // is unavailable. Keep the demo path dependency-free.
       if (isDemo) {
         document.getElementById('content').innerHTML =
           '<div class="p-4 pt-6"><div class="bg-slate-900 text-white rounded-3xl p-6 shadow-xl">' +
@@ -144,6 +175,13 @@
           '<a href="submit.html" class="inline-block mt-5 bg-white text-slate-900 font-bold px-5 py-3 rounded-xl">Start a real campaign</a></div></div>';
         return;
       }
+
+      const organizerName = esc(c.organizer || 'Organizer');
+      const organizerInitial = esc((String(c.organizer || '?').trim().charAt(0) || '?').toUpperCase());
+      const pct = Math.min(100, Math.max(0, Number((typeof percent === 'function' ? percent(c.raised, c.goal) : 0)) || 0));
+      const cat = (typeof CATEGORIES !== 'undefined' && Array.isArray(CATEGORIES))
+        ? (CATEGORIES.find(x => x.id === c.category) || { label: c.category, icon: '📌', color: 'bg-gray-100 text-gray-700' })
+        : { label: c.category || 'Campaign', icon: '📌', color: 'bg-gray-100 text-gray-700' };
 
       document.title = String(c.title || 'Campaign') + ' – BayaniHub';
       let evidenceHtml = '';
