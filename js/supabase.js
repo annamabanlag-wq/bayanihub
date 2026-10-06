@@ -317,10 +317,15 @@ async function bayaniAdminListRevenue() {
 }
 
 async function bayaniAdminUpdateCampaign(id, changes) {
-  return bayaniAuthFetch('campaigns?id=eq.' + encodeURIComponent(id), {
-    method: 'PATCH',
-    headers: { Prefer: 'return=representation' },
-    body: JSON.stringify(changes)
+  const payload = {
+    p_campaign_id: id,
+    p_status: Object.prototype.hasOwnProperty.call(changes || {}, 'status') ? (changes.status ?? null) : null,
+    p_verified: Object.prototype.hasOwnProperty.call(changes || {}, 'verified') ? (changes.verified ?? null) : null,
+    p_urgent: Object.prototype.hasOwnProperty.call(changes || {}, 'urgent') ? (changes.urgent ?? null) : null
+  };
+  return bayaniAuthFetch('rpc/bayani_admin_update_campaign', {
+    method: 'POST',
+    body: JSON.stringify(payload)
   });
 }
 
