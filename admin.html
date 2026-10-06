@@ -159,12 +159,21 @@
           '<p class="text-[10px] text-gray-400 mt-1">Contact: ' + esc(c.contact || 'N/A') + '</p>' +
           (evidence ? '<div class="mt-2"><p class="text-[10px] font-semibold text-amber-700 mb-1">Evidence (' + evidence.length + ')</p><div class="flex gap-1.5 flex-wrap">' + ev + '</div></div>' : '') +
           '<div class="flex gap-2 mt-3">' +
-            '<button type="button" id="approve-' + esc(c.id) + '" onclick="approveCampaign(\'' + esc(c.id) + '\'); return false;" class="flex-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-xs font-bold py-3 rounded-lg cursor-pointer touch-manipulation">Approve</button>' +
+            '<button type="button" data-approve-id="' + esc(c.id) + '" class="flex-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-xs font-bold py-3 rounded-lg cursor-pointer touch-manipulation">Approve</button>' +
             '<button type="button" onclick="rejectCampaign(\'' + esc(c.id) + '\'); return false;" class="flex-1 bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-700 text-xs font-bold py-3 rounded-lg cursor-pointer touch-manipulation">Reject</button>' +
             '<button type="button" onclick="verifyCampaign(\'' + esc(c.id) + '\'); return false;" class="px-3 bg-teal-100 hover:bg-teal-200 active:bg-teal-300 text-teal-800 text-xs font-bold py-3 rounded-lg cursor-pointer touch-manipulation">Badge</button>' +
           '</div>' +
         '</article>';
       }).join('');
+
+      // Use delegated touch/click handling instead of inline handlers for mobile browsers.
+      pList.querySelectorAll('[data-approve-id]').forEach(button => {
+        button.addEventListener('click', async (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          await approveCampaign(button.getAttribute('data-approve-id'));
+        }, { passive: false });
+      });
 
       const dList = document.getElementById('don-list');
       document.getElementById('no-dons').classList.toggle('hidden', donations.length !== 0);
@@ -215,7 +224,7 @@
     }
 
     async function approveCampaign(id) {
-      const button = document.getElementById('approve-' + id);
+      const button = document.querySelector('[data-approve-id="' + CSS.escape(id) + '"]');
       if (button) { button.disabled = true; button.textContent = 'Approving…'; }
       try {
         await BayaniCloud.adminUpdateCampaign(id, { status: 'approved' });
