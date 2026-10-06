@@ -84,7 +84,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       // Render from local cache FIRST. A slow cloud request must never leave the
       // campaign page stuck on the skeleton, including demo campaigns.
-      let list = Storage.getCampaigns();
+      let list = BayaniStorage.getCampaigns();
       campaign = list.find(c => c.id === id);
 
       if (campaign) {
@@ -97,7 +97,7 @@
       if (window.BayaniCloud) {
         try {
           await withTimeout(BayaniCloud.syncCampaigns(), 5000, 'Cloud sync timed out');
-          list = Storage.getCampaigns();
+          list = BayaniStorage.getCampaigns();
           const refreshed = list.find(c => c.id === id);
           if (refreshed) {
             campaign = refreshed;
