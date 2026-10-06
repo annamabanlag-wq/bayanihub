@@ -301,6 +301,13 @@ async function bayaniRequireAdmin() {
   return await bayaniCheckAdmin();
 }
 
+async function bayaniAdminDashboard() {
+  return bayaniAuthFetch('rpc/bayani_admin_dashboard', {
+    method: 'POST',
+    body: JSON.stringify({})
+  });
+}
+
 async function bayaniAdminListCampaigns() {
   return bayaniAuthFetch('campaigns?select=*&order=created_at.desc', { method: 'GET' });
 }
@@ -422,6 +429,7 @@ window.BayaniCloud = {
   checkAdmin: bayaniCheckAdmin,
   bootstrapAdmin: bayaniBootstrapAdmin,
   requireAdmin: bayaniRequireAdmin,
+  adminDashboard: bayaniAdminDashboard,
   adminListCampaigns: bayaniAdminListCampaigns,
   adminListDonations: bayaniAdminListDonations,
   adminListRevenue: bayaniAdminListRevenue,
