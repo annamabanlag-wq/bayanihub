@@ -1,4 +1,4 @@
-const CACHE = 'bayanihub-v37';
+const CACHE = 'bayanihub-v38';
 const ASSETS = [
   './',
   './index.html',
@@ -38,6 +38,9 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
+  const pathname = new URL(e.request.url).pathname;
+  // The staff control center must always load the latest cloud-admin code.
+  if (pathname.endsWith('/admin.html')) return;
   const isHtml = e.request.mode === 'navigate' || e.request.headers.get('accept')?.includes('text/html');
   e.respondWith(
     (isHtml
