@@ -244,14 +244,14 @@
 
         newCampaign.id = cloudCampaign.id;
 
-        const pending = Storage.getPending();
+        const pending = BayaniStorage.getPending();
         pending.unshift(newCampaign);
-        Storage.savePending(pending);
+        BayaniStorage.savePending(pending);
 
-        const all = Storage.getCampaigns().filter(c => c.id !== newCampaign.id);
+        const all = BayaniStorage.getCampaigns().filter(c => c.id !== newCampaign.id);
         all.unshift(newCampaign);
-        Storage.saveCampaigns(all);
-        Storage.setUser({ name: newCampaign.organizer });
+        BayaniStorage.saveCampaigns(all);
+        BayaniStorage.setUser({ name: newCampaign.organizer });
 
         alert('Salamat! Your campaign was received by BayaniHub and is now waiting for admin review.');
         location.href = 'dashboard.html';
