@@ -32,6 +32,7 @@ jobs:
           test -f js/supabase.js
           test -f js/data.js
           test -f sw.js
+          test -f assets/gcash-qr.svg
           ! grep -R --exclude-dir=.git --exclude=".github/workflows/pages.yml" -n "09381447214" .
           grep -q "gcash: null" submit.html
           grep -q "const CACHE = 'bayanihub-v40'" sw.js
