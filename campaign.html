@@ -309,7 +309,7 @@
       const amount = Math.round(Number(document.getElementById('donor-amount').value) || 0);
       const ref = document.getElementById('donor-ref').value.trim();
 
-      if (!amount || amount < 50) {
+      if (!amount || amount < 1) {
         alert('Please enter a valid amount (minimum ₱1).');
         return;
       }
