@@ -135,6 +135,11 @@
         const campaigns = results[0].status === 'fulfilled' ? results[0].value : [];
         const donations = results[1].status === 'fulfilled' ? results[1].value : [];
         const revenue = results[2].status === 'fulfilled' ? results[2].value : [];
+        const failed = results.filter(r => r.status === 'rejected');
+        if (failed.length) {
+          const firstError = failed[0].reason?.message || 'One or more admin data requests failed.';
+          showError(firstError + (failed.length > 1 ? ' Some sections may be incomplete; tap Refresh to retry.' : ''));
+        }
         const sponsors = results[3].status === 'fulfilled' ? results[3].value : [];
         const audit = results[4].status === 'fulfilled' ? results[4].value : [];
         let campaignRows = Array.isArray(campaigns) ? campaigns : [];
@@ -449,10 +454,17 @@
       }
     }
 
-    document.getElementById('btn-refresh').addEventListener('click', refreshAdmin);
-    document.getElementById('btn-logout').addEventListener('click', async () => {
-      await BayaniCloud.signOut();
-      location.replace('login.html');
+    document.getElementById('btn-refresh')?.addEventListener('click', async () => {
+      const button = document.getElementById('btn-refresh');
+      if (button) { button.disabled = true; button.textContent = 'Refreshing…'; }
+      try { await refreshAdmin(); }
+      finally { if (button) { button.disabled = false; button.textContent = 'Refresh'; } }
+    });
+    document.getElementById('btn-logout')?.addEventListener('click', async () => {
+      const button = document.getElementById('btn-logout');
+      if (button) { button.disabled = true; button.textContent = 'Signing out…'; }
+      try { await BayaniCloud.signOut(); }
+      finally { location.replace('login.html'); }
     });
 
     start();
