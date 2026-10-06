@@ -171,7 +171,7 @@
         button.addEventListener('click', async (event) => {
           event.preventDefault();
           event.stopPropagation();
-          await approveCampaign(button.getAttribute('data-approve-id'));
+          await approveCampaign(button.getAttribute('data-approve-id'), button);
         }, { passive: false });
       });
 
@@ -223,8 +223,8 @@
       ).join('');
     }
 
-    async function approveCampaign(id) {
-      const button = document.querySelector('[data-approve-id="' + CSS.escape(id) + '"]');
+    async function approveCampaign(id, buttonOverride) {
+      const button = buttonOverride || document.querySelector('[data-approve-id="' + CSS.escape(id) + '"]');
       if (button) { button.disabled = true; button.textContent = 'Approving…'; }
       try {
         await BayaniCloud.adminUpdateCampaign(id, { status: 'approved' });
