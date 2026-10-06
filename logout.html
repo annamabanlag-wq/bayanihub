@@ -12,8 +12,19 @@
 <script src="js/supabase.js?v=logout-20261007-01"></script>
 <script>
 (async function(){
-  try { if (window.BayaniCloud && typeof BayaniCloud.signOut === 'function') await BayaniCloud.signOut(); } catch (e) {}
-  location.replace('login.html?loggedout=1');
+  // Navigate even if the network is slow. bayaniSignOut clears the local
+  // session immediately and revokes the server session on a best-effort basis.
+  const fallback = setTimeout(() => location.replace('login.html?loggedout=1'), 3000);
+  try {
+    if (window.BayaniCloud && typeof BayaniCloud.signOut === 'function') {
+      await BayaniCloud.signOut();
+    }
+  } catch (_) {
+    // The local session is already cleared; continue to Login.
+  } finally {
+    clearTimeout(fallback);
+    location.replace('login.html?loggedout=1');
+  }
 })();
 </script>
 </body>
