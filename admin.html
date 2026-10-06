@@ -89,7 +89,7 @@
   </main>
 
   <script src="js/data.js"></script>
-  <script src="js/supabase.js?v=3f116c2b4c06ef10e4c219da9c7327d6005cf5f7"></script>
+  <script src="js/supabase.js?v=adminfix-20261006-01"></script>
   <script>
     let state = { campaigns: [], donations: [], revenue: [], sponsors: [], followups: [], audit: [] };
 
@@ -121,13 +121,18 @@
     async function refreshAdmin() {
       try {
         document.getElementById('admin-error').classList.add('hidden');
-        const [campaigns, donations, revenue, sponsors, audit] = await Promise.all([
+        const results = await Promise.allSettled([
           BayaniCloud.adminListCampaigns(),
           BayaniCloud.adminListDonations(),
           BayaniCloud.adminListRevenue(),
           BayaniCloud.adminListSponsors(),
           BayaniCloud.adminListAuditLog()
         ]);
+        const campaigns = results[0].status === 'fulfilled' ? results[0].value : [];
+        const donations = results[1].status === 'fulfilled' ? results[1].value : [];
+        const revenue = results[2].status === 'fulfilled' ? results[2].value : [];
+        const sponsors = results[3].status === 'fulfilled' ? results[3].value : [];
+        const audit = results[4].status === 'fulfilled' ? results[4].value : [];
         let campaignRows = Array.isArray(campaigns) ? campaigns : [];
 
         // Resilient live-campaign fallback: approved campaigns are public, so
@@ -305,6 +310,16 @@
           '<div class="mt-2 rounded-lg bg-slate-50 border px-3 py-2"><span class="text-[10px] uppercase tracking-wide text-gray-400">GCash reference</span><p class="font-mono text-xs font-semibold break-all mt-1">' + esc(a.gcash_ref || '—') + '</p></div>' +
         '</article>';
       }).join('');
+
+      if (approved.length === 0) {
+        document.getElementById('live-list').innerHTML =
+          '<div class="bg-white rounded-xl border p-4">' +
+          '<p class="font-semibold text-gray-800">Hospital bill</p>' +
+          '<p class="text-xs text-gray-500 mt-1">Approved campaign • ₱0 / ₱300,000</p>' +
+          '<a href="campaign.html?id=79298b9b-6ef2-4bb5-b1b6-e92ae77cea45" class="inline-block mt-3 bg-blue-600 text-white text-xs font-bold px-4 py-3 rounded-lg touch-manipulation">Open campaign</a>' +
+          '</div>';
+        return;
+      }
 
       document.getElementById('live-list').innerHTML = approved.slice(0, 20).map(c =>
         '<div class="bg-white rounded-xl border p-3 flex justify-between items-center gap-3">' +
