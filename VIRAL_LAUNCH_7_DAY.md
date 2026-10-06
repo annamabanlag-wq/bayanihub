@@ -5,7 +5,7 @@ Goal: grow genuine awareness for BayaniHub while protecting donor and campaign t
 ## The hook
 **BAYANIHUB — TULONG PARA SA PILIPINO**
 
-A community fundraising platform for Filipinos in need, with campaign review and manual GCash verification.
+A community fundraising platform for Filipinos in need, with campaign review and manual payment verification.
 
 ## Day 1 — Founder story
 Share why BayaniHub was built and invite NGOs, churches, schools, barangay/community groups and volunteers to review the platform.
@@ -58,7 +58,7 @@ Want to help? Discover community campaigns and support a legitimate cause.
 
 BayaniHub: https://annamabanlag-wq.github.io/bayanihub/
 
-Campaigns are reviewed before going live and GCash transactions are subject to manual verification.
+Campaigns are reviewed before going live and payment transactions are subject to manual verification.
 
 ## Copy/paste partner message
 Hello! We are building BayaniHub, a community fundraising platform for Filipinos in need. We are looking for legitimate NGOs, churches, schools, community groups and volunteers who can review our process and help us improve trust and reach. If your organization is interested, we can share the platform and verification workflow for review.
