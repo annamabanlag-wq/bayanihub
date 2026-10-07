@@ -64,6 +64,21 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
 
     <section>
       <div class="flex items-center justify-between mb-3">
+        <div>
+          <h3 class="text-sm font-semibold text-gray-700">Beneficiary payouts</h3>
+          <p class="text-[10px] text-gray-400 mt-0.5">Confirm the donation first, then send the verified amount from the BayaniHub GCash account.</p>
+        </div>
+        <span id="payout-ready-label" class="text-[10px] font-semibold text-amber-600">0 ready</span>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-3 text-[11px] text-amber-800">
+        <b>Manual payout:</b> BayaniHub does not automatically transfer money. Send the exact amount to the verified recipient shown below, then record the GCash payout reference.
+      </div>
+      <div id="payout-list" class="space-y-3"></div>
+      <p id="no-payouts" class="text-sm text-gray-500 text-center py-4 hidden">No beneficiary payouts yet</p>
+    </section>
+
+    <section>
+      <div class="flex items-center justify-between mb-3">
         <h3 class="text-sm font-semibold text-gray-700">Admin audit history</h3>
         <span class="text-[10px] text-gray-400">Verification actions</span>
       </div>
@@ -94,9 +109,9 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
   </main>
 
   <script src="js/data.js"></script>
-  <script src="js/supabase.js?v=adminfix-20261007-07"></script>
+  <script src="js/supabase.js?v=adminfix-20261007-08"></script>
   <script>
-    let state = { campaigns: [], donations: [], revenue: [], sponsors: [], followups: [], audit: [] };
+    let state = { campaigns: [], donations: [], revenue: [], sponsors: [], followups: [], audit: [], payouts: [] };
 
     function esc(value) {
       return String(value ?? '').replace(/[&<>"']/g, ch => ({
@@ -160,13 +175,15 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
           BayaniCloud.adminListDonations(),
           BayaniCloud.adminListRevenue(),
           BayaniCloud.adminListSponsors(),
-          BayaniCloud.adminListAuditLog()
+          BayaniCloud.adminListAuditLog(),
+          BayaniCloud.adminListPayouts()
         ]), 12000, 'Admin records request timed out. Please tap Refresh and try again.');
         let campaigns = Array.isArray(records[0]) ? records[0] : [];
         let donations = Array.isArray(records[1]) ? records[1] : [];
         let revenue = Array.isArray(records[2]) ? records[2] : [];
         let sponsors = Array.isArray(records[3]) ? records[3] : [];
         let audit = Array.isArray(records[4]) ? records[4] : [];
+        let payouts = Array.isArray(records[5]) ? records[5] : [];
 
         if (campaigns.length === 0) {
           showError('No admin campaign records were returned. If you know a submission exists, tap Refresh and check the staff session.');
@@ -177,7 +194,8 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
           donations,
           revenue,
           sponsors,
-          audit
+          audit,
+          payouts
         };
         renderAdmin();
       } catch (err) {
@@ -375,6 +393,41 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
           await rejectSponsor(button.getAttribute('data-reject-sponsor-id'));
         }, { passive: false });
       });
+      const payoutList = document.getElementById('payout-list');
+      const readyPayouts = (state.payouts || []).filter(p => p.status === 'ready');
+      document.getElementById('payout-ready-label').textContent = readyPayouts.length + ' ready';
+      document.getElementById('no-payouts').classList.toggle('hidden', (state.payouts || []).length !== 0);
+      payoutList.innerHTML = (state.payouts || []).slice(0, 30).map(p => {
+        const paid = p.status === 'paid';
+        const rejected = p.status === 'rejected';
+        const badge = paid
+          ? '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">PAID</span>'
+          : rejected
+          ? '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700">REJECTED</span>'
+          : '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">READY FOR PAYOUT</span>';
+        return '<article class="bg-white rounded-xl border p-4 shadow-sm">' +
+          '<div class="flex items-start justify-between gap-3">' +
+            '<div class="min-w-0">' +
+              '<div class="flex items-center gap-2 flex-wrap">' + badge + '</div>' +
+              '<p class="font-bold text-gray-900 mt-1">' + esc(p.recipient_name) + '</p>' +
+              '<p class="text-xs text-gray-600 mt-1">Recipient GCash/mobile: <b>' + esc(p.recipient_account || 'Not provided') + '</b></p>' +
+              '<p class="text-[10px] text-gray-400 mt-1">Campaign: ' + esc((state.campaigns.find(c => c.id === p.campaign_id) || {}).title || p.campaign_id) + '</p>' +
+            '</div>' +
+            '<div class="text-right shrink-0"><p class="text-xl font-extrabold text-teal-800">' + money(p.amount) + '</p>' +
+            (paid ? '<p class="text-[10px] text-gray-400 mt-1">Payout ref: ' + esc(p.payout_ref || '—') + '</p>' :
+              '<button type="button" data-record-payout-id="' + esc(p.id) + '" class="mt-2 text-xs font-bold px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white cursor-pointer touch-manipulation">Record payout</button>') +
+            '</div>' +
+          '</div>' +
+        '</article>';
+      }).join('');
+
+      payoutList.querySelectorAll('[data-record-payout-id]').forEach(button => {
+        button.addEventListener('click', async event => {
+          event.preventDefault(); event.stopPropagation();
+          await recordPayout(button.getAttribute('data-record-payout-id'), button);
+        }, { passive: false });
+      });
+
       const auditList = document.getElementById('audit-list');
       const auditRows = state.audit || [];
       document.getElementById('no-audit').classList.toggle('hidden', auditRows.length !== 0);
@@ -476,6 +529,25 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
     async function toggleVerified(id, value, buttonOverride) {
       const button = buttonOverride || document.querySelector('[data-toggle-verified-id="' + CSS.escape(id) + '"]');
       await runAdminAction(button, 'Saving…', () => BayaniCloud.adminUpdateCampaign(id, { verified: !!value }), value ? 'Badge on' : 'Badge');
+    }
+
+    async function recordPayout(id, buttonOverride) {
+      const payout = (state.payouts || []).find(p => p.id === id);
+      if (!payout || payout.status !== 'ready') return;
+      const message = 'Send ' + money(payout.amount) + ' from the BayaniHub GCash account to ' + (payout.recipient_name || 'the verified recipient') + ' at ' + (payout.recipient_account || 'the verified account') + ' first. Then enter the successful GCash payout reference.';
+      if (!confirm(message)) return;
+      const ref = prompt('Enter the successful GCash payout reference:');
+      if (!ref || ref.trim().length < 3) return;
+      const button = buttonOverride;
+      if (button) { button.disabled = true; button.textContent = 'Saving…'; }
+      try {
+        await BayaniCloud.adminRecordPayout(id, ref.trim(), 'Manual GCash payout recorded after admin verified recipient and transfer.');
+        await refreshAdmin();
+      } catch (err) {
+        if (button) { button.disabled = false; button.textContent = 'Record payout'; }
+        showError(err.message || 'Payout recording failed.');
+        alert(err.message || 'Payout recording failed.');
+      }
     }
 
     async function confirmSponsor(id) {
