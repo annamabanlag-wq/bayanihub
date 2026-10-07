@@ -336,31 +336,6 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
           await rejectSponsor(button.getAttribute('data-reject-sponsor-id'));
         }, { passive: false });
       });
-      sList.querySelectorAll('[data-toggle-urgent-id]').forEach(button => {
-        button.addEventListener('click', async event => {
-          event.preventDefault(); event.stopPropagation();
-          await toggleUrgent(button.getAttribute('data-toggle-urgent-id'), button.getAttribute('data-toggle-urgent-value') === 'true');
-        }, { passive: false });
-      });
-      sList.querySelectorAll('[data-toggle-verified-id]').forEach(button => {
-        button.addEventListener('click', async event => {
-          event.preventDefault(); event.stopPropagation();
-          await toggleVerified(button.getAttribute('data-toggle-verified-id'), button.getAttribute('data-toggle-verified-value') === 'true');
-        }, { passive: false });
-      });
-      document.getElementById('live-list').querySelectorAll('[data-toggle-urgent-id]').forEach(button => {
-        button.addEventListener('click', async event => {
-          event.preventDefault(); event.stopPropagation();
-          await toggleUrgent(button.getAttribute('data-toggle-urgent-id'), button.getAttribute('data-toggle-urgent-value') === 'true');
-        }, { passive: false });
-      });
-      document.getElementById('live-list').querySelectorAll('[data-toggle-verified-id]').forEach(button => {
-        button.addEventListener('click', async event => {
-          event.preventDefault(); event.stopPropagation();
-          await toggleVerified(button.getAttribute('data-toggle-verified-id'), button.getAttribute('data-toggle-verified-value') === 'true');
-        }, { passive: false });
-      });
-
       const auditList = document.getElementById('audit-list');
       const auditRows = state.audit || [];
       document.getElementById('no-audit').classList.toggle('hidden', auditRows.length !== 0);
