@@ -250,7 +250,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
             '<p class="text-xs text-gray-500">' + esc(s.package_name) + ' • Ref: ' + esc(s.gcash_ref) + '</p>' +
             '<p class="text-[10px] text-gray-400 mt-1">' + new Date(s.created_at).toLocaleString() + ' • ' + status + '</p></div>' +
             '<div class="text-right whitespace-nowrap"><p class="font-bold text-teal-800">' + money(s.amount) + '</p>' +
-            ((!confirmed && !rejected) ? '<div class="flex gap-1 mt-1"><button onclick="confirmSponsor(\'' + esc(s.id) + '\')" class="text-[10px] font-bold px-2 py-1 rounded bg-teal-600 text-white">Confirm</button><button onclick="rejectSponsor(\'' + esc(s.id) + '\')" class="text-[10px] font-bold px-2 py-1 rounded bg-red-100 text-red-700">Reject</button></div>' : '') +
+            ((!confirmed && !rejected) ? '<div class="flex gap-1 mt-1"><button type="button" data-confirm-sponsor-id="' + esc(s.id) + '" class="text-[10px] font-bold px-2 py-1 rounded bg-teal-600 text-white">Confirm</button><button type="button" data-reject-sponsor-id="' + esc(s.id) + '" class="text-[10px] font-bold px-2 py-1 rounded bg-red-100 text-red-700">Reject</button></div>' : '') +
             '</div></div></div>';
       }).join('');
 
