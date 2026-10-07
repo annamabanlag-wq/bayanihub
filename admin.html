@@ -407,6 +407,20 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
             '<button type="button" data-toggle-verified-id="' + esc(c.id) + '" data-toggle-verified-value="' + (!c.verified) + '" class="text-[10px] px-2 py-1 rounded ' + (c.verified ? 'bg-teal-100 text-teal-800' : 'bg-gray-100 text-gray-600') + '">' + (c.verified ? 'Badge on' : 'Badge') + '</button>' +
           '</div></div>'
       ).join('');
+
+      const liveList = document.getElementById('live-list');
+      liveList.querySelectorAll('[data-toggle-urgent-id]').forEach(button => {
+        button.addEventListener('click', async event => {
+          event.preventDefault(); event.stopPropagation();
+          await toggleUrgent(button.getAttribute('data-toggle-urgent-id'), button.getAttribute('data-toggle-urgent-value') === 'true');
+        }, { passive: false });
+      });
+      liveList.querySelectorAll('[data-toggle-verified-id]').forEach(button => {
+        button.addEventListener('click', async event => {
+          event.preventDefault(); event.stopPropagation();
+          await toggleVerified(button.getAttribute('data-toggle-verified-id'), button.getAttribute('data-toggle-verified-value') === 'true');
+        }, { passive: false });
+      });
     }
 
     async function approveCampaign(id, buttonOverride) {
