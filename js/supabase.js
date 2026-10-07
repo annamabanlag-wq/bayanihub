@@ -125,8 +125,11 @@ async function submitBayaniCampaign(campaign) {
     sample: false
   };
 
-  const rows = await bayaniFetch('campaigns', {
+  // Explicitly request no returned row. The public role is allowed to INSERT
+  // pending campaigns, but it is not allowed to SELECT private/pending campaign rows.
+  await bayaniFetch('campaigns', {
     method: 'POST',
+    headers: { Prefer: 'return=minimal' },
     body: JSON.stringify(payload)
   });
 
