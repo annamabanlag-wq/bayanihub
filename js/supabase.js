@@ -357,10 +357,24 @@ async function bayaniAdminRejectDonation(id) {
 }
 
 async function bayaniAdminConfirmDonation(id) {
-  return bayaniAuthFetch('donations?id=eq.' + encodeURIComponent(id) + '&status=eq.pending_verification', {
-    method: 'PATCH',
-    headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({ status: 'confirmed' })
+  return bayaniAuthFetch('rpc/bayani_admin_confirm_donation', {
+    method: 'POST',
+    body: JSON.stringify({ p_donation_id: id })
+  });
+}
+
+async function bayaniAdminListPayouts() {
+  return bayaniAuthFetch('donation_payouts?select=*&order=created_at.desc', { method: 'GET' });
+}
+
+async function bayaniAdminRecordPayout(id, payoutRef, note = '') {
+  return bayaniAuthFetch('rpc/bayani_admin_record_payout', {
+    method: 'POST',
+    body: JSON.stringify({
+      p_payout_id: id,
+      p_payout_ref: String(payoutRef || '').trim(),
+      p_note: String(note || '').trim() || null
+    })
   });
 }
 
@@ -447,6 +461,8 @@ window.BayaniCloud = {
   adminListAuditLog: bayaniAdminListAuditLog,
   adminUpdateCampaign: bayaniAdminUpdateCampaign,
   adminConfirmDonation: bayaniAdminConfirmDonation,
+  adminListPayouts: bayaniAdminListPayouts,
+  adminRecordPayout: bayaniAdminRecordPayout,
   adminRejectDonation: bayaniAdminRejectDonation,
   submitSponsorPayment: bayaniSubmitSponsorPayment,
   adminListSponsors: bayaniAdminListSponsors,
