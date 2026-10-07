@@ -121,6 +121,21 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
       ]);
     }
 
+    async function runAdminAction(button, busyText, action, restoreText) {
+      if (button?.disabled) return false;
+      if (button) { button.disabled = true; button.setAttribute('aria-busy', 'true'); if (busyText) button.textContent = busyText; }
+      try {
+        await withTimeout(action(), 10000, 'Admin action timed out. Please tap Refresh and try again.');
+        await refreshAdmin();
+        return true;
+      } catch (err) {
+        showError(err.message || 'Admin action failed.');
+        alert(err.message || 'Admin action failed.');
+        if (button) { button.disabled = false; button.removeAttribute('aria-busy'); if (restoreText) button.textContent = restoreText; }
+        return false;
+      }
+    }
+
     async function start() {
       try {
         const ok = await withTimeout(BayaniCloud.requireAdmin(), 8000, 'Admin session check timed out. Please sign in again.');
@@ -315,13 +330,13 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
       pList.querySelectorAll('[data-reject-campaign-id]').forEach(button => {
         button.addEventListener('click', async event => {
           event.preventDefault(); event.stopPropagation();
-          await rejectCampaign(button.getAttribute('data-reject-campaign-id'));
+          await rejectCampaign(button.getAttribute('data-reject-campaign-id'), button);
         }, { passive: false });
       });
       pList.querySelectorAll('[data-verify-campaign-id]').forEach(button => {
         button.addEventListener('click', async event => {
           event.preventDefault(); event.stopPropagation();
-          await verifyCampaign(button.getAttribute('data-verify-campaign-id'));
+          await verifyCampaign(button.getAttribute('data-verify-campaign-id'), button);
         }, { passive: false });
       });
       sList.querySelectorAll('[data-confirm-sponsor-id]').forEach(button => {
@@ -387,13 +402,13 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
       liveList.querySelectorAll('[data-toggle-urgent-id]').forEach(button => {
         button.addEventListener('click', async event => {
           event.preventDefault(); event.stopPropagation();
-          await toggleUrgent(button.getAttribute('data-toggle-urgent-id'), button.getAttribute('data-toggle-urgent-value') === 'true');
+          await toggleUrgent(button.getAttribute('data-toggle-urgent-id'), button.getAttribute('data-toggle-urgent-value') === 'true', button);
         }, { passive: false });
       });
       liveList.querySelectorAll('[data-toggle-verified-id]').forEach(button => {
         button.addEventListener('click', async event => {
           event.preventDefault(); event.stopPropagation();
-          await toggleVerified(button.getAttribute('data-toggle-verified-id'), button.getAttribute('data-toggle-verified-value') === 'true');
+          await toggleVerified(button.getAttribute('data-toggle-verified-id'), button.getAttribute('data-toggle-verified-value') === 'true', button);
         }, { passive: false });
       });
     }
@@ -418,33 +433,25 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
       }
     }
 
-    async function rejectCampaign(id) {
+    async function rejectCampaign(id, buttonOverride) {
       if (!confirm('Reject this campaign?')) return;
-      try {
-        await BayaniCloud.adminUpdateCampaign(id, { status: 'rejected' });
-        await refreshAdmin();
-      } catch (err) { showError(err.message || 'Rejection failed.'); }
+      const button = buttonOverride || document.querySelector('[data-reject-campaign-id="' + CSS.escape(id) + '"]');
+      await runAdminAction(button, 'Rejecting…', () => BayaniCloud.adminUpdateCampaign(id, { status: 'rejected' }), 'Reject');
     }
 
-    async function verifyCampaign(id) {
-      try {
-        await BayaniCloud.adminUpdateCampaign(id, { verified: true });
-        await refreshAdmin();
-      } catch (err) { showError(err.message || 'Verification failed.'); }
+    async function verifyCampaign(id, buttonOverride) {
+      const button = buttonOverride || document.querySelector('[data-verify-campaign-id="' + CSS.escape(id) + '"]');
+      await runAdminAction(button, 'Checking…', () => BayaniCloud.adminUpdateCampaign(id, { verified: true }), 'Badge');
     }
 
-    async function toggleUrgent(id, value) {
-      try {
-        await BayaniCloud.adminUpdateCampaign(id, { urgent: !!value });
-        await refreshAdmin();
-      } catch (err) { showError(err.message || 'Urgent toggle failed.'); }
+    async function toggleUrgent(id, value, buttonOverride) {
+      const button = buttonOverride || document.querySelector('[data-toggle-urgent-id="' + CSS.escape(id) + '"]');
+      await runAdminAction(button, 'Saving…', () => BayaniCloud.adminUpdateCampaign(id, { urgent: !!value }), value ? 'Urgent' : 'Normal');
     }
 
-    async function toggleVerified(id, value) {
-      try {
-        await BayaniCloud.adminUpdateCampaign(id, { verified: !!value });
-        await refreshAdmin();
-      } catch (err) { showError(err.message || 'Badge toggle failed.'); }
+    async function toggleVerified(id, value, buttonOverride) {
+      const button = buttonOverride || document.querySelector('[data-toggle-verified-id="' + CSS.escape(id) + '"]');
+      await runAdminAction(button, 'Saving…', () => BayaniCloud.adminUpdateCampaign(id, { verified: !!value }), value ? 'Badge on' : 'Badge');
     }
 
     async function confirmSponsor(id) {
