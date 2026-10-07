@@ -140,7 +140,7 @@
   </nav>
 
   <script src="js/data.js"></script>
-  <script src="js/supabase.js"></script>
+  <script src="js/supabase.js?v=20261008-01"></script>
   <script>
     const sel = document.querySelector('select[name="category"]');
     CATEGORIES.forEach(c => {
@@ -261,7 +261,8 @@
         location.href = 'dashboard.html';
       } catch (err) {
         console.error('BayaniHub cloud submission failed:', err);
-        alert('We could not reach the central BayaniHub server, so your campaign was NOT submitted. Please check your connection and try again.');
+        const detail = String(err?.message || 'Unknown submission error');
+        alert('BayaniHub could not submit this campaign. Nothing was saved.\n\nReason: ' + detail + '\n\nPlease try once more after refreshing this page.');
       } finally {
         submitting = false;
         if (submitButton) {
