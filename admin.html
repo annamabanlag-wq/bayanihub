@@ -163,20 +163,26 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
         // the same authenticated admin endpoints used by the underlying data
         // layer. This prevents a valid admin session from showing a misleading
         // all-zero dashboard while real cloud records exist.
-        const rpcLooksEmpty = campaigns.length === 0 && donations.length === 0 && revenue.length === 0 && sponsors.length === 0 && audit.length === 0;
-        if (rpcLooksEmpty) {
+        const needsFallback = [
+          campaigns.length === 0,
+          donations.length === 0,
+          revenue.length === 0,
+          sponsors.length === 0,
+          audit.length === 0
+        ];
+        if (needsFallback.some(Boolean)) {
           const fallback = await withTimeout(Promise.all([
-            BayaniCloud.adminListCampaigns(),
-            BayaniCloud.adminListDonations(),
-            BayaniCloud.adminListRevenue(),
-            BayaniCloud.adminListSponsors(),
-            BayaniCloud.adminListAuditLog()
+            needsFallback[0] ? BayaniCloud.adminListCampaigns() : Promise.resolve(campaigns),
+            needsFallback[1] ? BayaniCloud.adminListDonations() : Promise.resolve(donations),
+            needsFallback[2] ? BayaniCloud.adminListRevenue() : Promise.resolve(revenue),
+            needsFallback[3] ? BayaniCloud.adminListSponsors() : Promise.resolve(sponsors),
+            needsFallback[4] ? BayaniCloud.adminListAuditLog() : Promise.resolve(audit)
           ]), 10000, 'Admin records request timed out. Please tap Refresh and try again.');
-          campaigns = Array.isArray(fallback[0]) ? fallback[0] : [];
-          donations = Array.isArray(fallback[1]) ? fallback[1] : [];
-          revenue = Array.isArray(fallback[2]) ? fallback[2] : [];
-          sponsors = Array.isArray(fallback[3]) ? fallback[3] : [];
-          audit = Array.isArray(fallback[4]) ? fallback[4] : [];
+          campaigns = Array.isArray(fallback[0]) ? fallback[0] : campaigns;
+          donations = Array.isArray(fallback[1]) ? fallback[1] : donations;
+          revenue = Array.isArray(fallback[2]) ? fallback[2] : revenue;
+          sponsors = Array.isArray(fallback[3]) ? fallback[3] : sponsors;
+          audit = Array.isArray(fallback[4]) ? fallback[4] : audit;
         }
 
         if (campaigns.length === 0) {
