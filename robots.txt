@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin-v2.html
+Disallow: /admin-control.html
+Disallow: /login.html
+Disallow: /dashboard.html
+
+Sitemap: https://annamabanlag-wq.github.io/bayanihub/sitemap.xml
