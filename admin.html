@@ -158,6 +158,17 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
       }
     }
 
+    function campaignKey(c) {
+      return [c.title, c.organizer, c.location, c.goal].map(v => String(v || '').trim().toLowerCase()).join('|');
+    }
+
+    function duplicatePendingId(c, pendingRows) {
+      const same = pendingRows.filter(x => x.id !== c.id && campaignKey(x) === campaignKey(c));
+      if (!same.length) return null;
+      same.sort((a,b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+      return same[0].id;
+    }
+
     function renderAdmin() {
       const pending = state.campaigns.filter(c => c.status === 'pending');
       const approved = state.campaigns.filter(c => c.status === 'approved');
@@ -174,6 +185,9 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
       document.getElementById('no-pending').classList.toggle('hidden', pending.length !== 0);
       pList.innerHTML = pending.map(c => {
         const evidence = Array.isArray(c.evidence) ? c.evidence : [];
+        const hasEvidence = evidence.some(x => String(x?.dataUrl || '').startsWith('data:'));
+        const duplicateOf = duplicatePendingId(c, pending);
+        const blockedReason = duplicateOf ? 'Duplicate of an older pending submission' : (!hasEvidence ? 'Evidence required before approval' : '');
         const ev = evidence.map((x, i) => {
           const isImg = String(x.type || '').startsWith('image/');
           const dataUrl = String(x.dataUrl || '');
@@ -192,8 +206,9 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
           '<p class="text-xs text-gray-600 mt-2">' + esc(c.story) + '</p>' +
           '<p class="text-[10px] text-gray-400 mt-1">Contact: ' + esc(c.contact || 'N/A') + '</p>' +
           (evidence ? '<div class="mt-2"><p class="text-[10px] font-semibold text-amber-700 mb-1">Evidence (' + evidence.length + ')</p><div class="flex gap-1.5 flex-wrap">' + ev + '</div></div>' : '') +
+          (blockedReason ? '<p class="mt-3 text-[11px] font-semibold text-red-700 bg-red-50 border border-red-100 rounded-lg p-2">' + esc(blockedReason) + '</p>' : '') +
           '<div class="flex gap-2 mt-3">' +
-            '<button type="button" data-approve-id="' + esc(c.id) + '" class="flex-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-xs font-bold py-3 rounded-lg cursor-pointer touch-manipulation">Approve</button>' +
+            '<button type="button" data-approve-id="' + esc(c.id) + '" ' + ((!hasEvidence || duplicateOf) ? 'disabled aria-disabled="true"' : '') + ' class="flex-1 ' + ((!hasEvidence || duplicateOf) ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 active:bg-green-800 text-white cursor-pointer') + ' text-xs font-bold py-3 rounded-lg touch-manipulation">Approve</button>' +
             '<button type="button" onclick="rejectCampaign(\'' + esc(c.id) + '\'); return false;" class="flex-1 bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-700 text-xs font-bold py-3 rounded-lg cursor-pointer touch-manipulation">Reject</button>' +
             '<button type="button" onclick="verifyCampaign(\'' + esc(c.id) + '\'); return false;" class="px-3 bg-teal-100 hover:bg-teal-200 active:bg-teal-300 text-teal-800 text-xs font-bold py-3 rounded-lg cursor-pointer touch-manipulation">Badge</button>' +
           '</div>' +
@@ -339,6 +354,13 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
     }
 
     async function approveCampaign(id, buttonOverride) {
+      const campaign = state.campaigns.find(c => c.id === id);
+      const evidence = Array.isArray(campaign?.evidence) ? campaign.evidence : [];
+      const hasEvidence = evidence.some(x => String(x?.dataUrl || '').startsWith('data:'));
+      const duplicateOf = campaign ? duplicatePendingId(campaign, state.campaigns.filter(c => c.status === 'pending')) : null;
+      if (!campaign || campaign.status !== 'pending') return;
+      if (!hasEvidence) { showError('Approval blocked: supporting evidence is required.'); return; }
+      if (duplicateOf) { showError('Approval blocked: this is a duplicate of an older pending submission.'); return; }
       const button = buttonOverride || document.querySelector('[data-approve-id="' + CSS.escape(id) + '"]');
       if (button) { button.disabled = true; button.textContent = 'Approving…'; }
       try {
