@@ -349,7 +349,7 @@ async function bayaniRequireAdmin() {
 }
 
 async function bayaniAdminDashboard() {
-  return bayaniAuthFetch('rpc/bayani_admin_dashboard', {
+  return bayaniAuthFetch('rpc/bayani_admin_dashboard_v2', {
     method: 'POST',
     body: JSON.stringify({})
   });
