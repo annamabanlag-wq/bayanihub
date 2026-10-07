@@ -109,7 +109,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
   </main>
 
   <script src="js/data.js"></script>
-  <script src="js/supabase.js?v=adminfix-20261007-10"></script>
+  <script src="js/supabase.js?v=adminfix-20261007-11"></script>
   <script>
     let state = { campaigns: [], donations: [], revenue: [], sponsors: [], followups: [], audit: [], payouts: [] };
 
@@ -167,23 +167,17 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
     async function refreshAdmin() {
       try {
         document.getElementById('admin-error').classList.add('hidden');
-        // Read each admin dataset directly through authenticated REST/RLS.
-        // This avoids the private-schema RPC path for dashboard reads and prevents
-        // a private-schema 403 from masking real cloud records.
-        const records = await withTimeout(Promise.all([
-          BayaniCloud.adminListCampaigns(),
-          BayaniCloud.adminListDonations(),
-          BayaniCloud.adminListRevenue(),
-          BayaniCloud.adminListSponsors(),
-          BayaniCloud.adminListAuditLog(),
-          BayaniCloud.adminListPayouts()
-        ]), 12000, 'Admin records request timed out. Please tap Refresh and try again.');
-        let campaigns = Array.isArray(records[0]) ? records[0] : [];
-        let donations = Array.isArray(records[1]) ? records[1] : [];
-        let revenue = Array.isArray(records[2]) ? records[2] : [];
-        let sponsors = Array.isArray(records[3]) ? records[3] : [];
-        let audit = Array.isArray(records[4]) ? records[4] : [];
-        let payouts = Array.isArray(records[5]) ? records[5] : [];
+        const dashboard = await withTimeout(
+          BayaniCloud.adminDashboard(),
+          12000,
+          'Admin records request timed out. Please tap Refresh and try again.'
+        );
+        const campaigns = Array.isArray(dashboard?.campaigns) ? dashboard.campaigns : [];
+        const donations = Array.isArray(dashboard?.donations) ? dashboard.donations : [];
+        const revenue = Array.isArray(dashboard?.revenue) ? dashboard.revenue : [];
+        const sponsors = Array.isArray(dashboard?.sponsors) ? dashboard.sponsors : [];
+        const audit = Array.isArray(dashboard?.audit) ? dashboard.audit : [];
+        const payouts = Array.isArray(dashboard?.payouts) ? dashboard.payouts : [];
 
         if (campaigns.length === 0) {
           showError('No admin campaign records were returned. If you know a submission exists, tap Refresh and check the staff session.');
