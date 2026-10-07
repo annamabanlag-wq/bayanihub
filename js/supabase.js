@@ -74,11 +74,21 @@ async function syncBayaniCampaigns() {
   );
   const cloud = (Array.isArray(rows) ? rows : []).map(bayaniMapCampaign);
 
-  // Keep local pending/submissions as fallback, while replacing demo/sample rows
-  // with their canonical cloud UUIDs to avoid duplicate campaigns.
+  // Keep local pending submissions. If the cloud has no approved, non-sample
+  // campaign, put the built-in example stories back so Discover is never blank.
   const local = BayaniStorage.getCampaigns();
   const nonSampleLocal = local.filter(c => !c.sample && c.status === 'pending' && !cloud.some(x => x.id === c.id));
-  BayaniStorage.saveCampaigns([...cloud, ...nonSampleLocal]);
+  const live = cloud.filter(c => c.status === 'approved' && c.sample !== true);
+  const seeds = (typeof SEED_CAMPAIGNS !== 'undefined' ? SEED_CAMPAIGNS : []).filter(c => c && c.sample === true);
+  const extras = cloud.filter(c => c.sample !== true);
+  const merged = live.length ? [...cloud, ...nonSampleLocal] : [...seeds, ...extras, ...nonSampleLocal];
+  const seen = new Set();
+  const unique = merged.filter(c => {
+    if (!c || c.id == null || seen.has(c.id)) return false;
+    seen.add(c.id);
+    return true;
+  });
+  BayaniStorage.saveCampaigns(unique);
   return cloud;
 }
 
@@ -153,13 +163,8 @@ const BAYANI_SESSION_KEY = 'bayani_supabase_session';
 
 function bayaniGetSession() {
   try {
-    // Use localStorage so multiple BayaniHub tabs share the newest rotated
-    // Supabase refresh token. A second tab must not leave this tab holding
-    // an already-consumed refresh token and produce a false "JWT expired".
     const local = localStorage.getItem(BAYANI_SESSION_KEY);
     if (local) return JSON.parse(local);
-
-    // Migrate an older sessionStorage-only session once.
     const legacy = sessionStorage.getItem(BAYANI_SESSION_KEY);
     if (legacy) {
       localStorage.setItem(BAYANI_SESSION_KEY, legacy);
@@ -182,9 +187,7 @@ function bayaniSaveSession(session) {
       localStorage.removeItem(BAYANI_SESSION_KEY);
       sessionStorage.removeItem(BAYANI_SESSION_KEY);
     }
-  } catch (_) {
-    // If storage is unavailable, the current request can still continue.
-  }
+  } catch (_) {}
 }
 
 async function bayaniAuth(path, options = {}) {
@@ -222,8 +225,6 @@ async function bayaniRefreshSession() {
       bayaniSaveSession(session);
       return session;
     }).catch(err => {
-      // Do not silently keep a known-invalid token. The admin page will send
-      // the user back to login when the refresh token itself is no longer valid.
       bayaniSaveSession(null);
       throw new Error('Staff session expired. Please sign in again.');
     }).finally(() => {
@@ -280,13 +281,8 @@ async function bayaniSignUp(email, password) {
 
 async function bayaniSignOut() {
   const session = bayaniGetSession();
-
-  // Clear the browser session first so logout can never trap the user
-  // behind a slow/offline Supabase logout request.
   bayaniSaveSession(null);
   if (window.BayaniStorage) BayaniStorage.setAdmin(false);
-
-  // Best-effort server-side session revocation. The UI does not wait for it.
   if (session && session.access_token) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 2500);
@@ -296,11 +292,8 @@ async function bayaniSignOut() {
         signal: controller.signal,
         headers: { Authorization: 'Bearer ' + session.access_token }
       });
-    } catch (_) {
-      // Local session is already cleared; network/logout errors are harmless.
-    } finally {
-      clearTimeout(timer);
-    }
+    } catch (_) {}
+    finally { clearTimeout(timer); }
   }
 }
 
@@ -414,7 +407,6 @@ async function bayaniAdminRecordPayout(id, payoutRef, note = '') {
   });
 }
 
-
 async function bayaniSubmitSponsorPayment({ name, packageId, packageName, amount, ref }) {
   const payload = {
     name: String(name || '').trim(),
@@ -441,7 +433,7 @@ async function bayaniSubmitFollowupPayment({ campaignId, ref }) {
     status: 'pending_verification'
   };
   if (!bayaniIsUuid(campaignId)) throw new Error('Campaign ID is invalid.');
-  if (payload.gcash_ref.length < 3) throw new Error('GCash reference is required for the ₱50 follow-up option.');
+  if (payload.gcash_ref.length < 3) throw new Error('GCash reference is required for the follow-up option.');
   return bayaniFetch('followup_requests', {
     method: 'POST',
     body: JSON.stringify(payload)
