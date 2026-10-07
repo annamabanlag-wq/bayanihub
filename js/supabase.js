@@ -250,8 +250,13 @@ async function bayaniAuthFetch(path, options = {}) {
     return await request(session.access_token);
   } catch (err) {
     if (!/HTTP 401\b/.test(String(err?.message || err))) throw err;
-    const refreshed = await bayaniRefreshSession();
-    return request(refreshed.access_token);
+    try {
+      const refreshed = await bayaniRefreshSession();
+      return await request(refreshed.access_token);
+    } catch (refreshErr) {
+      bayaniSaveSession(null);
+      throw new Error('Staff session expired. Please sign in again.');
+    }
   }
 }
 
