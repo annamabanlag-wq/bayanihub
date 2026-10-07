@@ -153,16 +153,38 @@ const BAYANI_SESSION_KEY = 'bayani_supabase_session';
 
 function bayaniGetSession() {
   try {
-    const value = sessionStorage.getItem(BAYANI_SESSION_KEY);
-    return value ? JSON.parse(value) : null;
+    // Use localStorage so multiple BayaniHub tabs share the newest rotated
+    // Supabase refresh token. A second tab must not leave this tab holding
+    // an already-consumed refresh token and produce a false "JWT expired".
+    const local = localStorage.getItem(BAYANI_SESSION_KEY);
+    if (local) return JSON.parse(local);
+
+    // Migrate an older sessionStorage-only session once.
+    const legacy = sessionStorage.getItem(BAYANI_SESSION_KEY);
+    if (legacy) {
+      localStorage.setItem(BAYANI_SESSION_KEY, legacy);
+      sessionStorage.removeItem(BAYANI_SESSION_KEY);
+      return JSON.parse(legacy);
+    }
+    return null;
   } catch (_) {
     return null;
   }
 }
 
 function bayaniSaveSession(session) {
-  if (session) sessionStorage.setItem(BAYANI_SESSION_KEY, JSON.stringify(session));
-  else sessionStorage.removeItem(BAYANI_SESSION_KEY);
+  try {
+    if (session) {
+      const serialized = JSON.stringify(session);
+      localStorage.setItem(BAYANI_SESSION_KEY, serialized);
+      sessionStorage.removeItem(BAYANI_SESSION_KEY);
+    } else {
+      localStorage.removeItem(BAYANI_SESSION_KEY);
+      sessionStorage.removeItem(BAYANI_SESSION_KEY);
+    }
+  } catch (_) {
+    // If storage is unavailable, the current request can still continue.
+  }
 }
 
 async function bayaniAuth(path, options = {}) {
@@ -200,8 +222,10 @@ async function bayaniRefreshSession() {
       bayaniSaveSession(session);
       return session;
     }).catch(err => {
+      // Do not silently keep a known-invalid token. The admin page will send
+      // the user back to login when the refresh token itself is no longer valid.
       bayaniSaveSession(null);
-      throw err;
+      throw new Error('Staff session expired. Please sign in again.');
     }).finally(() => {
       bayaniRefreshPromise = null;
     });
@@ -308,8 +332,15 @@ async function bayaniBootstrapAdmin(setupToken) {
 async function bayaniRequireAdmin() {
   const session = bayaniGetSession();
   if (!session || !session.access_token) return false;
-  // Preserve real auth/network errors so the admin UI can show the actual failure.
-  return await bayaniCheckAdmin();
+  try {
+    return await bayaniCheckAdmin();
+  } catch (err) {
+    if (/401|expired|session/i.test(String(err?.message || err))) {
+      bayaniSaveSession(null);
+      return false;
+    }
+    throw err;
+  }
 }
 
 async function bayaniAdminDashboard() {
