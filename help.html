@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0d9488">
+  <meta name="description" content="Official assistance pathways for BayaniHub beneficiaries.">
+  <title>Get More Help – BayaniHub</title>
+  <link rel="manifest" href="manifest.json">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1P0ZZE5966"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-1P0ZZE5966');
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen pb-10">
+<header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b">
+  <div class="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
+    <a href="index.html" class="text-2xl" aria-label="Back">‹</a>
+    <div><h1 class="font-extrabold text-brand-800">BayaniHub</h1><p class="text-[10px] text-gray-500">Official help pathways</p></div>
+  </div>
+</header>
+<main class="max-w-lg mx-auto px-4 py-5 space-y-4">
+  <section class="rounded-2xl bg-brand-700 text-white p-5 shadow-lg">
+    <p class="text-xs font-bold uppercase tracking-wider text-brand-100">Hindi ka nag-iisa</p>
+    <h2 class="text-2xl font-extrabold mt-2">We will help you reach legitimate assistance.</h2>
+    <p class="text-sm text-brand-50 mt-2">BayaniHub is a community platform, not a government agency. For urgent medical or crisis needs, also apply directly through official government assistance channels below.</p>
+  </section>
+
+  <section class="bg-white rounded-2xl border p-4 shadow-sm">
+    <h3 class="font-extrabold text-gray-900">🇵🇭 Senate Public Assistance</h3>
+    <p class="text-sm text-gray-600 mt-1">Senate Assist accepts online requests for medical and social assistance, including hospital bills, surgery, medicines, burial and transportation assistance.</p>
+    <a href="https://assist.senate.gov.ph/home" target="_blank" rel="noopener noreferrer" class="mt-3 block text-center bg-blue-600 text-white font-bold py-3 rounded-xl">Open Senate Assist</a>
+  </section>
+
+  <section class="bg-white rounded-2xl border p-4 shadow-sm">
+    <h3 class="font-extrabold text-gray-900">🤝 DSWD AICS</h3>
+    <p class="text-sm text-gray-600 mt-1">DSWD's Assistance to Individuals in Crisis Situations can provide medical, funeral, food, transportation, educational and other crisis assistance after assessment.</p>
+    <a href="https://crisis-intervention.dswd.gov.ph/aics-program/" target="_blank" rel="noopener noreferrer" class="mt-3 block text-center bg-brand-600 text-white font-bold py-3 rounded-xl">Open DSWD AICS</a>
+  </section>
+
+  <section class="bg-white rounded-2xl border p-4 shadow-sm">
+    <h3 class="font-extrabold text-gray-900">🏥 PCSO Medical Assistance</h3>
+    <p class="text-sm text-gray-600 mt-1">PCSO provides medical assistance through its official Medical Assistance Program. Prepare the required medical and billing documents before applying.</p>
+    <a href="https://onlinemap.pcso.gov.ph/" target="_blank" rel="noopener noreferrer" class="mt-3 block text-center bg-red-600 text-white font-bold py-3 rounded-xl">Open PCSO Medical Assistance</a>
+  </section>
+
+  <section class="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+    <h3 class="font-bold text-amber-900">📄 Prepare your proof</h3>
+    <p class="text-xs text-amber-800 mt-1">For medical assistance, official agencies may require IDs, clinical abstracts/medical certificates, hospital statements of account, prescriptions or other supporting documents. Never pay anyone who promises guaranteed government assistance.</p>
+  </section>
+
+  <section class="bg-white rounded-2xl border p-4 shadow-sm">
+    <h3 class="font-extrabold">Share BayaniHub with a leader</h3>
+    <p class="text-sm text-gray-600 mt-1">Use the button below to share the platform and ask public officials, NGOs, churches and community leaders to review verified cases.</p>
+    <button id="share" class="mt-3 w-full bg-gray-900 text-white font-bold py-3 rounded-xl">Share BayaniHub</button>
+    <p id="status" class="text-xs text-gray-500 mt-2 hidden"></p>
+  </section>
+</main>
+<script>
+const status=document.getElementById('status');
+document.getElementById('share').addEventListener('click',async()=>{
+  const data={title:'BayaniHub — Tulong para sa Pilipino',text:'Please help amplify verified Filipino families and individuals who urgently need assistance. BayaniHub connects community campaigns with people, NGOs and official assistance pathways.',url:location.origin+'/bayanihub/'};
+  try{if(navigator.share) await navigator.share(data);else{await navigator.clipboard.writeText(data.url);status.textContent='BayaniHub link copied.';status.classList.remove('hidden')}}catch(_){}
+});
+</script>
+</body>
+</html>

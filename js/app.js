@@ -10,7 +10,7 @@ function bayaniEsc(value) {
 }
 
 function bayaniSafeImage(value) {
-  const fallback = 'https://placehold.co/600x400/0d9488/white?text=BayaniHub';
+  const fallback = 'assets/bayanihub-cover.svg';
   try {
     const u = new URL(String(value || ''), location.href);
     if (u.protocol === 'http:' || u.protocol === 'https:') return bayaniEsc(u.href);

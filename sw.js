@@ -4,6 +4,8 @@ const ASSETS = [
   './index.html',
   './assets/gcash-qr.svg',
   './campaign.html',
+  './help.html',
+  './assets/bayanihub-cover.svg',
   './submit.html',
   './dashboard.html',
   './how.html',
