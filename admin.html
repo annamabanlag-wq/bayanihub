@@ -94,7 +94,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
   </main>
 
   <script src="js/data.js"></script>
-  <script src="js/supabase.js?v=adminfix-20261007-05"></script>
+  <script src="js/supabase.js?v=adminfix-20261007-06"></script>
   <script>
     let state = { campaigns: [], donations: [], revenue: [], sponsors: [], followups: [], audit: [] };
 
@@ -114,9 +114,16 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
       el.classList.remove('hidden');
     }
 
+    function withTimeout(promise, ms, label) {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error(label || 'Request timed out')), ms))
+      ]);
+    }
+
     async function start() {
       try {
-        const ok = await BayaniCloud.requireAdmin();
+        const ok = await withTimeout(BayaniCloud.requireAdmin(), 8000, 'Admin session check timed out. Please sign in again.');
         if (!ok) {
           location.replace('login.html');
           return;
@@ -130,7 +137,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
     async function refreshAdmin() {
       try {
         document.getElementById('admin-error').classList.add('hidden');
-        const dashboard = await BayaniCloud.adminDashboard();
+        const dashboard = await withTimeout(BayaniCloud.adminDashboard(), 10000, 'Admin data request timed out. Please tap Refresh and try again.');
         const campaigns = Array.isArray(dashboard?.campaigns) ? dashboard.campaigns : [];
         const donations = Array.isArray(dashboard?.donations) ? dashboard.donations : [];
         const revenue = Array.isArray(dashboard?.revenue) ? dashboard.revenue : [];
@@ -209,8 +216,8 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
           (blockedReason ? '<p class="mt-3 text-[11px] font-semibold text-red-700 bg-red-50 border border-red-100 rounded-lg p-2">' + esc(blockedReason) + '</p>' : '') +
           '<div class="flex gap-2 mt-3">' +
             '<button type="button" data-approve-id="' + esc(c.id) + '" ' + ((!hasEvidence || duplicateOf) ? 'disabled aria-disabled="true"' : '') + ' class="flex-1 ' + ((!hasEvidence || duplicateOf) ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 active:bg-green-800 text-white cursor-pointer') + ' text-xs font-bold py-3 rounded-lg touch-manipulation">Approve</button>' +
-            '<button type="button" onclick="rejectCampaign(\'' + esc(c.id) + '\'); return false;" class="flex-1 bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-700 text-xs font-bold py-3 rounded-lg cursor-pointer touch-manipulation">Reject</button>' +
-            '<button type="button" onclick="verifyCampaign(\'' + esc(c.id) + '\'); return false;" class="px-3 bg-teal-100 hover:bg-teal-200 active:bg-teal-300 text-teal-800 text-xs font-bold py-3 rounded-lg cursor-pointer touch-manipulation">Badge</button>' +
+            '<button type="button" data-reject-campaign-id="' + esc(c.id) + '" class="flex-1 bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-700 text-xs font-bold py-3 rounded-lg cursor-pointer touch-manipulation">Reject</button>' +
+            '<button type="button" data-verify-campaign-id="' + esc(c.id) + '" class="px-3 bg-teal-100 hover:bg-teal-200 active:bg-teal-300 text-teal-800 text-xs font-bold py-3 rounded-lg cursor-pointer touch-manipulation">Badge</button>' +
           '</div>' +
         '</article>';
       }).join('');
@@ -273,7 +280,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
           '</div>' +
           '<div class="mt-3 rounded-xl bg-slate-50 border p-3">' +
             '<div class="flex items-center justify-between gap-2"><span class="text-[10px] uppercase tracking-wide text-gray-400">Payment reference</span>' +
-            '<button type="button" onclick="copyDonationRef(\\'' + esc(ref) + '\\')" class="text-[10px] font-semibold text-blue-700">Copy</button></div>' +
+            '<button type="button" data-copy-donation-ref="' + esc(ref) + '" class="text-[10px] font-semibold text-blue-700">Copy</button></div>' +
             '<p class="font-mono text-sm font-bold text-slate-900 break-all mt-1">' + esc(ref || 'Missing reference') + '</p>' +
             '<p class="text-[10px] text-gray-400 mt-2">' + new Date(d.created_at).toLocaleString() + '</p>' +
           '</div>' +
@@ -302,6 +309,55 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
         button.addEventListener('click', async (event) => {
           event.preventDefault(); event.stopPropagation();
           await copyDonationRef(button.getAttribute('data-copy-donation-ref'));
+        }, { passive: false });
+      });
+
+      pList.querySelectorAll('[data-reject-campaign-id]').forEach(button => {
+        button.addEventListener('click', async event => {
+          event.preventDefault(); event.stopPropagation();
+          await rejectCampaign(button.getAttribute('data-reject-campaign-id'));
+        }, { passive: false });
+      });
+      pList.querySelectorAll('[data-verify-campaign-id]').forEach(button => {
+        button.addEventListener('click', async event => {
+          event.preventDefault(); event.stopPropagation();
+          await verifyCampaign(button.getAttribute('data-verify-campaign-id'));
+        }, { passive: false });
+      });
+      sList.querySelectorAll('[data-confirm-sponsor-id]').forEach(button => {
+        button.addEventListener('click', async event => {
+          event.preventDefault(); event.stopPropagation();
+          await confirmSponsor(button.getAttribute('data-confirm-sponsor-id'));
+        }, { passive: false });
+      });
+      sList.querySelectorAll('[data-reject-sponsor-id]').forEach(button => {
+        button.addEventListener('click', async event => {
+          event.preventDefault(); event.stopPropagation();
+          await rejectSponsor(button.getAttribute('data-reject-sponsor-id'));
+        }, { passive: false });
+      });
+      sList.querySelectorAll('[data-toggle-urgent-id]').forEach(button => {
+        button.addEventListener('click', async event => {
+          event.preventDefault(); event.stopPropagation();
+          await toggleUrgent(button.getAttribute('data-toggle-urgent-id'), button.getAttribute('data-toggle-urgent-value') === 'true');
+        }, { passive: false });
+      });
+      sList.querySelectorAll('[data-toggle-verified-id]').forEach(button => {
+        button.addEventListener('click', async event => {
+          event.preventDefault(); event.stopPropagation();
+          await toggleVerified(button.getAttribute('data-toggle-verified-id'), button.getAttribute('data-toggle-verified-value') === 'true');
+        }, { passive: false });
+      });
+      document.getElementById('live-list').querySelectorAll('[data-toggle-urgent-id]').forEach(button => {
+        button.addEventListener('click', async event => {
+          event.preventDefault(); event.stopPropagation();
+          await toggleUrgent(button.getAttribute('data-toggle-urgent-id'), button.getAttribute('data-toggle-urgent-value') === 'true');
+        }, { passive: false });
+      });
+      document.getElementById('live-list').querySelectorAll('[data-toggle-verified-id]').forEach(button => {
+        button.addEventListener('click', async event => {
+          event.preventDefault(); event.stopPropagation();
+          await toggleVerified(button.getAttribute('data-toggle-verified-id'), button.getAttribute('data-toggle-verified-value') === 'true');
         }, { passive: false });
       });
 
@@ -347,8 +403,8 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
           '<div class="min-w-0"><a href="campaign.html?id=' + encodeURIComponent(c.id) + '" class="text-sm font-bold text-blue-700 underline underline-offset-2 truncate block touch-manipulation">' + esc(c.title) + '</a>' +
           '<p class="text-xs text-gray-500">' + money(c.raised) + ' / ' + money(c.goal) + ' • ' + (c.verified ? 'Verified' : 'Unverified') + '</p></div>' +
           '<div class="flex gap-1">' +
-            '<button onclick="toggleUrgent(\'' + esc(c.id) + '\',' + (!c.urgent) + ')" class="text-[10px] px-2 py-1 rounded ' + (c.urgent ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600') + '">' + (c.urgent ? 'Urgent' : 'Normal') + '</button>' +
-            '<button onclick="toggleVerified(\'' + esc(c.id) + '\',' + (!c.verified) + ')" class="text-[10px] px-2 py-1 rounded ' + (c.verified ? 'bg-teal-100 text-teal-800' : 'bg-gray-100 text-gray-600') + '">' + (c.verified ? 'Badge on' : 'Badge') + '</button>' +
+            '<button type="button" data-toggle-urgent-id="' + esc(c.id) + '" data-toggle-urgent-value="' + (!c.urgent) + '" class="text-[10px] px-2 py-1 rounded ' + (c.urgent ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600') + '">' + (c.urgent ? 'Urgent' : 'Normal') + '</button>' +
+            '<button type="button" data-toggle-verified-id="' + esc(c.id) + '" data-toggle-verified-value="' + (!c.verified) + '" class="text-[10px] px-2 py-1 rounded ' + (c.verified ? 'bg-teal-100 text-teal-800' : 'bg-gray-100 text-gray-600') + '">' + (c.verified ? 'Badge on' : 'Badge') + '</button>' +
           '</div></div>'
       ).join('');
     }
