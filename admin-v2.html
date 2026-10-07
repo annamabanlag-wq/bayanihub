@@ -109,7 +109,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
   </main>
 
   <script src="js/data.js"></script>
-  <script src="js/supabase.js?v=adminfix-20261007-12"></script>
+  <script src="js/supabase.js?v=adminfix-20261007-13"></script>
   <script>
     let state = { campaigns: [], donations: [], revenue: [], sponsors: [], followups: [], audit: [], payouts: [] };
 
@@ -434,7 +434,8 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
         const confirmed = a.after_status === 'confirmed';
         const rejected = a.after_status === 'rejected';
         const actionLabel = a.action === 'confirm_donation' ? 'Confirmed donation' :
-                            a.action === 'reject_donation' ? 'Rejected donation' : 'Updated donation';
+                            a.action === 'reject_donation' ? 'Rejected donation' :
+                            a.action === 'record_payout' ? 'Recorded beneficiary payout' : 'Updated donation';
         const badge = confirmed
           ? '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">CONFIRMED</span>'
           : rejected
@@ -450,7 +451,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
             '</div>' +
             '<div class="text-right shrink-0"><p class="font-bold text-teal-800">' + money(a.amount) + '</p><p class="text-[10px] text-gray-400">' + esc(a.before_status || '—') + ' → ' + esc(a.after_status || '—') + '</p></div>' +
           '</div>' +
-          '<div class="mt-2 rounded-lg bg-slate-50 border px-3 py-2"><span class="text-[10px] uppercase tracking-wide text-gray-400">Payment reference</span><p class="font-mono text-xs font-semibold break-all mt-1">' + esc(a.gcash_ref || '—') + '</p></div>' +
+          '<div class="mt-2 rounded-lg bg-slate-50 border px-3 py-2"><span class="text-[10px] uppercase tracking-wide text-gray-400">Reference</span><p class="font-mono text-xs font-semibold break-all mt-1">' + esc(a.gcash_ref || a.note || '—') + '</p></div>' +
         '</article>';
       }).join('');
 
@@ -541,7 +542,9 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
       if (button) { button.disabled = true; button.textContent = 'Saving…'; }
       try {
         await BayaniCloud.adminRecordPayout(id, ref.trim(), 'Manual GCash payout recorded after admin verified recipient and transfer.');
-        await refreshAdmin();
+        if (button) { button.disabled = true; button.textContent = 'Paid'; }
+        try { await withTimeout(refreshAdmin(), 8000, 'Payout was recorded, but the dashboard refresh timed out. Tap Refresh to reload.'); }
+        catch (refreshErr) { showError(refreshErr.message || 'Payout was recorded. Tap Refresh to reload.'); }
       } catch (err) {
         if (button) { button.disabled = false; button.textContent = 'Record payout'; }
         showError(err.message || 'Payout recording failed.');
