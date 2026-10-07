@@ -152,38 +152,21 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
     async function refreshAdmin() {
       try {
         document.getElementById('admin-error').classList.add('hidden');
-        const dashboard = await withTimeout(BayaniCloud.adminDashboard(), 10000, 'Admin data request timed out. Please tap Refresh and try again.');
-        let campaigns = Array.isArray(dashboard?.campaigns) ? dashboard.campaigns : [];
-        let donations = Array.isArray(dashboard?.donations) ? dashboard.donations : [];
-        let revenue = Array.isArray(dashboard?.revenue) ? dashboard.revenue : [];
-        let sponsors = Array.isArray(dashboard?.sponsors) ? dashboard.sponsors : [];
-        let audit = Array.isArray(dashboard?.audit) ? dashboard.audit : [];
-
-        // If the aggregate RPC returns an empty/malformed payload, recover from
-        // the same authenticated admin endpoints used by the underlying data
-        // layer. This prevents a valid admin session from showing a misleading
-        // all-zero dashboard while real cloud records exist.
-        const needsFallback = [
-          campaigns.length === 0,
-          donations.length === 0,
-          revenue.length === 0,
-          sponsors.length === 0,
-          audit.length === 0
-        ];
-        if (needsFallback.some(Boolean)) {
-          const fallback = await withTimeout(Promise.all([
-            needsFallback[0] ? BayaniCloud.adminListCampaigns() : Promise.resolve(campaigns),
-            needsFallback[1] ? BayaniCloud.adminListDonations() : Promise.resolve(donations),
-            needsFallback[2] ? BayaniCloud.adminListRevenue() : Promise.resolve(revenue),
-            needsFallback[3] ? BayaniCloud.adminListSponsors() : Promise.resolve(sponsors),
-            needsFallback[4] ? BayaniCloud.adminListAuditLog() : Promise.resolve(audit)
-          ]), 10000, 'Admin records request timed out. Please tap Refresh and try again.');
-          campaigns = Array.isArray(fallback[0]) ? fallback[0] : campaigns;
-          donations = Array.isArray(fallback[1]) ? fallback[1] : donations;
-          revenue = Array.isArray(fallback[2]) ? fallback[2] : revenue;
-          sponsors = Array.isArray(fallback[3]) ? fallback[3] : sponsors;
-          audit = Array.isArray(fallback[4]) ? fallback[4] : audit;
-        }
+        // Read each admin dataset directly through authenticated REST/RLS.
+        // This avoids the private-schema RPC path for dashboard reads and prevents
+        // a private-schema 403 from masking real cloud records.
+        const records = await withTimeout(Promise.all([
+          BayaniCloud.adminListCampaigns(),
+          BayaniCloud.adminListDonations(),
+          BayaniCloud.adminListRevenue(),
+          BayaniCloud.adminListSponsors(),
+          BayaniCloud.adminListAuditLog()
+        ]), 12000, 'Admin records request timed out. Please tap Refresh and try again.');
+        let campaigns = Array.isArray(records[0]) ? records[0] : [];
+        let donations = Array.isArray(records[1]) ? records[1] : [];
+        let revenue = Array.isArray(records[2]) ? records[2] : [];
+        let sponsors = Array.isArray(records[3]) ? records[3] : [];
+        let audit = Array.isArray(records[4]) ? records[4] : [];
 
         if (campaigns.length === 0) {
           showError('No admin campaign records were returned. If you know a submission exists, tap Refresh and check the staff session.');
