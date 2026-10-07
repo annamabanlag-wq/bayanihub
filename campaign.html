@@ -205,13 +205,10 @@
       document.title = String(c.title || 'Campaign') + ' – BayaniHub';
       let evidenceHtml = '';
       if (c.evidence && c.evidence.length > 0) {
-        evidenceHtml = '<section class="px-4 pb-4"><h2 class="font-bold text-gray-900 mb-2">Evidence reviewed</h2><p class="text-xs text-gray-500 mb-2">' +
-          c.evidence.length + ' supporting document(s) reviewed by admin. Full files remain private.</p><div class="flex gap-2 overflow-x-auto">' +
-          c.evidence.map((ev, i) => {
-            const isImg = (ev.type || '').startsWith('image/');
-            return isImg ? '<img src="' + (String(ev.dataUrl || '').startsWith('data:image/') ? esc(ev.dataUrl) : '') + '" class="w-20 h-20 object-cover rounded-xl border flex-shrink-0" alt="Evidence ' + (i+1) + '">' :
-              '<div class="w-20 h-20 rounded-xl border bg-gray-50 flex items-center justify-center text-[10px] text-center p-1 flex-shrink-0">📄 ' + esc(ev.name || 'Document') + '</div>';
-          }).join('') + '</div></section>';
+        evidenceHtml = '<section class="px-5 pb-4"><div class="rounded-2xl bg-emerald-50 border border-emerald-100 p-4">' +
+          '<h2 class="font-bold text-emerald-900 mb-1">✓ Evidence reviewed</h2>' +
+          '<p class="text-xs text-emerald-800">' + c.evidence.length + ' supporting document(s) were reviewed by BayaniHub admin. Private documents are not displayed publicly.</p>' +
+          '</div></section>';
       }
 
       document.getElementById('content').innerHTML = `
