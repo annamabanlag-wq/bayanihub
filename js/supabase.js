@@ -125,14 +125,22 @@ async function submitBayaniCampaign(campaign) {
     sample: false
   };
 
-  // Explicitly request no returned row. The public role is allowed to INSERT
-  // pending campaigns, but it is not allowed to SELECT private/pending campaign rows.
-  await bayaniFetch('campaigns', {
+  // Submit through one atomic database transaction. This creates both the
+  // pending campaign and its admin-review submission record together.
+  const rows = await bayaniFetch('rpc/submit_bayani_campaign', {
     method: 'POST',
-    headers: { Prefer: 'return=minimal' },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ p_payload: payload })
   });
 
+  const submittedId = typeof rows === 'string'
+    ? rows
+    : (rows?.id || rows?.[0]?.id || rows?.[0]?.submit_bayani_campaign);
+
+  if (!submittedId || !bayaniIsUuid(String(submittedId))) {
+    throw new Error('The central BayaniHub server did not confirm the campaign submission.');
+  }
+
+  payload.id = String(submittedId);
   return bayaniMapCampaign(payload);
 }
 
