@@ -140,7 +140,7 @@
   </nav>
 
   <script src="js/data.js"></script>
-  <script src="js/supabase.js?v=20261008-02"></script>
+  <script src="js/supabase.js?v=20261008-03"></script>
   <script>
     const sel = document.querySelector('select[name="category"]');
     CATEGORIES.forEach(c => {
@@ -179,8 +179,8 @@
           break;
         }
         totalBytes += file.size;
-        const dataUrl = await readFileAsDataURL(file);
-        evidenceFiles.push({ name: file.name, type: file.type, dataUrl });
+        const dataUrl = URL.createObjectURL(file);
+        evidenceFiles.push({ name: file.name, type: file.type, file });
         const isImg = file.type.startsWith('image/');
         const safeName = escapeHtml(file.name);
         const safeDataUrl = escapeHtml(dataUrl);
@@ -216,7 +216,9 @@
       const fd = new FormData(e.target);
       const data = Object.fromEntries(fd.entries());
       const newCampaign = {
-        id: 'c' + Date.now(),
+        id: (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function')
+          ? globalThis.crypto.randomUUID()
+          : ('00000000-0000-4000-8000-' + String(Date.now()).padStart(12, '0')),
         title: data.title.trim(),
         category: data.category,
         story: data.story.trim(),
@@ -232,7 +234,7 @@
         created: new Date().toISOString().slice(0,10),
         contact: data.contact,
         gcash: null,
-        evidence: evidenceFiles,
+        evidence: [],
         sample: false
       };
 
@@ -243,6 +245,9 @@
       }
 
       try {
+        const filesToUpload = evidenceFiles.map(item => item.file).filter(Boolean);
+        const evidenceRefs = await BayaniCloud.uploadEvidence(newCampaign.id, filesToUpload);
+        newCampaign.evidence = evidenceRefs;
         const cloudCampaign = await BayaniCloud.submitCampaign(newCampaign);
         if (!cloudCampaign?.id) throw new Error('The central BayaniHub server did not confirm the campaign submission.');
 
