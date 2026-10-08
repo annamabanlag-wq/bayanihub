@@ -101,47 +101,60 @@ async function getBayaniCampaign(id) {
   return Array.isArray(rows) && rows[0] ? bayaniMapCampaign(rows[0]) : null;
 }
 
+async function uploadBayaniEvidence(campaignId, files) {
+  const uploaded = [];
+  for (const file of (files || [])) {
+    const safeName = String(file.name || 'evidence').replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 100) || 'evidence';
+    const path = campaignId + '/' + bayaniUuid() + '-' + safeName;
+    const response = await fetch(BAYANI_SUPABASE_URL + '/storage/v1/object/campaign-evidence/' + path.split('/').map(encodeURIComponent).join('/'), {
+      method: 'POST',
+      headers: { apikey: BAYANI_SUPABASE_KEY, Authorization: 'Bearer ' + BAYANI_SUPABASE_KEY, 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'false' },
+      body: file
+    });
+    const text = await response.text();
+    if (!response.ok) {
+      let body = null; try { body = text ? JSON.parse(text) : null; } catch (_) {}
+      throw new Error(body?.message || body?.error || ('Evidence upload failed (HTTP ' + response.status + ')'));
+    }
+    uploaded.push({ name: file.name, type: file.type, path });
+  }
+  return uploaded;
+}
+
 async function submitBayaniCampaign(campaign) {
   const id = bayaniIsUuid(campaign.id) ? campaign.id : bayaniUuid();
   const payload = {
-    id,
-    title: campaign.title,
-    category: campaign.category,
-    story: campaign.story,
-    goal: Number(campaign.goal),
-    raised: 0,
-    donors: 0,
-    image: campaign.image || null,
-    organizer: campaign.organizer,
-    location: campaign.location,
-    contact: campaign.contact || null,
-    gcash: campaign.gcash || null,
-    verified: false,
-    urgent: false,
-    status: 'pending',
-    followup_paid: !!campaign.followupPaid,
-    followup_ref: campaign.followupRef || null,
-    evidence: Array.isArray(campaign.evidence) ? campaign.evidence : [],
-    sample: false
+    id, title: campaign.title, category: campaign.category, story: campaign.story,
+    goal: Number(campaign.goal), raised: 0, donors: 0, image: campaign.image || null,
+    organizer: campaign.organizer, location: campaign.location, contact: campaign.contact || null,
+    gcash: campaign.gcash || null, verified: false, urgent: false, status: 'pending',
+    followup_paid: !!campaign.followupPaid, followup_ref: campaign.followupRef || null,
+    evidence: Array.isArray(campaign.evidence) ? campaign.evidence : [], sample: false
   };
-
-  // Submit through one atomic database transaction. This creates both the
-  // pending campaign and its admin-review submission record together.
   const rows = await bayaniFetch('rpc/submit_bayani_campaign', {
-    method: 'POST',
-    body: JSON.stringify({ p_payload: payload })
+    method: 'POST', body: JSON.stringify({ p_payload: payload })
   });
-
-  const submittedId = typeof rows === 'string'
-    ? rows
-    : (rows?.id || rows?.[0]?.id || rows?.[0]?.submit_bayani_campaign);
-
-  if (!submittedId || !bayaniIsUuid(String(submittedId))) {
-    throw new Error('The central BayaniHub server did not confirm the campaign submission.');
-  }
-
+  const submittedId = typeof rows === 'string' ? rows : (rows?.id || rows?.[0]?.id || rows?.[0]?.submit_bayani_campaign);
+  if (!submittedId || !bayaniIsUuid(String(submittedId))) throw new Error('The central BayaniHub server did not confirm the campaign submission.');
   payload.id = String(submittedId);
   return bayaniMapCampaign(payload);
+}
+
+async function createBayaniEvidenceSignedUrl(path, expiresIn = 900) {
+  if (!path || typeof path !== 'string' || path.startsWith('data:')) return null;
+  const session = bayaniGetSession();
+  if (!session?.access_token) throw new Error('Staff session expired. Please sign in again.');
+  const response = await fetch(BAYANI_SUPABASE_URL + '/storage/v1/object/sign/campaign-evidence/' + path.split('/').map(encodeURIComponent).join('/'), {
+    method: 'POST',
+    headers: { apikey: BAYANI_SUPABASE_KEY, Authorization: 'Bearer ' + session.access_token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ expiresIn })
+  });
+  const text = await response.text();
+  let body = null; try { body = text ? JSON.parse(text) : null; } catch (_) {}
+  if (!response.ok) throw new Error(body?.message || body?.error || ('Could not create evidence access link (HTTP ' + response.status + ')'));
+  const signed = body?.signedURL || body?.signedUrl || body?.signed_url;
+  if (!signed) throw new Error('Supabase did not return a signed evidence URL.');
+  return signed.startsWith('http') ? signed : BAYANI_SUPABASE_URL + '/storage/v1' + signed;
 }
 
 async function submitBayaniDonation({ campaignId, campaignTitle, name, amount, ref, tip = 0 }) {
@@ -485,6 +498,8 @@ window.BayaniCloud = {
   syncCampaigns: syncBayaniCampaigns,
   getCampaign: getBayaniCampaign,
   submitCampaign: submitBayaniCampaign,
+  uploadEvidence: uploadBayaniEvidence,
+  createEvidenceSignedUrl: createBayaniEvidenceSignedUrl,
   submitDonation: submitBayaniDonation,
   getSession: bayaniGetSession,
   signIn: bayaniSignIn,
