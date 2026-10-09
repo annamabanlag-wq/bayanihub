@@ -5,7 +5,7 @@ Hosting is already free on GitHub Pages. Do **not** buy a domain yet.
 ## Use today (already live)
 
 - Short share link: https://annamabanlag-wq.github.io/
-- App: https://annamabanlag-wq.github.io/bayanihub/
+- App: https://bayanihub.vercel.app/
 
 ## Best free branded name
 
