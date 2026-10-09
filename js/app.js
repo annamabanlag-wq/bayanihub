@@ -187,8 +187,11 @@ function renderCampaigns() {
     const location = bayaniEsc(c.location);
     const fallbackImage = bayaniSafeImage(getCampaignFallbackImage(c.category, c));
     const suppliedImage = String(c.image || '').trim();
+    const campaignText = [c.title, c.story, c.organizer].join(' ').toLowerCase();
+    const isHospitalCase = ['hospital', 'medical'].includes(String(c.category || '').toLowerCase().trim());
+    const forceRelevantHospitalPhoto = isHospitalCase && (/raul/.test(campaignText) || /mother|mom|nanay|lola|grandmother|elderly|senior/.test(campaignText));
     const hasSuppliedImage = !isCampaignPlaceholderImage(suppliedImage);
-    const image = hasSuppliedImage ? bayaniSafeImage(suppliedImage) : fallbackImage;
+    const image = forceRelevantHospitalPhoto ? fallbackImage : (hasSuppliedImage ? bayaniSafeImage(suppliedImage) : fallbackImage);
     const catLabel = bayaniEsc(cat.label);
     const catIcon = bayaniEsc(cat.icon);
     const created = bayaniEsc(c.created);
