@@ -516,7 +516,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
     async function approveCampaign(id, buttonOverride) {
       const campaign = state.campaigns.find(c => c.id === id);
       const evidence = Array.isArray(campaign?.evidence) ? campaign.evidence : [];
-      const hasEvidence = evidence.some(x => String(x?.dataUrl || '').startsWith('data:'));
+      const hasEvidence = evidence.some(x => String(x?.dataUrl || '').startsWith('data:') || String(x?.path || '').trim());
       const duplicateOf = campaign ? duplicatePendingId(campaign, state.campaigns.filter(c => c.status === 'pending')) : null;
       if (!campaign || campaign.status !== 'pending') return;
       if (!hasEvidence) { showError('Approval blocked: supporting evidence is required.'); return; }
