@@ -1,10 +1,10 @@
 # BayaniHub Launch & Promotion Pack
 
 ## Live links
-- Discover: https://annamabanlag-wq.github.io/bayanihub/
-- Start a campaign: https://annamabanlag-wq.github.io/bayanihub/submit.html
-- Sponsor: https://annamabanlag-wq.github.io/bayanihub/sponsor.html
-- Admin: https://annamabanlag-wq.github.io/bayanihub/admin.html
+- Discover: https://bayanihub.vercel.app/
+- Start a campaign: https://bayanihub.vercel.app/submit.html
+- Sponsor: https://bayanihub.vercel.app/sponsor.html
+- Admin: https://bayanihub.vercel.app/admin.html
 
 ## Core message
 BayaniHub is a community fundraising platform for Filipinos in need. Campaigns are manually reviewed before going live, and payment transactions are verified by admin.
@@ -18,7 +18,7 @@ Want to help? Discover verified campaigns and submit your payment reference afte
 
 Businesses and supporters can also sponsor BayaniHub placements through the sponsor page.
 
-Discover: https://annamabanlag-wq.github.io/bayanihub/
+Discover: https://bayanihub.vercel.app/
 
 ## Partner outreach
 Contact legitimate NGOs, churches, barangay/community organizations, schools, volunteer groups, and Filipino community organizations. Ask them to review BayaniHub's verification process and share suitable campaigns with their communities.
