@@ -100,7 +100,8 @@
 
     function heroHtml(image, category, title) {
       const supplied = String(image || '').trim();
-      const hasSupplied = Boolean(supplied) && !supplied.includes('bayanihub-cover.svg');
+      const normalized = supplied.toLowerCase();
+      const hasSupplied = Boolean(supplied) && !normalized.includes('bayanihub-cover.svg') && !normalized.includes('placehold.co') && !normalized.includes('text=bayanihub') && !normalized.includes('placeholder');
       const fallback = CAMPAIGN_DETAIL_IMAGES[category] || CAMPAIGN_DETAIL_IMAGES.default;
       const src = safeUrl(hasSupplied ? supplied : fallback);
       const safeFallback = safeUrl(fallback);
