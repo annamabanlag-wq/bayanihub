@@ -56,7 +56,7 @@ Need help? Start a fundraising campaign and provide your story and supporting ev
 
 Want to help? Discover community campaigns and support a legitimate cause.
 
-BayaniHub: https://annamabanlag-wq.github.io/bayanihub/
+BayaniHub: https://bayanihub.vercel.app/
 
 Campaigns are reviewed before going live and payment transactions are subject to manual verification.
 
