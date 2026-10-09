@@ -51,7 +51,7 @@ function bayaniMapCampaign(row) {
     goal: Number(row.goal || 0),
     raised: Number(row.raised || 0),
     donors: Number(row.donors || 0),
-    image: row.image || 'https://placehold.co/600x400/0d9488/white?text=BayaniHub',
+    image: row.image || '', // Keep empty so the frontend can choose the category-specific photo
     organizer: row.organizer || '',
     location: row.location || '',
     contact: row.contact || '',
