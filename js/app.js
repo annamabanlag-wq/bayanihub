@@ -3,8 +3,8 @@ let activeCategory = null;
 let searchQuery = '';
 let sortBy = 'recent';
 const CAMPAIGN_FALLBACK_IMAGES = {
-  medical: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=85',
-  hospital: 'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=1200&q=85',
+  medical: 'https://images.unsplash.com/photo-1578496781985-452d4a934d50?auto=format&fit=crop&w=1200&q=85',
+  hospital: 'https://images.unsplash.com/photo-1578496781985-452d4a934d50?auto=format&fit=crop&w=1200&q=85',
   disability: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3b5c4?auto=format&fit=crop&w=1200&q=85',
   family: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1200&q=85',
   bereavement: 'https://images.unsplash.com/photo-1491438590914-bc09fbaafb2f?auto=format&fit=crop&w=1200&q=85',
@@ -12,11 +12,15 @@ const CAMPAIGN_FALLBACK_IMAGES = {
   education: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=85',
   environment: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=85',
   community: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=85',
-  default: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3b5c4?auto=format&fit=crop&w=1200&q=85'
+  default: 'https://images.unsplash.com/photo-1578496781985-452d4a934d50?auto=format&fit=crop&w=1200&q=85'
 };
 
-function getCampaignFallbackImage(category) {
+function getCampaignFallbackImage(category, campaign) {
   const key = String(category || '').toLowerCase().trim();
+  const description = [campaign?.title, campaign?.story, campaign?.organizer].join(' ').toLowerCase();
+  if (['hospital', 'medical'].includes(key) && /mother|mom|nanay|lola|grandmother|elderly|senior|dialysis/.test(description)) {
+    return 'https://images.pexels.com/photos/5692694/pexels-photo-5692694.jpeg?auto=compress&dpr=1&h=750&w=1260';
+  }
   return CAMPAIGN_FALLBACK_IMAGES[key] || CAMPAIGN_FALLBACK_IMAGES.default;
 }
 
@@ -26,7 +30,9 @@ function isCampaignPlaceholderImage(value) {
     image.includes('bayanihub-cover.svg') ||
     image.includes('placehold.co') ||
     image.includes('text=bayanihub') ||
-    image.includes('placeholder');
+    image.includes('placeholder') ||
+    image.includes('photo-1631217868264-e5b90bb7e133') ||
+    image.includes('photo-1576091160399-112ba8d25d1d');
 }
 
 
@@ -179,7 +185,7 @@ function renderCampaigns() {
     const cat = CATEGORIES.find(x => x.id === c.category) || { label: c.category, icon: '📌', color: 'bg-gray-100 text-gray-700' };
     const title = bayaniEsc(c.title);
     const location = bayaniEsc(c.location);
-    const fallbackImage = bayaniSafeImage(getCampaignFallbackImage(c.category));
+    const fallbackImage = bayaniSafeImage(getCampaignFallbackImage(c.category, c));
     const suppliedImage = String(c.image || '').trim();
     const hasSuppliedImage = !isCampaignPlaceholderImage(suppliedImage);
     const image = hasSuppliedImage ? bayaniSafeImage(suppliedImage) : fallbackImage;
