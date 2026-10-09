@@ -40,6 +40,13 @@ jobs:
           grep -Fxq "google.com, pub-9305686179934470, DIRECT, f08c47fec0942fa0" ads.txt
           ! grep -q "ca-pub-9305686179934470" login.html
           ! grep -q "ca-pub-9305686179934470" admin.html
+      - name: Syntax-check browser JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in js/data.js js/app.js js/revenue.js js/payments.js js/supabase.js; do
+            node --check "$file"
+          done
       - uses: actions/configure-pages@v5
         with:
           enablement: true
@@ -48,3 +55,25 @@ jobs:
           path: .
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Smoke-test published pages
+        shell: bash
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          for path in "" "campaign.html" "submit.html" "admin-v2.html" "login.html" "js/supabase.js" "sw.js"; do
+            url="${PAGE_URL%/}/${path}"
+            success=false
+            for attempt in 1 2 3 4 5 6 7 8; do
+              if curl --fail --silent --show-error "$url" --output /tmp/bayanihub-smoke; then
+                success=true
+                break
+              fi
+              sleep 5
+            done
+            if [ "$success" != true ] || [ ! -s /tmp/bayanihub-smoke ]; then
+              echo "Smoke test failed for: $url"
+              exit 1
+            fi
+            echo "PASS $url"
+          done
