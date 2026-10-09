@@ -3,8 +3,8 @@ let activeCategory = null;
 let searchQuery = '';
 let sortBy = 'recent';
 const CAMPAIGN_FALLBACK_IMAGES = {
-  medical: 'assets/hospital-placeholder.svg',
-  hospital: 'assets/hospital-placeholder.svg',
+  medical: 'assets/hospital-care-placeholder.svg',
+  hospital: 'assets/hospital-care-placeholder.svg',
   disability: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3b5c4?auto=format&fit=crop&w=1200&q=85',
   family: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1200&q=85',
   bereavement: 'https://images.unsplash.com/photo-1491438590914-bc09fbaafb2f?auto=format&fit=crop&w=1200&q=85',
@@ -12,7 +12,7 @@ const CAMPAIGN_FALLBACK_IMAGES = {
   education: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=85',
   environment: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=85',
   community: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=85',
-  default: 'assets/hospital-placeholder.svg'
+  default: 'assets/hospital-care-placeholder.svg'
 };
 
 function getCampaignFallbackImage(category, campaign) {
@@ -20,10 +20,10 @@ function getCampaignFallbackImage(category, campaign) {
   const description = [campaign?.title, campaign?.story, campaign?.organizer].join(' ').toLowerCase();
   // Use distinct, relevant images for the two known hospital campaigns.
   if (/raul/.test(description) && /hospital|bill|medical/.test(description)) {
-    return 'assets/hospital-placeholder.svg';
+    return 'assets/hospital-care-placeholder.svg';
   }
   if (/mother|mom|nanay|lola|grandmother|elderly|senior/.test(description) && /hospital|bill|medical|dialysis/.test(description)) {
-    return 'assets/hospital-placeholder.svg';
+    return 'assets/hospital-care-placeholder.svg';
   }
   return CAMPAIGN_FALLBACK_IMAGES[key] || CAMPAIGN_FALLBACK_IMAGES.default;
 }

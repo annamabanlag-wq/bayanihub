@@ -86,8 +86,8 @@
     }
 
     const CAMPAIGN_DETAIL_IMAGES = {
-      medical: 'assets/hospital-placeholder.svg',
-      hospital: 'assets/hospital-placeholder.svg',
+      medical: 'assets/hospital-care-placeholder.svg',
+      hospital: 'assets/hospital-care-placeholder.svg',
       disability: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3b5c4?auto=format&fit=crop&w=1600&q=85',
       family: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1600&q=85',
       bereavement: 'https://images.unsplash.com/photo-1491438590914-bc09fbaafb2f?auto=format&fit=crop&w=1600&q=85',
@@ -95,14 +95,14 @@
       education: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1600&q=85',
       environment: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1600&q=85',
       community: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1600&q=85',
-      default: 'assets/hospital-placeholder.svg'
+      default: 'assets/hospital-care-placeholder.svg'
     };
 
     function getDetailFallbackImage(category, title, story) {
       const key = String(category || '').toLowerCase().trim();
       const description = [title, story].join(' ').toLowerCase();
       if (['hospital', 'medical'].includes(key) && /mother|mom|nanay|lola|grandmother|elderly|senior|dialysis/.test(description)) {
-        return 'assets/hospital-placeholder.svg';
+        return 'assets/hospital-care-placeholder.svg';
       }
       return CAMPAIGN_DETAIL_IMAGES[key] || CAMPAIGN_DETAIL_IMAGES.default;
     }
@@ -113,9 +113,9 @@
       const story = (typeof campaign !== 'undefined' && campaign) ? campaign.story : '';
       const description = [title, story].join(' ').toLowerCase();
       const fallback = /raul/.test(description) && /hospital|bill|medical/.test(description)
-        ? 'assets/hospital-placeholder.svg'
+        ? 'assets/hospital-care-placeholder.svg'
         : (/mother|mom|nanay|lola|grandmother|elderly|senior/.test(description) && /hospital|bill|medical|dialysis/.test(description)
-          ? 'assets/hospital-placeholder.svg'
+          ? 'assets/hospital-care-placeholder.svg'
           : getDetailFallbackImage(category, title, story));
       const forceRelevantHospitalPhoto = (/raul/.test(description) && /hospital|bill|medical/.test(description)) || (/mother|mom|nanay|lola|grandmother|elderly|senior/.test(description) && /hospital|bill|medical|dialysis/.test(description));
       const hasSupplied = !forceRelevantHospitalPhoto && Boolean(supplied) && !normalized.includes('bayanihub-cover.svg') && !normalized.includes('placehold.co') && !normalized.includes('text=bayanihub') && !normalized.includes('placeholder') && !normalized.includes('photo-1631217868264-e5b90bb7e133') && !normalized.includes('photo-1576091160399-112ba8d25d1d');
