@@ -18,7 +18,11 @@ const CAMPAIGN_FALLBACK_IMAGES = {
 function getCampaignFallbackImage(category, campaign) {
   const key = String(category || '').toLowerCase().trim();
   const description = [campaign?.title, campaign?.story, campaign?.organizer].join(' ').toLowerCase();
-  if (['hospital', 'medical'].includes(key) && /mother|mom|nanay|lola|grandmother|elderly|senior|dialysis/.test(description)) {
+  // Use distinct, relevant images for the two known hospital campaigns.
+  if (/raul/.test(description) && /hospital|bill|medical/.test(description)) {
+    return 'https://images.pexels.com/photos/3993239/pexels-photo-3993239.jpeg?auto=compress&cs=tinysrgb&w=1200';
+  }
+  if (/mother|mom|nanay|lola|grandmother|elderly|senior/.test(description) && /hospital|bill|medical|dialysis/.test(description)) {
     return 'https://images.pexels.com/photos/5692694/pexels-photo-5692694.jpeg?auto=compress&dpr=1&h=750&w=1260';
   }
   return CAMPAIGN_FALLBACK_IMAGES[key] || CAMPAIGN_FALLBACK_IMAGES.default;
@@ -188,8 +192,7 @@ function renderCampaigns() {
     const fallbackImage = bayaniSafeImage(getCampaignFallbackImage(c.category, c));
     const suppliedImage = String(c.image || '').trim();
     const campaignText = [c.title, c.story, c.organizer].join(' ').toLowerCase();
-    const isHospitalCase = ['hospital', 'medical'].includes(String(c.category || '').toLowerCase().trim());
-    const forceRelevantHospitalPhoto = isHospitalCase && (/raul/.test(campaignText) || /mother|mom|nanay|lola|grandmother|elderly|senior/.test(campaignText));
+    const forceRelevantHospitalPhoto = (/raul/.test(campaignText) && /hospital|bill|medical/.test(campaignText)) || (/mother|mom|nanay|lola|grandmother|elderly|senior/.test(campaignText) && /hospital|bill|medical|dialysis/.test(campaignText));
     const hasSuppliedImage = !isCampaignPlaceholderImage(suppliedImage);
     const image = forceRelevantHospitalPhoto ? fallbackImage : (hasSuppliedImage ? bayaniSafeImage(suppliedImage) : fallbackImage);
     const catLabel = bayaniEsc(cat.label);
