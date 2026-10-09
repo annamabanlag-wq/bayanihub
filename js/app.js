@@ -20,10 +20,10 @@ function getCampaignFallbackImage(category, campaign) {
   const description = [campaign?.title, campaign?.story, campaign?.organizer].join(' ').toLowerCase();
   // Use distinct, relevant images for the two known hospital campaigns.
   if (/raul/.test(description) && /hospital|bill|medical/.test(description)) {
-    return 'https://images.pexels.com/photos/3993239/pexels-photo-3993239.jpeg?auto=compress&cs=tinysrgb&w=1200';
+    return 'https://www.texaschildrens.org/sites/tc/files/styles/coh_large/public/2025-08/olivia-IMG_6681_0.JPG?itok=_U1O7bvn';
   }
   if (/mother|mom|nanay|lola|grandmother|elderly|senior/.test(description) && /hospital|bill|medical|dialysis/.test(description)) {
-    return 'https://images.pexels.com/photos/5692694/pexels-photo-5692694.jpeg?auto=compress&dpr=1&h=750&w=1260';
+    return 'https://image.phunuonline.com.vn/fckeditor/upload/2020/20201126/images/giuong-benh-do-long-_331606413802.jpg';
   }
   return CAMPAIGN_FALLBACK_IMAGES[key] || CAMPAIGN_FALLBACK_IMAGES.default;
 }
