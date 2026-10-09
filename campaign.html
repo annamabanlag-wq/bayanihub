@@ -102,7 +102,7 @@
       const key = String(category || '').toLowerCase().trim();
       const description = [title, story].join(' ').toLowerCase();
       if (['hospital', 'medical'].includes(key) && /mother|mom|nanay|lola|grandmother|elderly|senior|dialysis/.test(description)) {
-        return 'https://image.phunuonline.com.vn/fckeditor/upload/2020/20201126/images/giuong-benh-do-long-_331606413802.jpg';
+        return 'assets/campaign-mother-hospital.jpg';
       }
       return CAMPAIGN_DETAIL_IMAGES[key] || CAMPAIGN_DETAIL_IMAGES.default;
     }
@@ -113,9 +113,9 @@
       const story = (typeof campaign !== 'undefined' && campaign) ? campaign.story : '';
       const description = [title, story].join(' ').toLowerCase();
       const fallback = /raul/.test(description) && /hospital|bill|medical/.test(description)
-        ? 'https://www.texaschildrens.org/sites/tc/files/styles/coh_large/public/2025-08/olivia-IMG_6681_0.JPG?itok=_U1O7bvn'
+        ? 'assets/campaign-raul-hospital.jpg'
         : (/mother|mom|nanay|lola|grandmother|elderly|senior/.test(description) && /hospital|bill|medical|dialysis/.test(description)
-          ? 'https://image.phunuonline.com.vn/fckeditor/upload/2020/20201126/images/giuong-benh-do-long-_331606413802.jpg'
+          ? 'assets/campaign-mother-hospital.jpg'
           : getDetailFallbackImage(category, title, story));
       const forceRelevantHospitalPhoto = (/raul/.test(description) && /hospital|bill|medical/.test(description)) || (/mother|mom|nanay|lola|grandmother|elderly|senior/.test(description) && /hospital|bill|medical|dialysis/.test(description));
       const hasSupplied = !forceRelevantHospitalPhoto && Boolean(supplied) && !normalized.includes('bayanihub-cover.svg') && !normalized.includes('placehold.co') && !normalized.includes('text=bayanihub') && !normalized.includes('placeholder') && !normalized.includes('photo-1631217868264-e5b90bb7e133') && !normalized.includes('photo-1576091160399-112ba8d25d1d');
