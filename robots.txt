@@ -6,4 +6,4 @@ Disallow: /admin-control.html
 Disallow: /login.html
 Disallow: /dashboard.html
 
-Sitemap: https://annamabanlag-wq.github.io/bayanihub/sitemap.xml
+Sitemap: https://bayanihub.vercel.app/sitemap.xml
