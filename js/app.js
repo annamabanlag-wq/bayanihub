@@ -3,20 +3,30 @@ let activeCategory = null;
 let searchQuery = '';
 let sortBy = 'recent';
 const CAMPAIGN_FALLBACK_IMAGES = {
-  medical: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80',
-  hospital: 'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=1200&q=80',
-  disability: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3b5c4?auto=format&fit=crop&w=1200&q=80',
-  family: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1200&q=80',
-  bereavement: 'https://images.unsplash.com/photo-1491438590914-bc09fbaafb2f?auto=format&fit=crop&w=1200&q=80',
-  pet: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80',
-  education: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80',
-  environment: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=80',
-  community: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=80',
-  default: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3b5c4?auto=format&fit=crop&w=1200&q=80'
+  medical: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=85',
+  hospital: 'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=1200&q=85',
+  disability: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3b5c4?auto=format&fit=crop&w=1200&q=85',
+  family: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1200&q=85',
+  bereavement: 'https://images.unsplash.com/photo-1491438590914-bc09fbaafb2f?auto=format&fit=crop&w=1200&q=85',
+  pet: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=85',
+  education: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=85',
+  environment: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=85',
+  community: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=85',
+  default: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3b5c4?auto=format&fit=crop&w=1200&q=85'
 };
 
 function getCampaignFallbackImage(category) {
-  return CAMPAIGN_FALLBACK_IMAGES[category] || CAMPAIGN_FALLBACK_IMAGES.default;
+  const key = String(category || '').toLowerCase().trim();
+  return CAMPAIGN_FALLBACK_IMAGES[key] || CAMPAIGN_FALLBACK_IMAGES.default;
+}
+
+function isCampaignPlaceholderImage(value) {
+  const image = String(value || '').trim().toLowerCase();
+  return !image ||
+    image.includes('bayanihub-cover.svg') ||
+    image.includes('placehold.co') ||
+    image.includes('text=bayanihub') ||
+    image.includes('placeholder');
 }
 
 
@@ -171,7 +181,7 @@ function renderCampaigns() {
     const location = bayaniEsc(c.location);
     const fallbackImage = bayaniSafeImage(getCampaignFallbackImage(c.category));
     const suppliedImage = String(c.image || '').trim();
-    const hasSuppliedImage = Boolean(suppliedImage) && !suppliedImage.includes('bayanihub-cover.svg');
+    const hasSuppliedImage = !isCampaignPlaceholderImage(suppliedImage);
     const image = hasSuppliedImage ? bayaniSafeImage(suppliedImage) : fallbackImage;
     const catLabel = bayaniEsc(cat.label);
     const catIcon = bayaniEsc(cat.icon);
