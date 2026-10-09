@@ -4,7 +4,7 @@ Community-help PWA for Filipinos in need.
 
 Brand name: **BayaniHub**. Inbox: hello@bayanihub.org.
 
-Live app: https://annamabanlag-wq.github.io/bayanihub/
+Live app: https://bayanihub.vercel.app/
 
 ## How it works
 
