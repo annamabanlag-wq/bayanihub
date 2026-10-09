@@ -35,9 +35,13 @@ jobs:
           test -f assets/gcash-qr.svg
           ! grep -R --exclude-dir=.git --exclude=".github/workflows/pages.yml" -n "09381447214" .
           grep -q "gcash: null" submit.html
-          grep -q "const CACHE = 'bayanihub-v41'" sw.js
+          grep -q "const CACHE = 'bayanihub-v42'" sw.js
           test "$(grep -l "ca-pub-9305686179934470" index.html campaign.html submit.html how.html privacy.html sponsor.html | wc -l)" -eq 6
           grep -Fxq "google.com, pub-9305686179934470, DIRECT, f08c47fec0942fa0" ads.txt
+          grep -q '<link rel="canonical" href="https://bayanihub.vercel.app/">' index.html
+          grep -q "Sitemap: https://bayanihub.vercel.app/sitemap.xml" robots.txt
+          grep -q "https://bayanihub.vercel.app/" sitemap.xml
+          grep -q "String(x?.path || '').trim()" admin.html
           ! grep -q "ca-pub-9305686179934470" login.html
           ! grep -q "ca-pub-9305686179934470" admin.html
       - name: Syntax-check browser JavaScript
@@ -61,7 +65,7 @@ jobs:
           PAGE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
           set -euo pipefail
-          for path in "" "campaign.html" "submit.html" "admin-v2.html" "login.html" "js/supabase.js" "sw.js"; do
+          for path in "" "campaign.html" "submit.html" "admin-v2.html" "login.html" "js/supabase.js" "sw.js" "robots.txt" "sitemap.xml"; do
             url="${PAGE_URL%/}/${path}"
             success=false
             for attempt in 1 2 3 4 5 6 7 8; do
