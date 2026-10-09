@@ -110,8 +110,12 @@
     function heroHtml(image, category, title) {
       const supplied = String(image || '').trim();
       const normalized = supplied.toLowerCase();
-      const hasSupplied = Boolean(supplied) && !normalized.includes('bayanihub-cover.svg') && !normalized.includes('placehold.co') && !normalized.includes('text=bayanihub') && !normalized.includes('placeholder') && !normalized.includes('photo-1631217868264-e5b90bb7e133') && !normalized.includes('photo-1576091160399-112ba8d25d1d');
-      const fallback = getDetailFallbackImage(category, title, (typeof campaign !== 'undefined' && campaign) ? campaign.story : '');
+      const story = (typeof campaign !== 'undefined' && campaign) ? campaign.story : '';
+      const fallback = getDetailFallbackImage(category, title, story);
+      const isHospitalCase = ['hospital', 'medical'].includes(String(category || '').toLowerCase().trim());
+      const description = [title, story].join(' ').toLowerCase();
+      const forceRelevantHospitalPhoto = isHospitalCase && (/raul/.test(description) || /mother|mom|nanay|lola|grandmother|elderly|senior/.test(description));
+      const hasSupplied = !forceRelevantHospitalPhoto && Boolean(supplied) && !normalized.includes('bayanihub-cover.svg') && !normalized.includes('placehold.co') && !normalized.includes('text=bayanihub') && !normalized.includes('placeholder') && !normalized.includes('photo-1631217868264-e5b90bb7e133') && !normalized.includes('photo-1576091160399-112ba8d25d1d');
       const src = safeUrl(hasSupplied ? supplied : fallback);
       const safeFallback = safeUrl(fallback);
       if (!src) return '';
