@@ -225,7 +225,7 @@
         goal: parseInt(data.goal, 10),
         raised: 0,
         donors: 0,
-        image: data.image || 'https://placehold.co/600x400/0d9488/white?text=BayaniHub',
+        image: data.image || '', // Category-based photo is assigned automatically on the campaign page
         organizer: data.organizer.trim(),
         location: data.location.trim(),
         verified: false,
