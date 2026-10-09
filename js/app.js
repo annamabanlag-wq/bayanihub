@@ -3,46 +3,27 @@ let activeCategory = null;
 let searchQuery = '';
 let sortBy = 'recent';
 const CAMPAIGN_FALLBACK_IMAGES = {
-  medical: 'assets/hospital-care-placeholder.svg',
-  hospital: 'assets/hospital-care-placeholder.svg',
-  disability: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3b5c4?auto=format&fit=crop&w=1200&q=85',
-  family: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1200&q=85',
-  bereavement: 'https://images.unsplash.com/photo-1491438590914-bc09fbaafb2f?auto=format&fit=crop&w=1200&q=85',
-  pet: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=85',
-  education: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=85',
-  environment: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=85',
-  community: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=85',
-  default: 'assets/hospital-care-placeholder.svg'
+  medical: 'assets/campaign-raul.jpg',
+  hospital: 'assets/campaign-mother.jpg',
+  elderly: 'assets/campaign-elderly.jpg',
+  children: 'assets/campaign-raul.jpg',
+  family: 'assets/campaign-mother.jpg',
+  default: 'assets/bayanihub-cover.svg'
 };
 
 function getCampaignFallbackImage(category, campaign) {
   const key = String(category || '').toLowerCase().trim();
-  const description = [campaign?.title, campaign?.story, campaign?.organizer].join(' ').toLowerCase();
-  // Use distinct, relevant images for the two known hospital campaigns.
-  if (/raul/.test(description) && /hospital|bill|medical/.test(description)) {
-    return 'assets/hospital-care-placeholder.svg';
-  }
-  if (/mother|mom|nanay|lola|grandmother|elderly|senior/.test(description) && /hospital|bill|medical|dialysis/.test(description)) {
-    return 'assets/hospital-care-placeholder.svg';
-  }
   return CAMPAIGN_FALLBACK_IMAGES[key] || CAMPAIGN_FALLBACK_IMAGES.default;
 }
 
 function isCampaignPlaceholderImage(value) {
   const image = String(value || '').trim().toLowerCase();
-  return !image ||
-    image.includes('bayanihub-cover.svg') ||
-    image.includes('placehold.co') ||
-    image.includes('text=bayanihub') ||
-    image.includes('placeholder') ||
-    image.includes('photo-1631217868264-e5b90bb7e133') ||
-    image.includes('photo-1576091160399-112ba8d25d1d');
+  return !image || image.includes('placeholder') || image.includes('unsplash') || image.includes('pexels');
 }
 
-
 function bayaniEsc(value) {
-  return String(value ?? '').replace(/[&<>"']/g, ch => ({
-    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+  return String(value ?? '').replace(/[&<>\"']/g, ch => ({
+    '&':'&', '<':'<', '>':'>', '\"':'"', "'":'&#039;'
   }[ch]));
 }
 
@@ -52,7 +33,7 @@ function bayaniSafeImage(value) {
     const u = new URL(String(value || ''), location.href);
     if (u.protocol === 'http:' || u.protocol === 'https:') return bayaniEsc(u.href);
   } catch (_) {}
-  return fallback;
+  return String(value || fallback);
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -108,26 +89,30 @@ function closeMenu() {
 function renderCategories() {
   const container = document.getElementById('category-scroll');
   if (!container) return;
-  container.innerHTML = CATEGORIES.map(c => {
-    const id = bayaniEsc(c.id);
+  const displayCats = [
+    { id: null, label: 'All', icon: '' },
+    ...CATEGORIES.filter(c => ['medical','family','children','elderly'].includes(c.id))
+  ];
+  container.innerHTML = displayCats.map(c => {
+    const isActive = (c.id === null && activeCategory === null) || activeCategory === c.id;
+    const idAttr = c.id === null ? '' : bayaniEsc(c.id);
     const label = bayaniEsc(c.label);
-    const icon = bayaniEsc(c.icon);
+    const icon = c.icon ? bayaniEsc(c.icon) + ' ' : '';
     return `
-      <button data-cat="${id}"
-        class="cat-btn flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold border transition
-          ${activeCategory === c.id ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-700 border-gray-200 hover:border-brand-300'}">
-        <span>${icon}</span> ${label}
+      <button data-cat="${idAttr}"
+        class="cat-btn flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border transition
+          ${isActive ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-gray-700 border-gray-200 hover:border-teal-300'}">
+        ${icon}${label}
       </button>
     `;
   }).join('');
 
   container.querySelectorAll('.cat-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const id = btn.dataset.cat;
-      activeCategory = activeCategory === id ? null : id;
+      const id = btn.dataset.cat || null;
+      activeCategory = (id && activeCategory === id) ? null : id;
       renderCategories();
       renderCampaigns();
-      document.getElementById('btn-clear-filters').classList.toggle('hidden', !activeCategory && !searchQuery);
     });
   });
 }
@@ -139,7 +124,6 @@ function clearFilters() {
   if (input) input.value = '';
   renderCategories();
   renderCampaigns();
-  document.getElementById('btn-clear-filters')?.classList.add('hidden');
 }
 
 function getFiltered() {
@@ -189,61 +173,43 @@ function renderCampaigns() {
     const cat = CATEGORIES.find(x => x.id === c.category) || { label: c.category, icon: '📌', color: 'bg-gray-100 text-gray-700' };
     const title = bayaniEsc(c.title);
     const location = bayaniEsc(c.location);
-    const fallbackImage = bayaniSafeImage(getCampaignFallbackImage(c.category, c));
-    const suppliedImage = String(c.image || '').trim();
-    const campaignText = [c.title, c.story, c.organizer].join(' ').toLowerCase();
-    const forceRelevantHospitalPhoto = (/raul/.test(campaignText) && /hospital|bill|medical/.test(campaignText)) || (/mother|mom|nanay|lola|grandmother|elderly|senior/.test(campaignText) && /hospital|bill|medical|dialysis/.test(campaignText));
-    const hasSuppliedImage = !isCampaignPlaceholderImage(suppliedImage);
-    const image = forceRelevantHospitalPhoto ? fallbackImage : (hasSuppliedImage ? bayaniSafeImage(suppliedImage) : fallbackImage);
+    const image = bayaniSafeImage(c.image || getCampaignFallbackImage(c.category, c));
     const catLabel = bayaniEsc(cat.label);
-    const catIcon = bayaniEsc(cat.icon);
+    const catIcon = bayaniEsc(cat.icon || '');
     const created = bayaniEsc(c.created);
-    const isDemo = c.sample === true;
-
-    const fundingBlock = isDemo
-      ? `<div class="rounded-xl bg-slate-50 border border-slate-200 p-3 mb-2">
-          <p class="text-xs font-semibold text-slate-700">Example campaign only</p>
-          <p class="text-[10px] text-slate-500 mt-0.5">Story and amounts are for demonstration. Donations are disabled.</p>
-        </div>`
-      : `<div class="mb-2">
-          <div class="flex justify-between text-xs mb-1">
-            <span class="font-semibold text-brand-700">${formatPeso(c.raised)}</span>
-            <span class="text-gray-500">of ${formatPeso(c.goal)}</span>
-          </div>
-          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div class="progress-bar h-full bg-gradient-to-r from-brand-500 to-brand-400 rounded-full" style="width:${Math.min(100, Math.max(0, Number(pct) || 0))}%"></div>
-          </div>
-        </div>`;
-
-    const footerBlock = isDemo
-      ? '<span class="text-slate-500">Example only</span><span class="text-slate-400">Donations disabled</span>'
-      : `<span>${Number(c.donors || 0)} donors</span><span>${Math.min(100, Math.max(0, Number(pct) || 0))}% funded • ${timeAgo(created)}</span>`;
 
     return `
-    <article style="animation-delay:${Math.min(index * 70, 420)}ms" class="card-hover bg-white rounded-2xl shadow-sm border ${isDemo ? 'border-slate-200' : 'border-gray-100'} overflow-hidden fade-in cursor-pointer" onclick="location.href='campaign.html?id=${encodeURIComponent(c.id)}'">
+    <article style="animation-delay:${Math.min(index * 70, 420)}ms" class="card-hover bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden fade-in cursor-pointer" onclick="location.href='campaign.html?id=${encodeURIComponent(c.id)}'">
       <div class="relative isolate overflow-hidden">
-        <img src="${image}" data-fallback="${fallbackImage}" alt="${title} campaign image" class="w-full h-52 md:h-56 object-cover transition duration-500 hover:scale-[1.02]" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.fallbackApplied!=='1'){this.dataset.fallbackApplied='1';this.src=this.dataset.fallback}else{this.onerror=null;this.src='assets/bayanihub-cover.svg'}">
-        <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-slate-950/10"></div>
-        <span class="absolute top-3 left-3 ${cat.color} text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm">${catIcon} ${catLabel}</span>
-        ${isDemo ? '<span class="absolute top-3 right-3 bg-slate-800/90 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full">DEMO</span>' : (c.urgent ? '<span class="absolute top-3 right-3 bg-red-500 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full">URGENT</span>' : (c.verified ? '<span class="absolute top-3 right-3 badge-verified text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full">✓ VERIFIED</span>' : ''))}
+        <img src="${image}" alt="${title}" class="w-full h-48 object-cover" loading="lazy">
+        <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent"></div>
+        <span class="absolute top-3 left-3 ${cat.color} text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">${catIcon} ${catLabel}</span>
+        <button class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow" onclick="event.stopPropagation()">
+          <svg class="w-4 h-4 text-rose-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
+        </button>
         <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
-          <h3 class="font-extrabold text-lg md:text-xl leading-tight line-clamp-2 drop-shadow-sm">${title}</h3>
-          <p class="mt-1.5 flex items-center gap-1 text-xs text-white/90"><span aria-hidden="true">📍</span><span class="line-clamp-1">${location}</span></p>
+          <h3 class="font-extrabold text-lg leading-tight line-clamp-2">${title}</h3>
+          <p class="mt-1 flex items-center gap-1 text-xs text-white/90"><span>📍</span><span class="line-clamp-1">${location}</span></p>
         </div>
       </div>
       <div class="p-4">
-        ${isDemo ? '<div class="mb-2"><span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">DEMO • NOT A REAL FUNDRAISER</span></div>' : ''}
-        ${fundingBlock}
-        <div class="flex items-center justify-between gap-3 text-xs text-gray-500">
-          <span class="shrink-0">${footerBlock.split('</span><span>')[0].replace(/^<span>/,'').replace(/<\/span>$/,'')}</span>
-          <span class="text-right">${isDemo ? 'Donations disabled' : `${Math.min(100, Math.max(0, Number(pct) || 0))}% funded • ${timeAgo(created)}`}</span>
+        <div class="flex justify-between text-xs mb-1">
+          <span class="font-semibold text-teal-700">${formatPeso(c.raised)}</span>
+          <span class="text-gray-500">of ${formatPeso(c.goal)}</span>
+        </div>
+        <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-3">
+          <div class="progress-bar h-full bg-teal-500 rounded-full" style="width:${pct}%"></div>
+        </div>
+        <div class="flex items-center justify-between text-xs text-gray-500">
+          <span>👥 ${Number(c.donors || 0)} donors</span>
+          <span>${pct}% funded • ${timeAgo(created)}</span>
         </div>
       </div>
     </article>`;
   }).join('');
 }
+
 function updateStats() {
-  // Demo/sample stories never count as real campaigns, donations, or donors.
   const list = BayaniStorage.getCampaigns().filter(c => c.status === 'approved' && c.sample !== true);
   const raised = list.reduce((s, c) => s + Number(c.raised || 0), 0);
   const donors = list.reduce((s, c) => s + Number(c.donors || 0), 0);
@@ -254,7 +220,6 @@ function updateStats() {
   if (elC) elC.textContent = list.length;
   if (elD) elD.textContent = donors;
 }
-
 
 function initRevealAnimations() {
   const items = document.querySelectorAll('.reveal');
