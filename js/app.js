@@ -2,6 +2,23 @@
 let activeCategory = null;
 let searchQuery = '';
 let sortBy = 'recent';
+const CAMPAIGN_FALLBACK_IMAGES = {
+  medical: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80',
+  hospital: 'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=1200&q=80',
+  disability: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3b5c4?auto=format&fit=crop&w=1200&q=80',
+  family: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1200&q=80',
+  bereavement: 'https://images.unsplash.com/photo-1491438590914-bc09fbaafb2f?auto=format&fit=crop&w=1200&q=80',
+  pet: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80',
+  education: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80',
+  environment: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=80',
+  community: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=1200&q=80',
+  default: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3b5c4?auto=format&fit=crop&w=1200&q=80'
+};
+
+function getCampaignFallbackImage(category) {
+  return CAMPAIGN_FALLBACK_IMAGES[category] || CAMPAIGN_FALLBACK_IMAGES.default;
+}
+
 
 function bayaniEsc(value) {
   return String(value ?? '').replace(/[&<>"']/g, ch => ({
@@ -152,7 +169,10 @@ function renderCampaigns() {
     const cat = CATEGORIES.find(x => x.id === c.category) || { label: c.category, icon: '📌', color: 'bg-gray-100 text-gray-700' };
     const title = bayaniEsc(c.title);
     const location = bayaniEsc(c.location);
-    const image = bayaniSafeImage(c.image);
+    const fallbackImage = bayaniSafeImage(getCampaignFallbackImage(c.category));
+    const suppliedImage = String(c.image || '').trim();
+    const hasSuppliedImage = Boolean(suppliedImage) && !suppliedImage.includes('bayanihub-cover.svg');
+    const image = hasSuppliedImage ? bayaniSafeImage(suppliedImage) : fallbackImage;
     const catLabel = bayaniEsc(cat.label);
     const catIcon = bayaniEsc(cat.icon);
     const created = bayaniEsc(c.created);
@@ -178,22 +198,24 @@ function renderCampaigns() {
       : `<span>${Number(c.donors || 0)} donors</span><span>${Math.min(100, Math.max(0, Number(pct) || 0))}% funded • ${timeAgo(created)}</span>`;
 
     return `
-    <article style="animation-delay:${Math.min(index * 70, 420)}ms" class="card-hover bg-white rounded-2xl shadow-sm border ${isDemo ? 'border-slate-200' : 'border-gray-100'} overflow-hidden fade-in" onclick="location.href='campaign.html?id=${encodeURIComponent(c.id)}'">
-      <div class="relative">
-        <img src="${image}" alt="" class="w-full h-40 object-cover" loading="lazy" onerror="this.src='https://placehold.co/600x400/0d9488/white?text=BayaniHub'">
-        ${isDemo ? '<span class="absolute top-2 left-2 bg-slate-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">DEMO</span>' : (c.urgent ? '<span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">URGENT</span>' : '')}
-        ${!isDemo && c.verified ? '<span class="absolute top-2 right-2 badge-verified text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">✓ Verified</span>' : ''}
+    <article style="animation-delay:${Math.min(index * 70, 420)}ms" class="card-hover bg-white rounded-2xl shadow-sm border ${isDemo ? 'border-slate-200' : 'border-gray-100'} overflow-hidden fade-in cursor-pointer" onclick="location.href='campaign.html?id=${encodeURIComponent(c.id)}'">
+      <div class="relative isolate overflow-hidden">
+        <img src="${image}" data-fallback="${fallbackImage}" alt="${title} — illustrative campaign image" class="w-full h-52 md:h-56 object-cover transition duration-500 hover:scale-[1.02]" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.dataset.fallbackApplied!=='1'){this.dataset.fallbackApplied='1';this.src=this.dataset.fallback;const tag=this.parentElement.querySelector('.illustrative-photo-label');if(tag)tag.classList.remove('hidden')}else{this.onerror=null;this.src='assets/bayanihub-cover.svg'}">
+        <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-slate-950/10"></div>
+        <span class="absolute top-3 left-3 ${cat.color} text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm">${catIcon} ${catLabel}</span>
+        ${isDemo ? '<span class="absolute top-3 right-3 bg-slate-800/90 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full">DEMO</span>' : (c.urgent ? '<span class="absolute top-3 right-3 bg-red-500 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full">URGENT</span>' : (c.verified ? '<span class="absolute top-3 right-3 badge-verified text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full">✓ VERIFIED</span>' : ''))}
+        <span class="illustrative-photo-label ${hasSuppliedImage ? 'hidden' : ''} absolute bottom-3 right-3 rounded-full bg-black/55 px-2 py-1 text-[9px] font-medium text-white backdrop-blur">Illustrative photo</span>
+        <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+          <h3 class="font-extrabold text-lg md:text-xl leading-tight line-clamp-2 drop-shadow-sm">${title}</h3>
+          <p class="mt-1.5 flex items-center gap-1 text-xs text-white/90"><span aria-hidden="true">📍</span><span class="line-clamp-1">${location}</span></p>
+        </div>
       </div>
       <div class="p-4">
-        <div class="flex items-center gap-1.5 mb-1.5">
-          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${cat.color}">${catIcon} ${catLabel}</span>
-          <span class="text-[10px] text-gray-400">• ${location}</span>
-        </div>
-        ${isDemo ? '<div class="mb-1.5"><span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">DEMO • NOT A REAL FUNDRAISER</span></div>' : ''}
-        <h3 class="font-bold text-gray-900 text-[15px] leading-snug line-clamp-2 mb-2">${title}</h3>
+        ${isDemo ? '<div class="mb-2"><span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">DEMO • NOT A REAL FUNDRAISER</span></div>' : ''}
         ${fundingBlock}
-        <div class="flex items-center justify-between text-xs text-gray-500">
-          ${footerBlock}
+        <div class="flex items-center justify-between gap-3 text-xs text-gray-500">
+          <span class="shrink-0">${footerBlock.split('</span><span>')[0].replace(/^<span>/,'').replace(/<\/span>$/,'')}</span>
+          <span class="text-right">${isDemo ? 'Donations disabled' : `${Math.min(100, Math.max(0, Number(pct) || 0))}% funded • ${timeAgo(created)}`}</span>
         </div>
       </div>
     </article>`;
