@@ -116,7 +116,7 @@
       const safeFallback = safeUrl(fallback);
       if (!src) return '';
       return '<img src="' + src + '" data-fallback="' + safeFallback + '" alt="' + esc(title || 'Campaign') + ' — illustrative campaign photo" class="absolute inset-0 w-full h-full object-cover" loading="eager" referrerpolicy="no-referrer" onerror="if(this.dataset.fallbackApplied!==\'1\'){this.dataset.fallbackApplied=\'1\';this.src=this.dataset.fallback;const tag=this.parentElement.querySelector(\'.illustrative-photo-label\');if(tag)tag.classList.remove(\'hidden\')}else{this.onerror=null;this.remove()}">' +
-        '<span class="illustrative-photo-label ' + (hasSupplied ? 'hidden' : '') + ' absolute bottom-4 right-4 z-10 rounded-full bg-black/55 px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur">Illustrative photo</span>';
+        '<span class="illustrative-photo-label ' + (hasSupplied ? 'hidden' : '') + ' absolute bottom-4 right-4 z-10 rounded-full bg-black/55 px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur">AI-generated illustration • Not the actual beneficiary</span>';
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
