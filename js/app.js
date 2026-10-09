@@ -220,7 +220,7 @@ function renderCampaigns() {
         <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-slate-950/10"></div>
         <span class="absolute top-3 left-3 ${cat.color} text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm">${catIcon} ${catLabel}</span>
         ${isDemo ? '<span class="absolute top-3 right-3 bg-slate-800/90 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full">DEMO</span>' : (c.urgent ? '<span class="absolute top-3 right-3 bg-red-500 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full">URGENT</span>' : (c.verified ? '<span class="absolute top-3 right-3 badge-verified text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full">✓ VERIFIED</span>' : ''))}
-        <span class="illustrative-photo-label ${hasSuppliedImage ? 'hidden' : ''} absolute bottom-3 right-3 rounded-full bg-black/55 px-2 py-1 text-[9px] font-medium text-white backdrop-blur">AI-generated illustration • Not the actual beneficiary</span>
+        <span class="illustrative-photo-label ${hasSuppliedImage ? 'hidden' : ''} absolute bottom-3 right-3 rounded-full bg-black/55 px-2 py-1 text-[9px] font-medium text-white backdrop-blur">Illustrative image only • Not the actual beneficiary</span>
         <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
           <h3 class="font-extrabold text-lg md:text-xl leading-tight line-clamp-2 drop-shadow-sm">${title}</h3>
           <p class="mt-1.5 flex items-center gap-1 text-xs text-white/90"><span aria-hidden="true">📍</span><span class="line-clamp-1">${location}</span></p>
