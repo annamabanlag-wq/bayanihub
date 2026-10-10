@@ -2,20 +2,32 @@
 let activeCategory = null;
 let searchQuery = '';
 let sortBy = 'recent';
-// Realistic Filipino community photos for generic/stock campaign thumbnails.
- // These are illustrative photos, not claims that the pictured people are the named beneficiaries.
+// Category-matched illustrative photos. Real user-submitted beneficiary photos take priority.
 const CAMPAIGN_FALLBACK_IMAGES = {
-  medical: 'https://images.unsplash.com/flagged/photo-1577457798845-64f7aedf612a?auto=format&fit=crop&w=1200&q=80',
-  hospital: 'https://images.unsplash.com/flagged/photo-1577457798845-64f7aedf612a?auto=format&fit=crop&w=1200&q=80',
-  elderly: 'https://images.unsplash.com/photo-1494832944834-a08818c634b0?auto=format&fit=crop&w=1200&q=80',
-  children: 'https://images.unsplash.com/photo-1494832944834-a08818c634b0?auto=format&fit=crop&w=1200&q=80',
-  family: 'https://images.unsplash.com/flagged/photo-1577457798845-64f7aedf612a?auto=format&fit=crop&w=1200&q=80',
-  community: 'https://images.unsplash.com/photo-1494832944834-a08818c634b0?auto=format&fit=crop&w=1200&q=80',
-  default: 'https://images.unsplash.com/flagged/photo-1577457798845-64f7aedf612a?auto=format&fit=crop&w=1200&q=80'
+  education: 'assets/campaign-education.webp',
+  pet: 'assets/campaign-pet.webp',
+  environment: 'assets/campaign-environment.webp',
+  medical: 'assets/campaign-medical.webp',
+  hospital: 'assets/campaign-medical.webp',
+  disability: 'assets/campaign-medical.webp',
+  elderly: 'assets/campaign-medical.webp',
+  children: 'assets/campaign-food.webp',
+  family: 'assets/campaign-food.webp',
+  food: 'assets/campaign-food.webp',
+  disaster: 'assets/campaign-disaster.webp',
+  community: 'assets/campaign-disaster.webp',
+  default: 'assets/campaign-food.webp'
 };
 
 function getCampaignFallbackImage(category, campaign) {
   const key = String(category || '').toLowerCase().trim();
+  const description = [campaign?.title, campaign?.story, campaign?.location, category].join(' ').toLowerCase();
+  if (/(?:\bpet\b|\bdog\b|\bcat\b|vet(?:erinary)?|aspin|animal|shelter|leukemia for dog)/.test(description)) return CAMPAIGN_FALLBACK_IMAGES.pet;
+  if (/disaster|flood|typhoon|bagyo|fire|earthquake|evacuat|relief|storm|calamity/.test(description)) return CAMPAIGN_FALLBACK_IMAGES.disaster;
+  if (/food|rice|grocery|meal|feeding|hunger|basic needs|clean water|water supply/.test(description)) return CAMPAIGN_FALLBACK_IMAGES.food;
+  if (/school|student|education|tuition|scholar|classroom|college|books|learning/.test(description)) return CAMPAIGN_FALLBACK_IMAGES.education;
+  if (/cleanup|clean-up|coastal|environment|mangrove|beach|trash|waste|river/.test(description)) return CAMPAIGN_FALLBACK_IMAGES.environment;
+  if (/hospital|medical|surgery|medicine|dialysis|cancer|leukemia|treatment|bill|health/.test(description)) return CAMPAIGN_FALLBACK_IMAGES.medical;
   return CAMPAIGN_FALLBACK_IMAGES[key] || CAMPAIGN_FALLBACK_IMAGES.default;
 }
 

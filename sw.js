@@ -1,4 +1,4 @@
-const CACHE = 'bayanihub-v56';
+const CACHE = 'bayanihub-v57';
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +7,12 @@ const ASSETS = [
   './help.html',
   './assets/bayanihub-cover.svg',
   './assets/hospital-care-placeholder.svg',
+  './assets/campaign-education.webp',
+  './assets/campaign-pet.webp',
+  './assets/campaign-environment.webp',
+  './assets/campaign-food.webp',
+  './assets/campaign-medical.webp',
+  './assets/campaign-disaster.webp',
   './submit.html',
   './dashboard.html',
   './how.html',
