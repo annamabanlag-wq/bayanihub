@@ -2,13 +2,16 @@
 let activeCategory = null;
 let searchQuery = '';
 let sortBy = 'recent';
+// Realistic Filipino community photos for generic/stock campaign thumbnails.
+ // These are illustrative photos, not claims that the pictured people are the named beneficiaries.
 const CAMPAIGN_FALLBACK_IMAGES = {
-  medical: 'assets/campaign-raul.jpg',
-  hospital: 'assets/campaign-mother.jpg',
-  elderly: 'assets/campaign-elderly.jpg',
-  children: 'assets/campaign-raul.jpg',
-  family: 'assets/campaign-mother.jpg',
-  default: 'assets/bayanihub-cover.svg'
+  medical: 'https://images.unsplash.com/flagged/photo-1577457798845-64f7aedf612a?auto=format&fit=crop&w=1200&q=80',
+  hospital: 'https://images.unsplash.com/flagged/photo-1577457798845-64f7aedf612a?auto=format&fit=crop&w=1200&q=80',
+  elderly: 'https://images.unsplash.com/photo-1494832944834-a08818c634b0?auto=format&fit=crop&w=1200&q=80',
+  children: 'https://images.unsplash.com/photo-1494832944834-a08818c634b0?auto=format&fit=crop&w=1200&q=80',
+  family: 'https://images.unsplash.com/flagged/photo-1577457798845-64f7aedf612a?auto=format&fit=crop&w=1200&q=80',
+  community: 'https://images.unsplash.com/photo-1494832944834-a08818c634b0?auto=format&fit=crop&w=1200&q=80',
+  default: 'https://images.unsplash.com/flagged/photo-1577457798845-64f7aedf612a?auto=format&fit=crop&w=1200&q=80'
 };
 
 function getCampaignFallbackImage(category, campaign) {
@@ -173,7 +176,7 @@ function renderCampaigns() {
     const cat = CATEGORIES.find(x => x.id === c.category) || { label: c.category, icon: '📌', color: 'bg-gray-100 text-gray-700' };
     const title = bayaniEsc(c.title);
     const location = bayaniEsc(c.location);
-    const image = bayaniSafeImage(c.image || getCampaignFallbackImage(c.category, c));
+    const image = bayaniSafeImage(isCampaignPlaceholderImage(c.image) ? getCampaignFallbackImage(c.category, c) : c.image);
     const catLabel = bayaniEsc(cat.label);
     const catIcon = bayaniEsc(cat.icon || '');
     const created = bayaniEsc(c.created);
