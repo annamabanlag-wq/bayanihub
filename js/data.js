@@ -71,8 +71,16 @@ const SEED_CAMPAIGNS = [
   }
 ];
 
+const DATA_VERSION = '2026-10-10-photos';
+
 const BayaniStorage = {
   getCampaigns() {
+    const storedVersion = localStorage.getItem('bayani_data_version');
+    if (storedVersion !== DATA_VERSION) {
+      localStorage.setItem('bayani_campaigns', JSON.stringify(SEED_CAMPAIGNS));
+      localStorage.setItem('bayani_data_version', DATA_VERSION);
+      return [...SEED_CAMPAIGNS];
+    }
     const stored = localStorage.getItem('bayani_campaigns');
     if (!stored) {
       localStorage.setItem('bayani_campaigns', JSON.stringify(SEED_CAMPAIGNS));
