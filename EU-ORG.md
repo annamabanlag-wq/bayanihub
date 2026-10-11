@@ -1,65 +1,22 @@
-# Claim bayanihub.eu.org (free)
+# BAYANIHUB custom domain setup (free option)
 
-Checked 2026-09-29: `bayanihub.eu.org` has no NS/A records, so it looks free.
-This is not instant. Volunteers approve by email. Cost is $0. No renewal fee.
+Goal: use a branded public address such as bayanihub.eu.org instead of a hosting URL that exposes an account username.
 
-I cannot finish the form for you. EU.org needs your name, a non-Gmail inbox, and a password.
+Current official app: https://bayanihub.vercel.app/
 
-## Do this in order
+## Important status
+The domain request and DNS status have not been verified here. Do not tell people to use bayanihub.eu.org until it is approved, connected in Vercel, verified, and loading over HTTPS.
 
-### 1. Use a non-Gmail email
-Gmail blocks EU.org validation mail as spam. Use Proton, Outlook, Yahoo, or similar.
-Form: https://nic.eu.org/arf/en/contact/create/
+## If the domain request is still needed
+1. Use the official EU.org registration portal: https://nic.eu.org/arf/en/ . Registration is subject to approval and can take time.
+2. If you proceed, choose the privacy option for public WHOIS where available and use a dedicated project contact email if appropriate.
+3. Set up a DNS provider only after checking its current nameserver instructions.
+4. Once the domain is approved, open the BAYANIHUB Vercel project → Settings → Domains and add bayanihub.eu.org.
+5. Copy the exact DNS records Vercel displays into the DNS provider. Do not use GitHub Pages A records for the Vercel-hosted app.
+6. Wait for domain verification and HTTPS, then test the home page, campaign pages, and health assessment.
 
-Tick **Private (not shown in the public Whois)**.
-Accept the policy. Save the handle they give you (it ends in `-FREE`).
+## Public sharing rule
+Until the custom domain is verified, share only:
+https://bayanihub.vercel.app/
 
-### 2. Create free DNS *before* you request the domain
-EU.org only accepts nameservers, not GitHub A records.
-
-Recommended: https://desec.io (free)
-1. Sign up
-2. Add domain `bayanihub.eu.org`
-3. Create records:
-
-| Type | Name | Value |
-|---|---|---|
-| A | @ | 185.199.108.153 |
-| A | @ | 185.199.109.153 |
-| A | @ | 185.199.110.153 |
-| A | @ | 185.199.111.153 |
-| AAAA | @ | 2606:50c0:8000::153 |
-| AAAA | @ | 2606:50c0:8001::153 |
-| AAAA | @ | 2606:50c0:8002::153 |
-| AAAA | @ | 2606:50c0:8003::153 |
-| CNAME | www | annamabanlag-wq.github.io |
-
-Nameservers to paste in EU.org:
-- `ns1.desec.io`
-- `ns2.desec.org`
-
-### 3. Request the domain
-Login: https://nic.eu.org/arf/en/
-New domain: `bayanihub.eu.org`
-Choose server names / NS and enter the two deSEC servers above.
-
-If they reject a direct `.eu.org` name, request `bayanihub.us.eu.org` instead (US.eu.org is an open zone). There is no PH.eu.org zone.
-
-### 4. Wait for the approval email
-Usually a few days. Check spam.
-
-### 5. Attach it to GitHub Pages
-On **annamabanlag-wq.github.io** (user site):
-Settings → Pages → Custom domain → `bayanihub.eu.org` → Enforce HTTPS
-
-Then add a `CNAME` file in that repo containing only:
-
-```
-bayanihub.eu.org
-```
-
-Do not add the CNAME file until the domain is approved.
-
-## After it works
-Share: https://bayanihub.eu.org
-Old GitHub URL can stay as backup.
+Avoid using the old GitHub Pages address containing the source-control username in campaign materials. The GitHub repository address remains a project-management URL, not the public website.
