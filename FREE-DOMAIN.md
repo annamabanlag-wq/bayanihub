@@ -1,38 +1,22 @@
-# Zero-cost domain (buy later when we earn)
+# BAYANIHUB — free branded domain plan
 
-Hosting is already free on GitHub Pages. Do **not** buy a domain yet.
+## Official public app (use this link)
+https://bayanihub.vercel.app/
 
-## Use today (already live)
+Do not share the old GitHub Pages URL (annamabanlag-wq.github.io) in campaign posts or partner messages. It exposes the source-control account name and is not the primary public app.
 
-- Short share link: https://annamabanlag-wq.github.io/
-- App: https://bayanihub.vercel.app/
+## Optional custom domain
 
-## Best free branded name
+A brand-only custom domain such as bayanihub.eu.org may be used only after registration/approval and DNS configuration are complete. The domain request status has not been verified here.
 
-Claim **bayanihub.is-a.dev** (looks available as of 2026-09-29).
+When the domain is approved:
+1. Add the domain in the BAYANIHUB Vercel project's Settings → Domains.
+2. Configure DNS exactly as Vercel instructs for that domain.
+3. Wait for Vercel to verify the DNS and issue HTTPS.
+4. Test the home page, campaign links, and health assessment on the custom domain before sharing it.
 
-1. Fork https://github.com/is-a-dev/register
-2. In that fork create `domains/bayanihub.json` with the contents of `is-a-dev-bayanihub.json` in this repo
-3. Open a pull request to `is-a-dev/register`
-4. After it is merged: repo Settings → Pages → Custom domain → `bayanihub.is-a.dev` → Enforce HTTPS
-5. Add a one-line `CNAME` file in this repo: `bayanihub.is-a.dev`
+Do not configure this domain to point to the old GitHub Pages URL. Do not buy a domain or upgrade a paid plan unless explicitly approved.
 
-Docs: https://docs.is-a.dev/guides/github-pages/
-
-Backup names if taken: `bhub.is-a.dev`, `tulong.is-a.dev`
-
-## Other $0 options
-
-| Address | Cost | Notes |
-|---|---|---|
-| `*.github.io` | $0 | Already on |
-| `bayanihub.is-a.dev` | $0 | Best branded free name |
-| `*.is-cool.dev` via open-domains | $0 | Backup community DNS |
-| `bayanihub.eu.org` via nic.eu.org | $0 | Closer to a real domain; manual approval days–weeks |
-| `*.pages.dev` Cloudflare Pages | $0 | No card needed |
-| Freenom `.tk` / `.ml` | skip | No longer free / unreliable |
-
-## Buy later (when there is revenue)
-
-Target names: `bayanihub.ph` or `bayanihub.org` (~$10–15/year at Porkbun/Namecheap).
-Then point DNS at GitHub Pages and keep the old free URL as a redirect.
+## Existing hosting
+- Public app: https://bayanihub.vercel.app/
+- Source repository: https://github.com/annamabanlag-wq/bayanihub (project management link; not a public campaign URL)
