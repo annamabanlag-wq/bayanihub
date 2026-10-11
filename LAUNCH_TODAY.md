@@ -1,9 +1,9 @@
 # BAYANIHUB — LAUNCH TODAY
 
 ## Primary links
-Discover: https://annamabanlag-wq.github.io/bayanihub/
-Start campaign: https://annamabanlag-wq.github.io/bayanihub/submit.html
-Sponsor: https://annamabanlag-wq.github.io/bayanihub/sponsor.html
+Discover: https://bayanihub.vercel.app/
+Start campaign: https://bayanihub.vercel.app/
+Sponsor: https://bayanihub.vercel.app/
 
 ## Main post
 🇵🇭 **BAYANIHUB — TULONG PARA SA PILIPINO**
@@ -14,7 +14,7 @@ Want to help? Discover campaigns and support legitimate causes.
 
 Campaigns are reviewed before going live and payment transactions are subject to manual verification.
 
-Discover: https://annamabanlag-wq.github.io/bayanihub/
+Discover: https://bayanihub.vercel.app/
 
 ## Partner message
 Hello! We built BayaniHub to help Filipinos in need share legitimate fundraising needs with their communities. We are looking for NGOs, churches, schools, volunteer groups and community organizations willing to review our process and, where appropriate, share suitable campaigns.
