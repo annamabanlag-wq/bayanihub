@@ -249,7 +249,7 @@
               <div class="flex items-center gap-2 mb-3">
                 <span class="bg-white/15 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold">${esc(cat.label)}</span>
                 ${c.urgent ? '<span class="bg-red-500 px-3 py-1.5 rounded-full text-xs font-bold">URGENT</span>' : ''}
-                ${c.verified ? '<span class="bg-brand-600 px-3 py-1.5 rounded-full text-xs font-bold">✓ VERIFIED</span>' : ''}
+                ${c.verified ? '<span class="bg-brand-600 px-3 py-1.5 rounded-full text-xs font-bold">✓ BAYANIHUB-VERIFIED</span>' : '<span class="bg-amber-400 text-slate-950 px-3 py-1.5 rounded-full text-xs font-bold">NOT YET VERIFIED</span>'}
               </div>
               <h1 class="text-[28px] sm:text-4xl font-extrabold leading-tight max-w-2xl">${esc(c.title)}</h1>
               <p class="text-sm text-white/75 mt-2">Created ${esc(timeAgo(c.created))} • ${esc(c.location)}</p>
