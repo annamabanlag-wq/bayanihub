@@ -23,13 +23,13 @@ const SEED_CAMPAIGNS = [
     image: 'https://images.unsplash.com/photo-1581595220892-b0739db3ae82?auto=format&fit=crop&w=1200&q=80',
     organizer: 'Raul Family',
     location: 'Gma Cavite',
-    verified: true,
+    verified: false,
     status: 'approved',
     urgent: true,
     created: '2026-10-09',
     gcash: '',
     evidence: [],
-    sample: false
+    sample: true
   },
   {
     id: 'mother-hospital',
@@ -42,13 +42,13 @@ const SEED_CAMPAIGNS = [
     image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80',
     organizer: 'Family Member',
     location: '67 ayoro st, xandroville, centennial 2, nagpayong pinagnuhatan pasig city.',
-    verified: true,
+    verified: false,
     status: 'approved',
     urgent: true,
     created: '2026-10-07',
     gcash: '',
     evidence: [],
-    sample: false
+    sample: true
   },
   {
     id: 'elderly-support',
@@ -61,17 +61,17 @@ const SEED_CAMPAIGNS = [
     image: 'https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?auto=format&fit=crop&w=1200&q=80',
     organizer: 'Community',
     location: 'Philippines',
-    verified: true,
+    verified: false,
     status: 'approved',
     urgent: false,
     created: '2026-10-08',
     gcash: '',
     evidence: [],
-    sample: false
+    sample: true
   }
 ];
 
-const DATA_VERSION = '2026-10-10-photos';
+const DATA_VERSION = '2026-10-17-trust-guard';
 
 const BayaniStorage = {
   getCampaigns() {
