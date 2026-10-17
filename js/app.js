@@ -207,6 +207,7 @@ function renderCampaigns() {
         <img src="${image}" alt="${title}" class="w-full h-48 object-cover" loading="lazy">
         <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent"></div>
         <span class="absolute top-3 left-3 ${cat.color} text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">${catIcon} ${catLabel}</span>
+        <span class="absolute top-12 left-3 ${c.verified ? 'bg-brand-600 text-white' : 'bg-white/95 text-slate-700'} text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">${c.verified ? '✓ BayaniHub-verified' : 'Verification not marked'}</span>
         <button class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow" onclick="event.stopPropagation()">
           <svg class="w-4 h-4 text-rose-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
         </button>
