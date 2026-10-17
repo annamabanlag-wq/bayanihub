@@ -4,8 +4,10 @@
 const BAYANI_SUPABASE_URL = 'https://ftyjqmhypjbyqozpoezr.supabase.co';
 const BAYANI_SUPABASE_KEY = 'sb_publishable_881nNtqPnpSe0V3F8w6Brg_IvxkweTl';
 
-// Donation intake is disabled until BayaniHub's business payment channel is verified.
-const BAYANI_PAYMENT_INTAKE_ENABLED = false;
+// Campaign donations use a manual InstaPay QR + admin verification workflow.
+// Sponsorship and follow-up payment intake remain disabled until separately configured.
+const BAYANI_DONATION_INTAKE_ENABLED = true;
+const BAYANI_OTHER_PAYMENT_INTAKE_ENABLED = false;
 
 function bayaniUuid() {
   if (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
@@ -160,34 +162,35 @@ async function createBayaniEvidenceSignedUrl(path, expiresIn = 900) {
   return signed.startsWith('http') ? signed : BAYANI_SUPABASE_URL + '/storage/v1' + signed;
 }
 
-async function submitBayaniDonation({ campaignId, campaignTitle, name, amount, ref, tip = 0 }) {
-  if (!BAYANI_PAYMENT_INTAKE_ENABLED) {
-    throw new Error('BayaniHub donations are temporarily paused while the business payment channel is verified. Please do not send money or submit payment references yet.');
+async function submitBayaniDonation({ campaignId, name, amount, ref }) {
+  if (!BAYANI_DONATION_INTAKE_ENABLED) {
+    throw new Error('Manual InstaPay donation intake is not currently available.');
   }
-
   if (!bayaniIsUuid(campaignId)) {
-    throw new Error('This campaign is using an old local ID. Please refresh Discover and try again.');
+    throw new Error('This campaign link is invalid or outdated. Please refresh Discover and try again.');
   }
-
-  const payload = {
-    campaign_id: campaignId,
-    campaign_title: campaignTitle,
-    donor_name: name || 'Anonymous',
-    amount: Math.round(Number(amount)),
-    tip: Math.max(0, Math.round(Number(tip) || 0)),
-    fee: 0,
-    organizer_amount: 0,
-    platform_amount: 0,
-    gcash_ref: ref,
-    status: 'pending_verification'
-  };
-
-  await bayaniFetch('donations', {
+  const numericAmount = Number(amount);
+  const paymentRef = String(ref || '').trim();
+  const donorName = String(name || '').trim().slice(0, 80);
+  if (!Number.isSafeInteger(numericAmount) || numericAmount < 1 || numericAmount > 1000000) {
+    throw new Error('Enter a donation amount from ₱1 to ₱1,000,000.');
+  }
+  if (paymentRef.length < 3 || paymentRef.length > 80) {
+    throw new Error('Enter a valid transaction reference (3–80 characters).');
+  }
+  const result = await bayaniFetch('rpc/submit_bayani_donation', {
     method: 'POST',
-    body: JSON.stringify(payload)
+    body: JSON.stringify({
+      p_campaign_id: campaignId,
+      p_donor_name: donorName,
+      p_amount: numericAmount,
+      p_gcash_ref: paymentRef
+    })
   });
-
-  return payload;
+  if (!result || !result.id || result.status !== 'pending_verification') {
+    throw new Error('The server did not confirm your submission. Please keep your receipt and contact BayaniHub support.');
+  }
+  return result;
 }
 
 const BAYANI_SESSION_KEY = 'bayani_supabase_session';
@@ -392,7 +395,7 @@ async function bayaniAdminListRevenue() {
 }
 
 async function bayaniAdminListAuditLog() {
-  return bayaniAuthFetch('admin_audit_log?select=*&order=created_at.desc&limit=50', { method: 'GET' });
+  return bayaniAuthFetch('admin_audit_log?select=*&order=created_at.desc&limit=500', { method: 'GET' });
 }
 
 async function bayaniAdminUpdateCampaign(id, changes) {
@@ -408,11 +411,13 @@ async function bayaniAdminUpdateCampaign(id, changes) {
   });
 }
 
-async function bayaniAdminRejectDonation(id) {
-  return bayaniAuthFetch('donations?id=eq.' + encodeURIComponent(id), {
-    method: 'PATCH',
-    headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({ status: 'rejected' })
+async function bayaniAdminRejectDonation(id, note = '') {
+  return bayaniAuthFetch('rpc/bayani_admin_reject_donation', {
+    method: 'POST',
+    body: JSON.stringify({
+      p_donation_id: id,
+      p_note: String(note || '').trim() || null
+    })
   });
 }
 
@@ -439,8 +444,8 @@ async function bayaniAdminRecordPayout(id, payoutRef, note = '') {
 }
 
 async function bayaniSubmitSponsorPayment({ name, packageId, packageName, amount, ref }) {
-  if (!BAYANI_PAYMENT_INTAKE_ENABLED) {
-    throw new Error('BayaniHub payment intake is temporarily paused while the business payment channel is verified. Please do not send money or submit payment references yet.');
+  if (!BAYANI_OTHER_PAYMENT_INTAKE_ENABLED) {
+    throw new Error('This payment option is not enabled yet. Sponsorship and follow-up payment submissions are currently unavailable.');
   }
   const payload = {
     name: String(name || '').trim(),
@@ -460,8 +465,8 @@ async function bayaniSubmitSponsorPayment({ name, packageId, packageName, amount
 }
 
 async function bayaniSubmitFollowupPayment({ campaignId, ref }) {
-  if (!BAYANI_PAYMENT_INTAKE_ENABLED) {
-    throw new Error('BayaniHub payment intake is temporarily paused while the business payment channel is verified. Please do not send money or submit payment references yet.');
+  if (!BAYANI_OTHER_PAYMENT_INTAKE_ENABLED) {
+    throw new Error('This payment option is not enabled yet. Sponsorship and follow-up payment submissions are currently unavailable.');
   }
   const payload = {
     campaign_id: campaignId,
