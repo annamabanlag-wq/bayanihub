@@ -37,8 +37,12 @@ function isCampaignPlaceholderImage(value) {
 }
 
 function bayaniEsc(value) {
-  return String(value ?? '').replace(/[&<>\"']/g, ch => ({
-    '&':'&', '<':'<', '>':'>', '\"':'"', "'":'&#039;'
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
   }[ch]));
 }
 
@@ -48,7 +52,7 @@ function bayaniSafeImage(value) {
     const u = new URL(String(value || ''), location.href);
     if (u.protocol === 'http:' || u.protocol === 'https:') return bayaniEsc(u.href);
   } catch (_) {}
-  return String(value || fallback);
+  return bayaniEsc(fallback);
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -142,7 +146,11 @@ function clearFilters() {
 }
 
 function getFiltered() {
-  let list = BayaniStorage.getCampaigns().filter(c => c.status === 'approved');
+  let list = BayaniStorage.getCampaigns().filter(c =>
+    c.status === 'approved' &&
+    c.sample !== true &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(c.id || ''))
+  );
 
   if (activeCategory) list = list.filter(c => c.category === activeCategory);
   if (searchQuery) {
@@ -225,7 +233,11 @@ function renderCampaigns() {
 }
 
 function updateStats() {
-  const list = BayaniStorage.getCampaigns().filter(c => c.status === 'approved' && c.sample !== true);
+  const list = BayaniStorage.getCampaigns().filter(c =>
+    c.status === 'approved' &&
+    c.sample !== true &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(c.id || ''))
+  );
   const raised = list.reduce((s, c) => s + Number(c.raised || 0), 0);
   const donors = list.reduce((s, c) => s + Number(c.donors || 0), 0);
   const elR = document.getElementById('stat-raised');
