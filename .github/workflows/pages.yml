@@ -47,6 +47,9 @@ jobs:
           grep -q "Donations are temporarily paused" campaign.html
           ! grep -q 'id="donate-modal"' campaign.html
           ! grep -q 'id="donate-bar"' campaign.html
+          grep -q "BAYANI_PAYMENT_INTAKE_ENABLED = false" js/supabase.js
+          grep -q "temporarily paused" how.html
+          grep -q "temporarily paused" dashboard.html
           ! grep -q "ca-pub-9305686179934470" login.html
           ! grep -q "ca-pub-9305686179934470" admin.html
       - name: Syntax-check browser JavaScript
