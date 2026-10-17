@@ -48,6 +48,8 @@ jobs:
           ! grep -q 'id="donate-modal"' campaign.html
           ! grep -q 'id="donate-bar"' campaign.html
           grep -q "BAYANI_PAYMENT_INTAKE_ENABLED = false" js/supabase.js
+          grep -q "Verification not marked" js/app.js
+          grep -q "NOT YET VERIFIED" campaign.html
           grep -q "temporarily paused" how.html
           grep -q "temporarily paused" dashboard.html
           ! grep -q "ca-pub-9305686179934470" login.html
