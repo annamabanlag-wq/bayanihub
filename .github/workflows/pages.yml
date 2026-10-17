@@ -44,14 +44,17 @@ jobs:
           grep -q "String(x?.path || '').trim()" admin.html
           grep -Fq "'&': '&amp;'" js/app.js
           grep -q "sample !== true" js/app.js
-          grep -q "Donations are temporarily paused" campaign.html
-          ! grep -q 'id="donate-modal"' campaign.html
-          ! grep -q 'id="donate-bar"' campaign.html
-          grep -q "BAYANI_PAYMENT_INTAKE_ENABLED = false" js/supabase.js
+          grep -q "Donate via InstaPay QR" campaign.html
+          grep -q 'id="donation-form"' campaign.html
+          grep -q "submit_bayani_donation" js/supabase.js
+          grep -q "BAYANI_DONATION_INTAKE_ENABLED = true" js/supabase.js
+          grep -q "Donation audit report" admin.html
+          grep -q 'id="audit-export"' admin.html
+          grep -q "const CACHE = 'bayanihub-v59'" sw.js
           grep -q "Verification not marked" js/app.js
           grep -q "NOT YET VERIFIED" campaign.html
-          grep -q "temporarily paused" how.html
-          grep -q "temporarily paused" dashboard.html
+          grep -q "InstaPay QR" how.html
+          grep -q "manual InstaPay QR" dashboard.html
           ! grep -q "ca-pub-9305686179934470" login.html
           ! grep -q "ca-pub-9305686179934470" admin.html
       - name: Syntax-check browser JavaScript
