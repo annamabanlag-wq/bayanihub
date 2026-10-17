@@ -78,12 +78,24 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
     </section>
 
     <section>
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-semibold text-gray-700">Admin audit history</h3>
-        <span class="text-[10px] text-gray-400">Verification actions</span>
+      <div class="flex items-center justify-between gap-3 mb-3">
+        <div>
+          <h3 class="text-sm font-semibold text-gray-700">Donation audit report</h3>
+          <p class="text-[10px] text-gray-400 mt-0.5">Manual InstaPay submissions and verified admin decisions</p>
+        </div>
+        <button id="audit-export" type="button" class="shrink-0 rounded-lg bg-slate-900 px-3 py-2.5 text-xs font-bold text-white">Export CSV</button>
       </div>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
+        <div class="bg-white rounded-xl border p-3"><p id="audit-total" class="text-lg font-bold">0</p><p class="text-[10px] text-gray-500">Submissions</p></div>
+        <div class="bg-white rounded-xl border p-3"><p id="audit-pending" class="text-lg font-bold text-amber-600">0</p><p class="text-[10px] text-gray-500">Pending review</p></div>
+        <div class="bg-white rounded-xl border p-3"><p id="audit-confirmed" class="text-lg font-bold text-green-600">0</p><p class="text-[10px] text-gray-500">Confirmed</p></div>
+        <div class="bg-white rounded-xl border p-3"><p id="audit-rejected" class="text-lg font-bold text-red-600">0</p><p class="text-[10px] text-gray-500">Rejected</p></div>
+        <div class="bg-white rounded-xl border p-3"><p id="audit-confirmed-amount" class="text-lg font-bold text-teal-700">₱0</p><p class="text-[10px] text-gray-500">Confirmed total</p></div>
+      </div>
+      <div class="rounded-xl border border-blue-100 bg-blue-50 p-3 mb-3 text-[11px] leading-5 text-blue-900">This report separates submitted references from confirmed payments. Pending and rejected submissions are not counted as collected donations. Export is visible only inside the signed-in admin page.</div>
+      <h4 class="text-xs font-bold text-gray-700 mb-2">Admin action history</h4>
       <div id="audit-list" class="space-y-2"></div>
-      <p id="no-audit" class="text-sm text-gray-500 text-center py-4 hidden">No admin actions recorded yet</p>
+      <p id="no-audit" class="text-sm text-gray-500 text-center py-4 hidden">No payment submissions or admin actions recorded yet</p>
     </section>
 
     <section>
@@ -109,7 +121,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
   </main>
 
   <script src="js/data.js"></script>
-  <script src="js/supabase.js?v=20261008-04"></script>
+  <script src="js/supabase.js?v=20261017-instapay-audit"></script>
   <script>
     let state = { campaigns: [], donations: [], revenue: [], sponsors: [], followups: [], audit: [], payouts: [] };
 
@@ -173,10 +185,14 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
           'Admin records request timed out. Please tap Refresh and try again.'
         );
         const campaigns = Array.isArray(dashboard?.campaigns) ? dashboard.campaigns : [];
-        const donations = Array.isArray(dashboard?.donations) ? dashboard.donations : [];
+        const [donationRows, auditRows] = await Promise.all([
+          withTimeout(BayaniCloud.adminListDonations(), 8000, 'Donation audit query timed out.').catch(() => dashboard?.donations),
+          withTimeout(BayaniCloud.adminListAuditLog(), 8000, 'Audit history query timed out.').catch(() => dashboard?.audit)
+        ]);
+        const donations = Array.isArray(donationRows) ? donationRows : (Array.isArray(dashboard?.donations) ? dashboard.donations : []);
         const revenue = Array.isArray(dashboard?.revenue) ? dashboard.revenue : [];
         const sponsors = Array.isArray(dashboard?.sponsors) ? dashboard.sponsors : [];
-        const audit = Array.isArray(dashboard?.audit) ? dashboard.audit : [];
+        const audit = Array.isArray(auditRows) ? auditRows : (Array.isArray(dashboard?.audit) ? dashboard.audit : []);
         const payouts = Array.isArray(dashboard?.payouts) ? dashboard.payouts : [];
 
         if (campaigns.length === 0) {
@@ -224,6 +240,11 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
       document.getElementById('adm-approved').textContent = approved.length;
       document.getElementById('adm-donations').textContent = donations.length;
       document.getElementById('adm-revenue').textContent = money(platform);
+      document.getElementById('audit-total').textContent = donations.length;
+      document.getElementById('audit-pending').textContent = donations.filter(d => d.status === 'pending_verification').length;
+      document.getElementById('audit-confirmed').textContent = donations.filter(d => d.status === 'confirmed').length;
+      document.getElementById('audit-rejected').textContent = donations.filter(d => d.status === 'rejected').length;
+      document.getElementById('audit-confirmed-amount').textContent = money(donations.filter(d => d.status === 'confirmed').reduce((sum, d) => sum + Number(d.amount || 0), 0));
 
       const pList = document.getElementById('pending-list');
       document.getElementById('no-pending').classList.toggle('hidden', pending.length !== 0);
@@ -457,7 +478,8 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
       auditList.innerHTML = auditRows.slice(0, 30).map(a => {
         const confirmed = a.after_status === 'confirmed';
         const rejected = a.after_status === 'rejected';
-        const actionLabel = a.action === 'confirm_donation' ? 'Confirmed donation' :
+        const actionLabel = a.action === 'submit_donation' ? 'Payment reference submitted' :
+                            a.action === 'confirm_donation' ? 'Confirmed donation' :
                             a.action === 'reject_donation' ? 'Rejected donation' : 'Updated donation';
         const badge = confirmed
           ? '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">CONFIRMED</span>'
@@ -470,7 +492,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
               '<div class="flex items-center gap-2 flex-wrap"><span class="font-semibold text-sm text-gray-800">' + actionLabel + '</span>' + badge + '</div>' +
               '<p class="text-xs text-gray-500 mt-1">Donation ' + esc(a.donation_id || a.entity_id || '—') + '</p>' +
               '<p class="text-xs text-gray-500">Campaign ' + esc(a.campaign_id || '—') + '</p>' +
-              '<p class="text-[10px] text-gray-400 mt-1">Admin ' + esc(a.actor_user_id || 'Unknown') + ' • ' + new Date(a.created_at).toLocaleString() + '</p>' +
+              '<p class="text-[10px] text-gray-400 mt-1">' + (a.action === 'submit_donation' ? 'Donor submission' : ('Admin ' + esc(a.actor_user_id || 'Unknown'))) + ' • ' + new Date(a.created_at).toLocaleString() + '</p>' +
             '</div>' +
             '<div class="text-right shrink-0"><p class="font-bold text-teal-800">' + money(a.amount) + '</p><p class="text-[10px] text-gray-400">' + esc(a.before_status || '—') + ' → ' + esc(a.after_status || '—') + '</p></div>' +
           '</div>' +
@@ -480,11 +502,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
 
       if (approved.length === 0) {
         document.getElementById('live-list').innerHTML =
-          '<div class="bg-white rounded-xl border p-4">' +
-          '<p class="font-semibold text-gray-800">Hospital bill</p>' +
-          '<p class="text-xs text-gray-500 mt-1">Approved campaign • ₱0 / ₱300,000</p>' +
-          '<a href="campaign.html?id=79298b9b-6ef2-4bb5-b1b6-e92ae77cea45" class="inline-block mt-3 bg-blue-600 text-white text-xs font-bold px-4 py-3 rounded-lg touch-manipulation">Open campaign</a>' +
-          '</div>';
+          '<div class="bg-white rounded-xl border p-4 text-sm text-gray-500">No live campaigns are currently available.</div>';
         return;
       }
 
@@ -590,7 +608,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
     }
 
     async function confirmDonation(id, buttonOverride) {
-      if (!confirm('Confirm this Payment reference after checking the transfer in GCash?')) return;
+      if (!confirm('Confirm this payment reference only after the actual successful transfer is visible in the authorized banking/e-wallet records?')) return;
       const button = buttonOverride || document.querySelector('[data-confirm-donation-id="' + CSS.escape(id) + '"]');
       if (button) { button.disabled = true; button.textContent = 'Confirming…'; }
       try {
@@ -604,7 +622,7 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
     }
 
     async function rejectDonation(id, buttonOverride) {
-      if (!confirm('Reject this donation verification?')) return;
+      if (!confirm('Reject this donation reference after checking the payment record?')) return;
       const button = buttonOverride || document.querySelector('[data-reject-donation-id="' + CSS.escape(id) + '"]');
       if (button) { button.disabled = true; button.textContent = 'Rejecting…'; }
       try {
@@ -624,6 +642,42 @@ body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transpar
         alert('Reference: ' + String(ref || ''));
       }
     }
+
+    function exportDonationAuditCsv() {
+      const headers = ['timestamp','record_type','campaign_id','campaign_title','donation_id','amount_php','status_before','status_after','payment_reference','payment_provider','actor_user_id','action','note'];
+      const campaignTitle = id => (state.campaigns.find(c => c.id === id) || {}).title || '';
+      const rows = [];
+      (state.donations || []).forEach(d => rows.push([
+        d.created_at || '', 'donation_record', d.campaign_id || '',
+        d.campaign_title || campaignTitle(d.campaign_id), d.id || '', d.amount ?? '',
+        '', d.status || '', d.gcash_ref || '', d.payment_provider || 'instapay_qr',
+        '', 'donation_submission', 'Payment reference submitted; status shown is current database status.'
+      ]));
+      (state.audit || []).forEach(a => rows.push([
+        a.created_at || '', 'admin_audit_action', a.campaign_id || '',
+        campaignTitle(a.campaign_id), a.donation_id || a.entity_id || '', a.amount ?? '',
+        a.before_status || '', a.after_status || '', a.gcash_ref || '',
+        '', a.actor_user_id || '', a.action || '', a.note || ''
+      ]));
+      rows.sort((a,b) => String(b[0]).localeCompare(String(a[0])));
+      const cell = value => {
+        let text = String(value ?? '');
+        if (/^[=+@\-\t\r]/.test(text)) text = "'" + text;
+        return '"' + text.replace(/"/g, '""') + '"';
+      };
+      const csv = [headers, ...rows].map(row => row.map(cell).join(',')).join('\r\n');
+      const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'bayanihub-donation-audit-' + new Date().toISOString().slice(0,10) + '.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('audit-export').addEventListener('click', exportDonationAuditCsv);
 
     /* Legacy JS button handler removed: Refresh and Logout are native navigation links.
     document.getElementById('btn-refresh')?.addEventListener('click', async () => {
