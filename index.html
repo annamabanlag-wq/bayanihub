@@ -202,6 +202,10 @@
         <option value="raised">Highest Raised</option>
       </select>
     </div>
+    <div class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-4" role="status" aria-live="polite">
+      <p class="text-sm font-extrabold text-amber-900">Donations are temporarily paused</p>
+      <p class="mt-1 text-xs leading-relaxed text-amber-800">We are verifying BayaniHub's business payment channel. Please do not send money or payment references through this site until donations are officially re-enabled.</p>
+    </div>
     <div id="campaign-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
     <div id="empty-state" class="hidden text-center py-12">
       <div class="text-4xl mb-3">🔍</div>
@@ -278,7 +282,7 @@
   </script>
   <script src="js/data.js"></script>
   <script src="js/supabase.js"></script>
-  <script src="js/app.js?v=20261010-real-category-photos-v57"></script>
+  <script src="js/app.js?v=20261017-trust-guard?v=20261010-real-category-photos-v57"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(()=>{});
