@@ -5,7 +5,7 @@ const BAYANI_SUPABASE_URL = 'https://ftyjqmhypjbyqozpoezr.supabase.co';
 const BAYANI_SUPABASE_KEY = 'sb_publishable_881nNtqPnpSe0V3F8w6Brg_IvxkweTl';
 
 // Donation intake is disabled until BayaniHub's business payment channel is verified.
-const BAYANI_DONATIONS_ENABLED = false;
+const BAYANI_PAYMENT_INTAKE_ENABLED = false;
 
 function bayaniUuid() {
   if (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
@@ -161,7 +161,7 @@ async function createBayaniEvidenceSignedUrl(path, expiresIn = 900) {
 }
 
 async function submitBayaniDonation({ campaignId, campaignTitle, name, amount, ref, tip = 0 }) {
-  if (!BAYANI_DONATIONS_ENABLED) {
+  if (!BAYANI_PAYMENT_INTAKE_ENABLED) {
     throw new Error('BayaniHub donations are temporarily paused while the business payment channel is verified. Please do not send money or submit payment references yet.');
   }
 
@@ -439,6 +439,9 @@ async function bayaniAdminRecordPayout(id, payoutRef, note = '') {
 }
 
 async function bayaniSubmitSponsorPayment({ name, packageId, packageName, amount, ref }) {
+  if (!BAYANI_PAYMENT_INTAKE_ENABLED) {
+    throw new Error('BayaniHub payment intake is temporarily paused while the business payment channel is verified. Please do not send money or submit payment references yet.');
+  }
   const payload = {
     name: String(name || '').trim(),
     package_id: String(packageId || '').trim(),
@@ -457,6 +460,9 @@ async function bayaniSubmitSponsorPayment({ name, packageId, packageName, amount
 }
 
 async function bayaniSubmitFollowupPayment({ campaignId, ref }) {
+  if (!BAYANI_PAYMENT_INTAKE_ENABLED) {
+    throw new Error('BayaniHub payment intake is temporarily paused while the business payment channel is verified. Please do not send money or submit payment references yet.');
+  }
   const payload = {
     campaign_id: campaignId,
     amount: 50,
