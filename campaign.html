@@ -34,8 +34,41 @@
   </div>
 </header>
 <div id="content" class="w-full max-w-[900px] mx-auto"><div class="animate-pulse bg-white"><div class="h-[430px] bg-slate-200"></div><div class="p-5 space-y-3"><div class="h-6 bg-slate-200 rounded w-3/4"></div><div class="h-4 bg-slate-200 rounded w-1/2"></div></div></div></div>
+
+<div id="donation-modal" class="hidden fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm overflow-y-auto px-4 py-6" role="dialog" aria-modal="true" aria-labelledby="donation-modal-title">
+  <section class="relative mx-auto max-w-md rounded-3xl bg-white p-5 shadow-2xl">
+    <button id="btn-close-donation" type="button" class="absolute right-3 top-3 w-10 h-10 rounded-full bg-gray-100 text-gray-700 text-xl" aria-label="Close donation window">×</button>
+    <h2 id="donation-modal-title" class="pr-10 text-xl font-extrabold text-slate-900">Donate via InstaPay QR</h2>
+    <p id="donation-campaign-title" class="mt-1 text-sm font-semibold text-teal-800"></p>
+    <p class="mt-2 text-xs leading-5 text-gray-600">Send your donation using a supported Philippine banking app or e-wallet. Before confirming the transfer, verify the recipient name shown by your payment app is <strong>annamabanlag</strong>. This is a manual transfer; BayaniHub does not receive automatic payment confirmation.</p>
+    <div class="my-4 rounded-2xl border border-gray-200 bg-white p-3 text-center">
+      <img src="assets/gcash-qr.svg" alt="BayaniHub InstaPay QR payment code" class="mx-auto w-full max-w-[300px] aspect-square object-contain" width="300" height="300">
+      <a href="assets/gcash-qr.svg" target="_blank" rel="noopener noreferrer" class="mt-2 inline-block text-sm font-semibold text-blue-700 underline">Open QR in a new tab</a>
+    </div>
+    <ol class="mb-4 list-decimal space-y-1 pl-5 text-xs leading-5 text-gray-600">
+      <li>Send the exact amount you enter below.</li>
+      <li>Wait for the payment app to show a successful transfer and save your receipt.</li>
+      <li>Submit the transaction reference below. Your donation remains pending until an admin verifies it.</li>
+    </ol>
+    <form id="donation-form" class="space-y-3">
+      <label class="block text-sm font-semibold text-gray-700">Your name (optional)
+        <input name="donor_name" maxlength="80" autocomplete="name" class="mt-1 w-full rounded-xl border border-gray-200 px-3 py-3 text-sm" placeholder="Anonymous">
+      </label>
+      <label class="block text-sm font-semibold text-gray-700">Donation amount (₱)
+        <input name="amount" type="number" min="1" max="1000000" step="1" inputmode="numeric" required class="mt-1 w-full rounded-xl border border-gray-200 px-3 py-3 text-sm" placeholder="e.g. 500">
+      </label>
+      <label class="block text-sm font-semibold text-gray-700">InstaPay transaction reference
+        <input name="reference" type="text" required minlength="3" maxlength="80" autocomplete="off" autocapitalize="characters" class="mt-1 w-full rounded-xl border border-gray-200 px-3 py-3 text-sm" placeholder="Reference number on your receipt">
+      </label>
+      <p id="donation-status" class="hidden rounded-xl bg-blue-50 p-3 text-sm text-blue-800" role="status" aria-live="polite"></p>
+      <button id="btn-submit-donation" type="submit" class="w-full rounded-xl bg-teal-700 py-3.5 font-bold text-white">Submit for admin verification</button>
+      <p class="text-[10px] leading-4 text-gray-500">Never submit your PIN, OTP, password, or full banking details. Submitting a reference is not proof of confirmed payment.</p>
+    </form>
+  </section>
+</div>
+
 <script src="js/data.js"></script>
-  <script src="js/supabase.js?v=20261017-trust-guard"></script>
+  <script src="js/supabase.js?v=20261017-instapay-audit"></script>
   <script>
     const params = new URLSearchParams(location.search);
     const id = params.get('id');
@@ -231,6 +264,10 @@
           '</div></section>';
       }
 
+      const donationActionHtml = c.status === 'approved' && !c.sample
+        ? '<button type="button" id="btn-open-donation" class="mt-1 w-full rounded-xl bg-teal-700 text-white font-extrabold py-3.5 active:scale-[.99] transition">♡ Donate via InstaPay QR</button><p class="mt-2 text-[11px] leading-5 text-gray-500">Manual bank/e-wallet transfer • Admin verifies every submitted reference • Donation totals update only after confirmation.</p>'
+        : '<div class="rounded-2xl bg-slate-50 border border-slate-200 p-4"><p class="font-bold text-sm text-slate-800">Donations open after campaign approval</p><p class="text-xs text-slate-600 mt-1">This request is not currently accepting donation submissions.</p></div>';
+
       document.getElementById('content').innerHTML = `
         <div class="campaign-page">
           <section class="relative h-[430px] sm:h-[480px] overflow-hidden bg-slate-950">
@@ -272,10 +309,7 @@
           </section>
 
           <section class="px-5 py-4">
-            <div class="rounded-2xl bg-amber-50 border border-amber-200 p-4" role="status" aria-live="polite">
-              <p class="font-extrabold text-sm text-amber-900">Donations are temporarily paused</p>
-              <p class="text-xs text-amber-800 mt-1 leading-relaxed">BayaniHub is verifying its business payment channel. Please do not send money or submit GCash reference numbers through this website until donations are officially re-enabled.</p>
-            </div>
+            ${donationActionHtml}
             <button onclick="shareCampaign()" class="mt-3 w-full rounded-xl bg-blue-600 text-white font-bold py-3.5 active:scale-[.99] transition">↗ Share this campaign</button>
             <a href="help.html" class="mt-2 block w-full text-center rounded-xl border border-brand-200 bg-brand-50 text-brand-800 font-bold py-3">🆘 Get official government help</a>
           </section>
@@ -285,6 +319,57 @@
           
         </div>`;
     }
+
+    document.addEventListener('click', (event) => {
+      if (event.target.closest('#btn-open-donation')) {
+        if (!campaign || campaign.sample || campaign.status !== 'approved') return;
+        const modal = document.getElementById('donation-modal');
+        document.getElementById('donation-campaign-title').textContent = campaign.title || 'Selected campaign';
+        document.getElementById('donation-status').classList.add('hidden');
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+        return;
+      }
+      if (event.target.closest('#btn-close-donation') || event.target.id === 'donation-modal') {
+        document.getElementById('donation-modal').classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+    });
+
+    document.getElementById('donation-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const button = document.getElementById('btn-submit-donation');
+      const status = document.getElementById('donation-status');
+      const data = new FormData(form);
+      const amount = Number(data.get('amount'));
+      const reference = String(data.get('reference') || '').trim();
+      const name = String(data.get('donor_name') || '').trim();
+      if (!campaign || campaign.sample || campaign.status !== 'approved') {
+        status.textContent = 'This campaign is not currently accepting donations.';
+        status.classList.remove('hidden');
+        return;
+      }
+      if (!Number.isSafeInteger(amount) || amount < 1 || amount > 1000000 || reference.length < 3 || reference.length > 80) {
+        status.textContent = 'Please check the donation amount and transaction reference.';
+        status.classList.remove('hidden');
+        return;
+      }
+      button.disabled = true;
+      button.textContent = 'Submitting…';
+      status.textContent = 'Sending your reference for admin review…';
+      status.classList.remove('hidden');
+      try {
+        await BayaniCloud.submitDonation({ campaignId: campaign.id, name, amount, ref: reference });
+        status.textContent = 'Submitted for admin verification. Keep your receipt. Your donation is not counted until an admin confirms the successful transfer.';
+        form.reset();
+      } catch (err) {
+        status.textContent = err?.message || 'Could not submit this reference. Please try again.';
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Submit for admin verification';
+      }
+    });
 
     async function copyCampaignLink() { try { await navigator.clipboard.writeText(location.href); alert("Campaign link copied."); } catch (_) { alert(location.href); } }
 
