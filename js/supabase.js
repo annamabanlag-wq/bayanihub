@@ -411,16 +411,6 @@ async function bayaniAdminUpdateCampaign(id, changes) {
   });
 }
 
-async function bayaniAdminRejectDonation(id, note = '') {
-  return bayaniAuthFetch('rpc/bayani_admin_reject_donation', {
-    method: 'POST',
-    body: JSON.stringify({
-      p_donation_id: id,
-      p_note: String(note || '').trim() || null
-    })
-  });
-}
-
 async function bayaniAdminConfirmDonation(id) {
   return bayaniAuthFetch('rpc/bayani_admin_confirm_donation', {
     method: 'POST',
@@ -535,7 +525,6 @@ window.BayaniCloud = {
   adminConfirmDonation: bayaniAdminConfirmDonation,
   adminListPayouts: bayaniAdminListPayouts,
   adminRecordPayout: bayaniAdminRecordPayout,
-  adminRejectDonation: bayaniAdminRejectDonation,
   submitSponsorPayment: bayaniSubmitSponsorPayment,
   adminListSponsors: bayaniAdminListSponsors,
   adminReviewSponsor: bayaniAdminReviewSponsor,
