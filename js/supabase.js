@@ -332,8 +332,14 @@ async function bayaniSignOut() {
 }
 
 async function bayaniCheckAdmin() {
-  const rows = await bayaniAuthFetch('admin_users?select=user_id&limit=1', { method: 'GET' });
-  return Array.isArray(rows) && rows.length > 0;
+  // Use a narrowly scoped authenticated RPC instead of relying on a direct
+  // admin_users table read during login. This returns only the current user's
+  // admin flag and never exposes other admin account IDs.
+  const result = await bayaniAuthFetch('rpc/bayani_is_admin', {
+    method: 'POST',
+    body: JSON.stringify({})
+  });
+  return result === true || result?.is_admin === true || result?.bayani_is_admin === true;
 }
 
 async function bayaniBootstrapAdmin(setupToken) {
